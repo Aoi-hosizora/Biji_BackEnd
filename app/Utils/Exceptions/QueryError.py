@@ -7,6 +7,6 @@ class QueryError(Exception):
 
     def __str__(self):
         if not len(self.args) == 0:
-            return "Request query params error, arg %s not found or null" % self.keys
+            return "Request query params error, arg %s not found or error" % list(self.args)
         else:
             return "Request query params error."

@@ -1,17 +1,39 @@
 from app.Database.NoteDAO import NoteDAO
 
 from app.Modules.Note.Models.Note import Note
+from app.Modules.Note.Exceptions.NoteNotExistError import NoteNotExistError
+from app.Modules.Note.Exceptions.NoteUpdateError import NoteUpdateError
+from app.Modules.Note.Exceptions.NoteInsertError import NoteInsertError
+from app.Modules.Note.Exceptions.NoteDeleteError import NoteDeleteError
 
 def getAllNotes(username: str) -> []:
     noteDao = NoteDAO()
-    rets = noteDao.queryUserAllNotes(username)
-    sets = []
-    for ret in rets:
-        note = Note(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
-        sets.append(note)
-    return sets
+    return noteDao.queryUserAllNotes(username)
 
 def getOneNote(username: str, id: int) -> {}:
     noteDao = NoteDAO()
-    rets = noteDao.queryUserOneNote(username, id)
-    return Note(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+    ret = noteDao.queryUserOneNote(username, id)
+    if ret == None:
+        raise NoteNotExistError(id)
+    return ret
+
+def updateNote(username: str, note: Note) -> bool:
+    noteDao = NoteDAO()
+    if noteDao.updateUserNote(username, note):
+        return True
+    else:
+        raise NoteUpdateError(note.id)
+
+def insertNote(username: str, note: Note) -> bool:
+    noteDao = NoteDAO()
+    if noteDao.insertUserNote(username, note):
+        return True
+    else:
+        raise NoteInsertError(note.title)
+
+def deleteNote(username: str, note: Note) -> bool:
+    noteDao = NoteDAO()
+    if noteDao.deleteUserNote(username, note):
+        return True
+    else:
+        raise NoteDeleteError(note.title)

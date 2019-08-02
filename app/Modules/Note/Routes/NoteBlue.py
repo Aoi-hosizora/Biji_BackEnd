@@ -1,5 +1,6 @@
 from app.Utils import ErrorUtil, RespUtil, PassUtil
 from app.Models.Message import Message
+from app.Utils.Exceptions.PostFormKeyError import PostFormKeyError
 from app.Utils.Exceptions.QueryError import QueryError
 
 from app.Modules.Note.Controllers import NoteCtrl
@@ -26,11 +27,85 @@ def AllNoteRoute():
 def OneNoteRoute():
     username = RespUtil.getAuthUser(request.headers)
     id = request.args.get('id')
-    if id == None:
-        raise QueryError(['id'])
+    try:
+        id = int(id)
+    except:
+        raise QueryError(list(['id']))
         
-    notes = NoteCtrl.getOneNote(username=username)
+    notes = NoteCtrl.getOneNote(username=username, id=id)
     return RespUtil.jsonRet(
-        dict=Note.toJsonSet(notes), 
+        dict=notes.toJson(), 
+        code=ErrorUtil.Success
+    )
+
+@blue_Note.route("/update", methods=['Post'])
+def UpdateNoteRoute():
+    username = RespUtil.getAuthUser(request.headers)
+    try:
+        postjson = json.loads(request.get_data(as_text=True))
+
+        keys = ['id', 'title', 'content', 'group_id', 'create_time', 'update_time']
+        nonePostKeys = [
+            key for key in keys
+            if key not in postjson or postjson[key] == None
+        ]
+        if not len(nonePostKeys) == 0:
+            raise(PostFormKeyError(nonePostKeys))
+
+        note = Note(*[postjson[key] for key in keys])
+    except:
+        raise PostFormKeyError()
+
+    NoteCtrl.updateNote(username=username, note=note)
+    return RespUtil.jsonRet(
+        dict=note.toJson(), 
+        code=ErrorUtil.Success
+    )
+
+@blue_Note.route("/insert", methods=['Put'])
+def InsertNoteRoute():
+    username = RespUtil.getAuthUser(request.headers)
+    try:
+        postjson = json.loads(request.get_data(as_text=True))
+
+        keys = ['id', 'title', 'content', 'group_id', 'create_time', 'update_time']
+        nonePostKeys = [
+            key for key in keys
+            if key not in postjson or postjson[key] == None
+        ]
+        if not len(nonePostKeys) == 0:
+            raise(PostFormKeyError(nonePostKeys))
+
+        note = Note(*[postjson[key] for key in keys])
+    except:
+        raise PostFormKeyError()
+
+    NoteCtrl.insertNote(username=username, note=note)
+    return RespUtil.jsonRet(
+        dict=note.toJson(), 
+        code=ErrorUtil.Success
+    )
+
+@blue_Note.route("/delete", methods=['Delete'])
+def DeleteNoteRoute():
+    username = RespUtil.getAuthUser(request.headers)
+    try:
+        postjson = json.loads(request.get_data(as_text=True))
+
+        keys = ['id', 'title', 'content', 'group_id', 'create_time', 'update_time']
+        nonePostKeys = [
+            key for key in keys
+            if key not in postjson or postjson[key] == None
+        ]
+        if not len(nonePostKeys) == 0:
+            raise(PostFormKeyError(nonePostKeys))
+
+        note = Note(*[postjson[key] for key in keys])
+    except:
+        raise PostFormKeyError()
+
+    NoteCtrl.deleteNote(username=username, note=note)
+    return RespUtil.jsonRet(
+        dict=note.toJson(), 
         code=ErrorUtil.Success
     )

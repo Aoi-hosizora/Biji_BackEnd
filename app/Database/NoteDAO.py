@@ -1,6 +1,10 @@
 from app.Utils import PassUtil
 from app.Config import Config
 
+from app.Modules.Note.Models.Note import Note
+from app.Modules.Note.Exceptions.NoteNotExistError import NoteNotExistError
+from app.Modules.Note.Exceptions.NoteExistError import NoteExistError
+
 import datetime
 import pymysql
 
@@ -59,32 +63,55 @@ class NoteDAO(object):
                 self.db.rollback()
                 return False
     
-    def queryUserAllNotes(self, username: str):
+    def queryUserAllNotes(self, username: str) -> [Note]:
         '''
         查询表中用户的所有笔记
         '''
         self.cursor.execute("SELECT * FROM {} WHERE {} = '{}'".format(self.tbl_name,
             self.col_username, username
         ))
-        return self.cursor.fetchall()
+        sets = []
+        rets = self.cursor.fetchall()
+        try:
+            for ret in rets:
+                note = Note(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+                sets.append(note)
+            return sets
+        except:
+            return None
     
     def queryUserOneNote(self, username: str, id: int):
         '''
         查询表中用户的指定笔记
         '''
-        self.cursor.execute("SELECT * FROM {} WHERE {} == '{}' AND {} == '{}'".format(self.tbl_name,
+        self.cursor.execute("SELECT * FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,
             self.col_username, username, self.col_id, id
         ))
-        return self.cursor.fetchall()
+        ret = self.cursor.fetchone()
+        try:
+            note = Note(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+            return note
+        except:
+            return None
     
-    def updateUserNote(self, username: str, id: int, title: str, content: str, groupid: str, create_time: datetime, update_time: datetime) -> bool:
+    def updateUserNote(self, username: str, note: Note) -> bool:
         '''
         对数据库中用户的指定笔记更新
         '''
+        if self.queryUserOneNote(username, note.id) == None:
+            raise NoteNotExistError(note.title)
+
         try:
+            id = note.id
+            title = note.title
+            content = note.content
+            groupid = note.group_id
+            create_time = note.create_time
+            update_time = note.update_time
+
             self.cursor.execute("""UPDATE {}
-                SET {} = '{}', {} = '{}', {} = '{}', {} = '{}', {} = '{}'
-                WHERE {} == '{}' AND {} == '{}'""".format(self.tbl_name,
+                SET {} = '{}', {} = '{}', {} = {}, {} = '{}', {} = '{}'
+                WHERE {} = '{}' AND {} = {}""".format(self.tbl_name,
                     self.col_title, title, self.col_content, content, self.col_groupid, groupid,
                     self.col_create_time, create_time, self.col_update_time, update_time,
                     self.col_username, username, self.col_id, id
@@ -96,35 +123,51 @@ class NoteDAO(object):
             self.db.rollback()
             return False
 
-
-    def insertUserNote(self, username: str, id: int, title: str, content: str, groupid: str, create_time: datetime, update_time: datetime) -> bool:
+    def insertUserNote(self, username: str, note: Note) -> bool:
         '''
         往数据库添加用户的新笔记
         '''
+        if not self.queryUserOneNote(username, note.id) == None:
+            raise NoteExistError(note.title)
+
         try:
+            id = note.id
+            title = note.title
+            content = note.content
+            groupid = note.group_id
+            create_time = note.create_time
+            update_time = note.update_time
+
             self.cursor.execute("""INSERT INTO {}
                 ({}, {}, {}, {}, {}, {}, {})
-                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}')""".format(self.tbl_name,
+                VALUES ('{}', {}, '{}', '{}', {}, '{}', '{}')""".format(self.tbl_name,
                     self.col_username, self.col_id, self.col_title, self.col_content,
                     self.col_groupid, self.col_create_time, self.col_update_time,
                     username, id, title, content, groupid, create_time, update_time
                 )
             )
             self.db.commit()
+            if self.queryUserOneNote(username, note.id) == None:
+                return False
             return True
         except:
             self.db.rollback()
             return False
     
-    def deleteUserNote(self, username: str, id: int) -> bool:
+    def deleteUserNote(self, username: str, note: Note) -> bool:
         '''
         删除用户的某条笔记
         '''
+        if self.queryUserOneNote(username, note.id) == None:
+            raise NoteNotExistError(note.title)
+
         try:
-            self.cursor.execute("DELETE FROM {} WHERE {} == '{}' AND {} == {}".format(self.tbl_name,
-                self.col_username, username, self.col_id, id
+            self.cursor.execute("DELETE FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,
+                self.col_username, username, self.col_id, note.id
             ))
             self.db.commit()
+            if not self.queryUserOneNote(username, note.id) == None:
+                return False
             return True
         except:
             self.db.rollback()

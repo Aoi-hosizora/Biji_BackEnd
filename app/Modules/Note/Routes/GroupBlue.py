@@ -1,8 +1,6 @@
 from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
 
-from app.Modules.Note.Exceptions.NoteError import NoteError
-
 from app.Modules.Note.Controllers import NoteCtrl, GroupCtrl
 
 from flask import Blueprint, request
