@@ -13,6 +13,10 @@
 
 + Nothing
 
+## Request Query Param
+
++ Nothing
+
 ## Request Body
 
 + `POST /auth/register`

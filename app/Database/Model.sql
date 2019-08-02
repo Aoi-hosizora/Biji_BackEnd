@@ -33,3 +33,13 @@ CREATE TABLE `tbl_group` (
   `COLOR` varchar(10) NOT NULL,
   PRIMARY KEY (`USERNAME`,`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+-- tbl: tbl_star
+
+CREATE TABLE `tbl_star` (
+  `USERNAME` varchar(30) NOT NULL,
+  `TITLE` varchar(100) NOT NULL,
+  `URL` varchar(200) NOT NULL,
+  `CONTENT` varchar(200) NOT NULL,
+  PRIMARY KEY (`USERNAME`,`URL`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8

@@ -23,7 +23,7 @@
 
 ## Request Header
 
-+ Global
++ Global (Except `GET /note/img/blob/<usr>/<img>`)
 
 |Key|Is Required|Description|
 |--|--|--|

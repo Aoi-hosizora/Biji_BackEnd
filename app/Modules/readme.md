@@ -1,10 +1,15 @@
 # Public Server Api
 
-### Status Code
+## Modules API Document
++ Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
++ Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
++ Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
+
+## Status Code
 
 + Error code see [ErrorUtil.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Utils/ErrorUtil.py)
 
-### Public Error Response
+## Public Error Response
 
 |Field|Type|Description|
 |--|--|--|
@@ -15,12 +20,12 @@
 
 ```json
 {
-    "message": "Login Timeout",
-    "detail": "User login timeout"
+    "message": "Body Json Error",
+    "detail": "Body: json key-value error, key ['title', 'url'] not found or error"
 }
 ```
 
-### Public Error Message
+## Public Error Message
 
 |Message|Description|
 |--|--|

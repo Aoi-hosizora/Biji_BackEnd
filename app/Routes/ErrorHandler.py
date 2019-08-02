@@ -4,6 +4,7 @@ from app.Models.Message import Message
 from app.Routes.GlobalErrorHandle import register_global_error_handler
 from app.Modules import Auth
 from app.Modules import Note
+from app.Modules import Star
 
 from flask.app import Flask
 
@@ -35,6 +36,7 @@ def register_error_forward(app: Flask):
         glob = register_global_error_handler(error)
         auth = Auth.forward_auth_error(error)
         note = Note.forward_note_error(error)
+        star = Star.forward_star_error(error)
 
         if not glob == None:
             return glob
@@ -42,6 +44,8 @@ def register_error_forward(app: Flask):
             return auth
         elif not note == None:
             return note
+        elif not star == None:
+            return star
         else:
             return RespUtil.jsonRet(
                 dict=ErrorUtil.getErrorMessageJson(error=error, title="Internal Server Error"),

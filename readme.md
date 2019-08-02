@@ -21,6 +21,16 @@ python3 listen.py
 
 ### Structure
 
+```
+.
+│  listen.py    -> Main Program
+├─app
+│  ├─Config     -> Some Config
+│  └─ ...
+└─usr           -> User Files
+    └─img       -> Notes Image
+```
+
 ### Db Model
 + MySQL Models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Database/Model.sql)
 
@@ -28,3 +38,4 @@ python3 listen.py
 + Public doc see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
 + Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
++ Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)

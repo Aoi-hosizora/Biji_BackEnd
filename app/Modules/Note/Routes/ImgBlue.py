@@ -37,7 +37,7 @@ def GetImgRoute(usr: str, img: str):
     '''
     查看图片路由处理 `GET /blob/<usr>/<img>`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    # username = RespUtil.getAuthUser(request.headers)
     image = ImgCtrl.getUserImg(usr, img)
     return RespUtil.jsonRet(
         isImg=True,
