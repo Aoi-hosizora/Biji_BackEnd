@@ -1,5 +1,12 @@
 # Note Module Server Api
 
+## Revision
+
+|Date|Remark|
+|--|--|
+|`2019/08/02`|Complete note module|
+|`2019/08/03`|Add `ImgBlue`|
+
 ## URI
 
 |Method|Uri|Description|

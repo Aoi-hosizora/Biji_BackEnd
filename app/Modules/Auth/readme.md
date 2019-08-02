@@ -1,5 +1,11 @@
 # Auth Module Server Api
 
+## Revision
+
+|Date|Remark|
+|--|--|
+|`2019/08/02`|Complete Auth Module|
+
 ## URI
 
 |Method|Uri|Description|

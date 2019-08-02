@@ -5,6 +5,12 @@
 + Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
 + Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
 
+## Revision
+
+|Date|Remark|
+|--|--|
+|`2019/08/02`|Complete project structure & global error msg|
+
 ## Status Code
 
 + Error code see [ErrorUtil.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Utils/ErrorUtil.py)

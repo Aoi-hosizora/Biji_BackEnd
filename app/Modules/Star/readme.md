@@ -1,5 +1,11 @@
 # Star Module Server Api
 
+## Revision
+
+|Date|Remark|
+|--|--|
+|`2019/08/03`|Complete star module|
+
 ## URI
 
 |Method|Uri|Description|

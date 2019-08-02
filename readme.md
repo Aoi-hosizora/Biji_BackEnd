@@ -4,6 +4,7 @@
 ### Modules
 + [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
++ [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
 
 ### Environment
 + `Flask` 1.0.2
@@ -16,7 +17,8 @@
 ### Run
 
 ```bash
-python3 listen.py
+# Modify config in ./app/Config/Config.py
+python3 ./listen.py
 ```
 
 ### Structure
@@ -24,9 +26,13 @@ python3 listen.py
 ```
 .
 │  listen.py    -> Main Program
-├─app
+├─app           
 │  ├─Config     -> Some Config
-│  └─ ...
+│  ├─Modules    
+│  │  ├─Auth    -> Auth Module
+│  │  ├─Note    -> Note Module
+│  │  └─Star    -> Star Module
+│  └─ ...       
 └─usr           -> User Files
     └─img       -> Notes Image
 ```
