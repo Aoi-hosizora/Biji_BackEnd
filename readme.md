@@ -19,6 +19,8 @@
 python3 listen.py
 ```
 
+### Structure
+
 ### Db Model
 + MySQL Models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Database/Model.sql)
 

@@ -7,13 +7,13 @@
 |POST|`/auth/register`|Register an unexisting user \*|
 |POST|`/auth/login`|Login as an existing user \*|
 
-[\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md#request-body-json)
+[\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md#request-body)
 
 ## Request Header
 
 + Nothing
 
-## Request Body (JSON)
+## Request Body
 
 + `POST /auth/register`
 
@@ -59,7 +59,7 @@ Example:
 |--|--|
 |`Authorization`|Return User Login Token|
 
-## Response Body (JSON)
+## Response Body
 
 + `POST /auth/login`
 + `POST /auth/register`

@@ -14,10 +14,12 @@
 |`POST`|`/group/update`|Update group content \*\*|
 |`PUT`|`/group/insert`|Add a new group \*\*|
 |`DELETE`|`/group/delete`|Delete an old group \*\*|
+|`POST`|`/note/img`|Upload user note image \*\*|
+|`GET`|`/note/img/blob/<usr>/<img>`|Download user note image|
 
 [\* Need request query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-query-param)
 
-[\*\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body-json)
+[\*\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
 
 ## Request Header
 
@@ -41,7 +43,7 @@
 |--|--|--|--|--|
 |`id`|`int`|Required|Queried group id||
 
-## Request Body (JSON)
+## Request Body
 
 + `POST /note/update`
 + `PUT /note/insert`
@@ -91,19 +93,58 @@ Example:
 }
 ```
 
++ `POST /note/img`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`noteimg`|`File`|Required|Image File|Only support `jpg, png, 'jpeg, bmp`|
+
 ## Response Header
 
-+ Nothing
++ `GET /note/img/blob/<usr>/<img>`
 
-## Response Body (JSON)
+|Key|Description|
+|--|--|
+|`Content-Type`|`image/png`|
+
+
+## Response Body
 
 + `GET /note/all`
 + `GET /group/all`
     + Array
-    + Content is same as [request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body-json)
+    + Content is same as [request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
 
-+ Others (Include `/note` and `/group`)
-    + Same as [request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body-json)
++ `POST /note/update`
++ `PUT /note/insert`
++ `DELETE /note/delete`
++ `POST /group/update`
++ `PUT /group/insert`
++ `DELETE /group/delete`
+    + Same as [request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
+
++ `POST /note/img`
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`message`|`string`|Upload status||
+|`detail`|`string`|Group Name|New filename, please update note content|
+
+Example:
+
+```json
+{
+    "message": "Image upload success",
+    "detail": "2019080223044764.png"
+}
+```
+
++ `GET /note/img/blob/<usr>/<img>`
+    + Response an Image as `image/png`
+
+Example: `GET /note/img/blob/aoihosizora/2019080223044764.png`
+
+
 
 ## Error Message Type
 
@@ -116,3 +157,6 @@ Example:
 |`Insert Error`|Insert into database error|
 |`Update Error`|Update database error|
 |`Delete Error`|Delete from database error|
+|`Image Upload Error`|Image not exist or upload error|
+|`Image Type Error`|Image type is not supported|
+|`Image Not Exist Error`|Image type not exist|

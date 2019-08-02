@@ -19,6 +19,7 @@ def setup(app: app.Flask):
 
     # Config
     app.config['JSON_AS_ASCII'] = False
+    app.config['UPLOAD_FOLDER'] = "./usr/"
     app.config['SECRET_KEY'] = "$$AOI@@HOSI^^ZORA##"
     Config.SecretKey = app.config['SECRET_KEY']
     

@@ -1,4 +1,4 @@
-from flask import Response
+from flask import Response, make_response
 import json
 
 from app.Database.TokenDAO import TokenDAO
@@ -6,14 +6,17 @@ from app.Modules.Auth.Exceptions.LoginError import LoginError
 from app.Utils.Exceptions.AuthNoneError import AuthNoneError
 from app.Utils import PassUtil
 
-def jsonRet(dict, code, headers={}):
+def jsonRet(dict, code, headers={}, isImg=False):
     '''
     处理响应内容 状态码及除了跨域以外的响应头
     '''
-    resp = Response(
-        json.dumps(obj=dict, indent=4, ensure_ascii=False).encode("utf-8"), 
-        mimetype='application/json'
-    )
+    if not isImg:
+        resp = Response(
+            json.dumps(obj=dict, indent=4, ensure_ascii=False).encode("utf-8"), 
+            mimetype='application/json'
+        )
+    else:
+        resp = make_response(dict)
 
     for k, v in headers.items():
         resp.headers[k] = v
