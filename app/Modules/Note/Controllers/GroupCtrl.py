@@ -1,9 +1,80 @@
 from app.Database.GroupDAO import GroupDAO
+from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
 
-def test(username: str) -> []:
-    groupDao = GroupDAO()
-    print(groupDao.queryUserAllNotes(username))
-    return [
-        {"user" : username},
-        {"name" : username},
+from app.Modules.Note.Models.Group import Group
+from app.Modules.Note.Exceptions.NotExistError import NotExistError
+from app.Modules.Note.Exceptions.UpdateError import UpdateError
+from app.Modules.Note.Exceptions.InsertError import InsertError
+from app.Modules.Note.Exceptions.DeleteError import DeleteError
+
+import json
+
+def getGroupFromReqData(reqdata: str) -> Group:
+    '''
+    从 Req 的 headers 中获取 Group
+
+    `getNoteFromReqData(request.headers)`
+    '''
+    try:
+        postjson = json.loads(reqdata)
+    except:
+        raise BodyRawJsonError()
+
+    keys = ['id', 'name', 'order', 'color']
+    nonePostKeys = [
+        key for key in keys
+        if key not in postjson or postjson[key] == None
     ]
+    if not len(nonePostKeys) == 0:
+        raise(BodyRawJsonError(nonePostKeys))
+    try:
+        return Group(*[postjson[key] for key in keys])
+    except:
+        raise BodyRawJsonError()
+
+def getAllGroups(username: str) -> [Group]:
+    '''
+    查询所有分组
+    '''
+    groupDao = GroupDAO()
+    return groupDao.queryUserAllGroups(username)
+
+def getOneGroup(username: str, id: int) -> Group:
+    '''
+    查询一个分组
+    '''
+    groupDao = GroupDAO()
+    ret = groupDao.queryUserOneGroup(username, id)
+    if ret == None:
+        raise NotExistError(id, isNote=False)
+    return ret
+
+def updateGroup(username: str, group: Group) -> bool:
+    '''
+    更新一个旧分组
+    '''
+    groupDao = GroupDAO()
+    if groupDao.updateUserGroup(username, group):
+        return True
+    else:
+        raise UpdateError(group.id, isNote=False)
+        
+def insertGroup(username: str, group: Group) -> bool:
+    '''
+    插入一个旧分组
+    '''
+    groupDao = GroupDAO()
+    if groupDao.insertUserGroup(username, group):
+        return True
+    else:
+        raise InsertError(group.name, isNote=False)
+
+def deleteGroup(username: str, group: Group) -> bool:
+    '''
+    删除一个旧分组
+    '''
+    groupDao = GroupDAO()
+    if groupDao.deleteUserGroup(username, group):
+        return True
+    else:
+        raise DeleteError(group.name, isNote=False)

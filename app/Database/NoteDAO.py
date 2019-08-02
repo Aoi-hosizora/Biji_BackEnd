@@ -2,8 +2,8 @@ from app.Utils import PassUtil
 from app.Config import Config
 
 from app.Modules.Note.Models.Note import Note
-from app.Modules.Note.Exceptions.NoteNotExistError import NoteNotExistError
-from app.Modules.Note.Exceptions.NoteExistError import NoteExistError
+from app.Modules.Note.Exceptions.NotExistError import NotExistError
+from app.Modules.Note.Exceptions.ExistError import ExistError
 
 import datetime
 import pymysql
@@ -26,7 +26,7 @@ class NoteDAO(object):
             port=Config.MySQL_Port,
             user=Config.MySQL_User,
             passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Tbl,
+            db=Config.MySQL_Db,
             charset='utf8'
         )
         self.cursor = self.db.cursor()
@@ -72,14 +72,14 @@ class NoteDAO(object):
         ))
         sets = []
         rets = self.cursor.fetchall()
-        try:
-            for ret in rets:
+        for ret in rets: 
+            try:
                 note = Note(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
                 sets.append(note)
-            return sets
-        except:
-            return None
-    
+            except:
+                pass
+        return sets
+        
     def queryUserOneNote(self, username: str, id: int):
         '''
         查询表中用户的指定笔记
@@ -99,7 +99,7 @@ class NoteDAO(object):
         对数据库中用户的指定笔记更新
         '''
         if self.queryUserOneNote(username, note.id) == None:
-            raise NoteNotExistError(note.title)
+            raise NotExistError(note.title)
 
         try:
             id = note.id
@@ -128,7 +128,7 @@ class NoteDAO(object):
         往数据库添加用户的新笔记
         '''
         if not self.queryUserOneNote(username, note.id) == None:
-            raise NoteExistError(note.title)
+            raise ExistError(note.title)
 
         try:
             id = note.id
@@ -159,7 +159,7 @@ class NoteDAO(object):
         删除用户的某条笔记
         '''
         if self.queryUserOneNote(username, note.id) == None:
-            raise NoteNotExistError(note.title)
+            raise NotExistError(note.title)
 
         try:
             self.cursor.execute("DELETE FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,

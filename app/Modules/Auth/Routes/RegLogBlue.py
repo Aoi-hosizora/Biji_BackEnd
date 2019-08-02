@@ -1,6 +1,6 @@
 from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
-from app.Utils.Exceptions.PostFormKeyError import PostFormKeyError
+from app.Utils.Exceptions.BodyFormKeyError import BodyFormKeyError
 
 from app.Modules.Auth.Exceptions.RegisterError import RegisterError
 from app.Modules.Auth.Exceptions.LoginError import LoginError
@@ -30,14 +30,14 @@ def LoginRoute():
     try:
         postjson = json.loads(request.get_data(as_text=True))
     except:
-        raise PostFormKeyError()
+        raise BodyFormKeyError()
 
     nonePostKeys = [
         key for key in ['username', 'password']
         if key not in postjson or postjson[key] == None or str.strip(postjson[key]) == ""
     ]
     if not len(nonePostKeys) == 0:
-        raise(PostFormKeyError(nonePostKeys))
+        raise(BodyFormKeyError(nonePostKeys))
         
     username = str.strip(postjson['username'])
     password = str.strip(postjson['password'])
@@ -64,14 +64,14 @@ def RegisterRoute():
     try:
         postjson = json.loads(request.get_data(as_text=True))
     except:
-        raise PostFormKeyError()
+        raise BodyFormKeyError()
 
     nonePostKeys = [
         key for key in ['username', 'password']
         if key not in postjson or postjson[key] == None or str.strip(postjson[key]) == ""
     ]
     if not len(nonePostKeys) == 0:
-        raise(PostFormKeyError(nonePostKeys))
+        raise(BodyFormKeyError(nonePostKeys))
         
     username = str.strip(postjson['username'])
     password = str.strip(postjson['password'])

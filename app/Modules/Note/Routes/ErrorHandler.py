@@ -1,38 +1,38 @@
 from app.Utils import RespUtil, ErrorUtil
 
-from app.Modules.Note.Exceptions.NoteNotExistError import NoteNotExistError
-from app.Modules.Note.Exceptions.NoteUpdateError import NoteUpdateError
-from app.Modules.Note.Exceptions.NoteInsertError import NoteInsertError
-from app.Modules.Note.Exceptions.NoteDeleteError import NoteDeleteError
-from app.Modules.Note.Exceptions.NoteExistError import NoteExistError
+from app.Modules.Note.Exceptions.NotExistError import NotExistError
+from app.Modules.Note.Exceptions.UpdateError import UpdateError
+from app.Modules.Note.Exceptions.InsertError import InsertError
+from app.Modules.Note.Exceptions.DeleteError import DeleteError
+from app.Modules.Note.Exceptions.ExistError import ExistError
 
 def register_note_error_handler(error: TypeError):
     '''
     Note 模块的错误处理
     '''
-    if isinstance(error, NoteNotExistError):
+    if isinstance(error, NotExistError):
         return RespUtil.jsonRet(
-            dict=ErrorUtil.getErrorMessageJson(error=error, title="Note Not Exist Error"),
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Not Exist Error"),
             code=ErrorUtil.NotFound
         )
-    elif isinstance(error, NoteUpdateError):
+    elif isinstance(error, UpdateError):
         return RespUtil.jsonRet(
-            dict=ErrorUtil.getErrorMessageJson(error=error, title="Note Update Error"),
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Update Error"),
             code=ErrorUtil.NotFound
         )
-    elif isinstance(error, NoteExistError):
+    elif isinstance(error, ExistError):
         return RespUtil.jsonRet(
-            dict=ErrorUtil.getErrorMessageJson(error=error, title="Note Exist Error"),
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Exist Error"),
             code=ErrorUtil.NotFound
         )
-    elif isinstance(error, NoteInsertError):
+    elif isinstance(error, InsertError):
         return RespUtil.jsonRet(
-            dict=ErrorUtil.getErrorMessageJson(error=error, title="Note Insert Error"),
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Insert Error"),
             code=ErrorUtil.NotFound
         )
-    elif isinstance(error, NoteDeleteError):
+    elif isinstance(error, DeleteError):
         return RespUtil.jsonRet(
-            dict=ErrorUtil.getErrorMessageJson(error=error, title="Note Delete Error"),
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Delete Error"),
             code=ErrorUtil.NotFound
         )
     else:

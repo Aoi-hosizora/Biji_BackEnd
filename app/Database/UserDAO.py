@@ -15,7 +15,7 @@ class UserDAO(object):
             port=Config.MySQL_Port,
             user=Config.MySQL_User,
             passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Tbl,
+            db=Config.MySQL_Db,
             charset='utf8'
         )
         self.cursor = self.db.cursor()

@@ -15,7 +15,7 @@ MySQL_Host = 'localhost'
 MySQL_Port = 3366
 MySQL_User = 'root'
 MySQL_Pass = '123'
-MySQL_Tbl = 'test'
+MySQL_Db = 'test'
 
 # Redis Config
 Redis_Host = 'localhost'

@@ -2,9 +2,9 @@ import datetime
 
 class Group(object):
     def __init__(self, id: int, name: str, order: int, color: str):
-        self.id = id
+        self.id = int(id)
         self.name = name
-        self.order = order
+        self.order = int(order)
         self.color = color
     
     def toJson(self):
@@ -14,3 +14,10 @@ class Group(object):
             'order': self.order,
             'color': self.color
         }
+    
+    @staticmethod
+    def toJsonSet(groups):
+        sets = []
+        for note in groups:
+            sets.append(note.toJson())
+        return sets
