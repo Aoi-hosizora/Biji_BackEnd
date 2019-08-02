@@ -28,7 +28,7 @@ def setup(app: app.Flask):
     # Error Forward
     register_error_forward(app=app)
 
+# nginx + uwsgi + flask + blueprint
+setup(FlaskApp)
 if __name__ == "__main__":
-    setup(FlaskApp)
-
     FlaskApp.run(host=host, port=port)

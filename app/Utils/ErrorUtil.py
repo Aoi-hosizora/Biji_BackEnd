@@ -7,9 +7,9 @@ MethodNotAllowed = 405
 Forbidden = 403
 BadRequest = 400
 
-# RegisterError NotAcceptable
+# RegisterError
 NotAcceptable = 406
-# LoginError UnAuthorized
+# LoginError
 UnAuthorized = 401
 
 def getErrorDetail(error: TypeError) -> str:

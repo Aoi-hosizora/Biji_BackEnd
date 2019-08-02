@@ -1,6 +1,6 @@
 from app.Utils import RespUtil, ErrorUtil
 
-from app.Modules.Auth.Exceptions.PostFormKeyError import PostFormKeyError
+from app.Modules.Auth.Exceptions.AuthNoneError import AuthNoneError
 from app.Modules.Auth.Exceptions.RegisterError import RegisterError
 from app.Modules.Auth.Exceptions.UserExistError import UserExistError
 from app.Modules.Auth.Exceptions.UserNotExistError import UserNotExistError
@@ -13,10 +13,10 @@ def register_auth_error_handler(error: TypeError):
     '''
     Auth 模块的错误处理
     '''
-    if isinstance(error, PostFormKeyError): # Post 参数错误
+    if isinstance(error, AuthNoneError): # 没有认证头
         return RespUtil.jsonRet(
-            dict=ErrorUtil.getErrorMessageJson(error=error, title="Post Form Key Error"),
-            code=ErrorUtil.BadRequest
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Auth Token Error"),
+            code=ErrorUtil.UnAuthorized
         )
     ###############################################################################################
     elif isinstance(error, RegisterError): # 注册失败

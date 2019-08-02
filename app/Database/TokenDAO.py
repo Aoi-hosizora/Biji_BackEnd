@@ -44,12 +44,14 @@ class TokenDAO(object):
         self._removeExItem()
 
     def checkToken(self, token: str) -> bool:
-        self._removeExItem()
+        ret = False
         for objstr in self.db.zscan(self.tbl_token)[1]:
             s = json.loads(objstr[0])
             if s['token'] == token:
-                return True
-        return False
+                ret = True
+                break
+        self._removeExItem()
+        return ret
 
     def _removeExItem(self):
         '''

@@ -1,6 +1,6 @@
 class LoginError(Exception):
     '''
-    登录密码错误
+    登录错误
     '''
     def __init__(self, username: str = ""):
         self.username = username

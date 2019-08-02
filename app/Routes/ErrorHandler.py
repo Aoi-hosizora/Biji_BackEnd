@@ -1,6 +1,7 @@
 from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
 
+from app.Routes.GlobalErrorHandle import register_global_error_handler
 from app.Modules import Auth
 from app.Modules import Note
 
@@ -31,15 +32,18 @@ def register_error_forward(app: Flask):
         500 Error Forwarding
         '''
 
+        glob = register_global_error_handler(error)
         auth = Auth.forward_auth_error(error)
-        if not auth == None:
+        note = Note.forward_note_error(error)
+
+        if not glob == None:
+            return glob
+        elif not auth == None:
             return auth
+        elif not note == None:
+            return note
         else:
-            note = Note.forward_note_error(error)
-            if not note == None:
-                return note
-            else:
-                return RespUtil.jsonRet(
-                    dict=ErrorUtil.getErrorMessageJson(error=error, title="Internal Server Error"),
-                    code=ErrorUtil.InternalServerError
-                )
+            return RespUtil.jsonRet(
+                dict=ErrorUtil.getErrorMessageJson(error=error, title="Internal Server Error"),
+                code=ErrorUtil.InternalServerError
+            )

@@ -1,7 +1,7 @@
 from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
+from app.Utils.Exceptions.PostFormKeyError import PostFormKeyError
 
-from app.Modules.Auth.Exceptions.PostFormKeyError import PostFormKeyError
 from app.Modules.Auth.Exceptions.RegisterError import RegisterError
 from app.Modules.Auth.Exceptions.LoginError import LoginError
 
