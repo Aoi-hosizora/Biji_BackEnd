@@ -1,17 +1,19 @@
 # Auth Module Server Api
 
-### URI
+## URI
 
 |Method|Uri|Description|
 |--|--|--|
-|POST|`/auth/register`|Register an unexisting user|
-|POST|`/auth/login`|Login as an existing user|
+|POST|`/auth/register`|Register an unexisting user \*|
+|POST|`/auth/login`|Login as an existing user \*|
 
-### Request Header
+[\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md#request-body-json)
+
+## Request Header
 
 + Nothing
 
-### Request Body (JSON)
+## Request Body (JSON)
 
 + `POST /auth/register`
 
@@ -20,25 +22,44 @@
 |`username`|`string`|Required|Registered Username|
 |`password`|`string`|Required|Registered Password|
 
+Example:
+
+```json
+{
+    "username": "aaaaaaaa",
+    "password": "aaaaaaaa"
+} 
+```
+
 + `POST /auth/login`
 
 |Field|Type|Is Required|Description|
 |--|--|--|--|
 |`username`|`string`|Required|Login Username|
 |`password`|`string`|Required|Login Password|
-|`expiration`|`int`|Not Required \*|Token Timeout Expiration|
+|`expiration`|`int`|Not Required \*|Token Timeout Expiration (second)|
 
 \* Expiration default for 10 minutes
 
-### Response Header
+Example:
+
+```json
+{
+    "username": "aaaaaaaa",
+    "password": "aaaaaaaa",
+    "expiration": 500
+} 
+```
+
+## Response Header
 
 + `POST /auth/login`
 
 |Key|Description|
 |--|--|
-|Authorization|Return User Login Token|
+|`Authorization`|Return User Login Token|
 
-### Response Body (JSON)
+## Response Body (JSON)
 
 + `POST /auth/login`
 + `POST /auth/register`
@@ -48,13 +69,24 @@
 |`username`|`string`|Login Username|
 |`message`|`string`|Login Success Or Register Success|
 
-### Public Status Code
+Example:
 
-+ Error Code See [ErrorUtil.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Utils/ErrorUtil.py) and [ErrorHandler.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/Routes/ErrorHandler.py)
+```json
+{
+    "username": "aoihosizora",
+    "status": "Login Success"
+}
+```
 
-### Error Message
+## Error Message Type
 
-|Field|Type|Description|
-|--|--|--|
-|`message`|`string`|Error Main Title|
-|`detail`|`string`|Error Description|
++ Public error code and error message type see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
+
+|Message|Description|
+|--|--|
+|`Register Error`|(Something wrong with the server)|
+|`Login Error`|Password error or use a wrong token|
+|`User Exist Error`|Register an exist username|
+|`User Not Exist Error`|Login as an unexist username|
+|`Username Format Error`|Username length should be in `[5, 30)`|
+|`Password Format Error`|Password length should be in `[8, 20)`|

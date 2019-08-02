@@ -3,7 +3,7 @@ import json
 
 from app.Database.TokenDAO import TokenDAO
 from app.Modules.Auth.Exceptions.LoginError import LoginError
-from app.Modules.Auth.Exceptions.AuthNoneError import AuthNoneError
+from app.Utils.Exceptions.AuthNoneError import AuthNoneError
 from app.Utils import PassUtil
 
 def jsonRet(dict, code, headers={}):
