@@ -4,7 +4,7 @@ from app.Modules.Note.Exceptions.ImageUploadError import ImageUploadError
 from app.Modules.Note.Exceptions.ImageTypeError import ImageTypeError 
 from app.Modules.Note.Exceptions.ImageNotExistError import ImageNotExistError 
 
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 import os
 
 def saveUserImg(username: str, img) -> str:
