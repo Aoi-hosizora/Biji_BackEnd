@@ -325,3 +325,534 @@ spawned uWSGI worker 4 (pid: 9078, cores: 2)
 [pid: 9073|app: 0|req: 1/4] 127.0.0.1 () {50 vars in 1043 bytes} [Sun Aug  4 10:26:14 2019] GET /file/upload => generated 129 bytes in 62 msecs (HTTP/1.1 405) 3 headers in 120 bytes (1 switches on core 0)
 [pid: 9075|app: 0|req: 2/5] 127.0.0.1 () {50 vars in 1044 bytes} [Sun Aug  4 10:26:30 2019] POST /file/upload => generated 78 bytes in 280 msecs (HTTP/1.1 200) 3 headers in 103 bytes (2 switches on core 1)
 [pid: 9073|app: 0|req: 2/6] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:27:30 2019] GET /file/download?foldername=Math&filename=2019080410263062.zip => generated 851770 bytes in 227 msecs via sendfile() (HTTP/1.1 200) 7 headers in 275 bytes (0 switches on core 1)
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 13:57:50 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+writing pidfile to uwsgi.pid
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x5578740dff40
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x5578740dff40 pid: 7411 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 7411)
+spawned uWSGI worker 1 (pid: 7413, cores: 2)
+spawned uWSGI worker 2 (pid: 7414, cores: 2)
+spawned uWSGI worker 3 (pid: 7415, cores: 2)
+spawned uWSGI worker 4 (pid: 7418, cores: 2)
+[pid: 7415|app: 0|req: 1/1] 127.0.0.1 () {48 vars in 690 bytes} [Sun Aug  4 13:59:58 2019] POST /auth/login => generated 59 bytes in 481 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[pid: 7418|app: 0|req: 1/2] 127.0.0.1 () {50 vars in 918 bytes} [Sun Aug  4 14:06:28 2019] POST /schedule/upload => generated 192 bytes in 109 msecs (HTTP/1.1 400) 3 headers in 106 bytes (1 switches on core 1)
+[2019-08-04 14:09:07,679] ERROR in app: Exception on /schedule/upload [POST]
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Schedule/Routes/ScheduleBlue.py", line 41, in UploadScheduleRoute
+    ScheduleCtrl.insertSchedule(schedule=schedule)
+  File "./app/Modules/Schedule/Controllers/ScheduleCtrl.py", line 26, in insertSchedule
+    if scheduleDao.insertSchedule(schedule):
+  File "./app/Database/ScheduleDAO.py", line 65, in insertSchedule
+    if self.querySchedule(username) != None:
+  File "./app/Database/ScheduleDAO.py", line 53, in querySchedule
+    .format(self.tbl_name, username))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/cursors.py", line 170, in execute
+    result = self._query(query)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/cursors.py", line 328, in _query
+    conn.query(q)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/connections.py", line 517, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/connections.py", line 732, in _read_query_result
+    result.read()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/connections.py", line 1075, in read
+    first_packet = self.connection._read_packet()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/connections.py", line 684, in _read_packet
+    packet.check_error()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/protocol.py", line 220, in check_error
+    err.raise_mysql_exception(self._data)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/pymysql/err.py", line 109, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1146, "Table 'test.TBL_SCHEDULE' doesn't exist")
+[pid: 7418|app: 0|req: 2/3] 127.0.0.1 () {50 vars in 1046 bytes} [Sun Aug  4 14:09:07 2019] POST /schedule/upload => generated 241 bytes in 133 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 14:28:36 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+writing pidfile to uwsgi.pid
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x56380a737f40
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x56380a737f40 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 3236, cores: 2)
+spawned uWSGI worker 2 (pid: 3237, cores: 2)
+spawned uWSGI worker 3 (pid: 3238, cores: 2)
+spawned uWSGI worker 4 (pid: 3241, cores: 2)
+[pid: 3236|app: 0|req: 1/1] 127.0.0.1 () {48 vars in 702 bytes} [Sun Aug  4 14:31:32 2019] POST /auth/login => generated 59 bytes in 428 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[2019-08-04 14:33:01,422] ERROR in app: Exception on /schedule/upload [POST]
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Schedule/Routes/ScheduleBlue.py", line 37, in UploadScheduleRoute
+    username = RespUtil.getAuthUser(request.headers)
+  File "./app/Utils/RespUtil.py", line 39, in getAuthUser
+    raise LoginError()
+app.Modules.Auth.Exceptions.LoginError.LoginError: User login error
+[pid: 3241|app: 0|req: 1/2] 127.0.0.1 () {50 vars in 1046 bytes} [Sun Aug  4 14:33:01 2019] POST /schedule/upload => generated 241 bytes in 10 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+[pid: 3241|app: 0|req: 2/3] 127.0.0.1 () {50 vars in 906 bytes} [Sun Aug  4 14:34:40 2019] POST /auth/login => generated 59 bytes in 344 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 1)
+[pid: 3237|app: 0|req: 1/4] 127.0.0.1 () {50 vars in 1046 bytes} [Sun Aug  4 14:35:39 2019] POST /schedule/upload => generated 44 bytes in 75 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 2 (pid: 3237)...
+Gracefully killing worker 1 (pid: 3236)...
+Gracefully killing worker 3 (pid: 3238)...
+Gracefully killing worker 4 (pid: 3241)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 14:39:15 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x556fced39610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x556fced39610 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 3968, cores: 2)
+spawned uWSGI worker 2 (pid: 3969, cores: 2)
+spawned uWSGI worker 3 (pid: 3972, cores: 2)
+spawned uWSGI worker 4 (pid: 3973, cores: 2)
+[2019-08-04 14:39:19,384] ERROR in app: Exception on /schedule/upload [POST]
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Schedule/Routes/ScheduleBlue.py", line 41, in UploadScheduleRoute
+    result = ScheduleCtrl.insertSchedule(schedule=schedule)
+  File "./app/Modules/Schedule/Controllers/ScheduleCtrl.py", line 26, in insertSchedule
+    if scheduleDao.insertSchedule(schedule):
+  File "./app/Database/ScheduleDAO.py", line 65, in insertSchedule
+    if self.querySchedule(username) != None:
+  File "./app/Database/ScheduleDAO.py", line 55, in querySchedule
+    return Schedule(ret[0], ret[1])
+TypeError: 'NoneType' object is not subscriptable
+[pid: 3972|app: 0|req: 1/1] 127.0.0.1 () {50 vars in 1046 bytes} [Sun Aug  4 14:39:19 2019] POST /schedule/upload => generated 241 bytes in 12 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 1 (pid: 3968)...
+Gracefully killing worker 2 (pid: 3969)...
+Gracefully killing worker 4 (pid: 3973)...
+Gracefully killing worker 3 (pid: 3972)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 14:42:30 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x55b96b424610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x55b96b424610 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 4020, cores: 2)
+spawned uWSGI worker 2 (pid: 4022, cores: 2)
+spawned uWSGI worker 3 (pid: 4024, cores: 2)
+spawned uWSGI worker 4 (pid: 4026, cores: 2)
+[pid: 4022|app: 0|req: 1/1] 127.0.0.1 () {50 vars in 1046 bytes} [Sun Aug  4 14:42:35 2019] POST /schedule/upload => generated 44 bytes in 13 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+[pid: 4020|app: 0|req: 1/2] 127.0.0.1 () {46 vars in 839 bytes} [Sun Aug  4 14:44:03 2019] GET /schedule/download => generated 218 bytes in 8 msecs (HTTP/1.1 200) 3 headers in 104 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 4 (pid: 4026)...
+Gracefully killing worker 1 (pid: 4020)...
+Gracefully killing worker 3 (pid: 4024)...
+Gracefully killing worker 2 (pid: 4022)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 14:45:03 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x55ff26415610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x55ff26415610 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 4111, cores: 2)
+spawned uWSGI worker 2 (pid: 4112, cores: 2)
+spawned uWSGI worker 3 (pid: 4114, cores: 2)
+spawned uWSGI worker 4 (pid: 4116, cores: 2)
+[2019-08-04 14:45:06,016] ERROR in app: Exception on /schedule/download [GET]
+Traceback (most recent call last):
+  File "./app/Utils/PassUtil.py", line 34, in certify_token
+    data = Serializer(Config.SecretKey).loads(token)
+  File "/usr/local/lib/python3.7/dist-packages/itsdangerous/jws.py", line 205, in loads
+    date_signed=self.get_issue_date(header),
+itsdangerous.exc.SignatureExpired: Signature expired
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Schedule/Routes/ScheduleBlue.py", line 22, in DownloadScheduleRoute
+    username = RespUtil.getAuthUser(request.headers)
+  File "./app/Utils/RespUtil.py", line 37, in getAuthUser
+    return PassUtil.certify_token(token)
+  File "./app/Utils/PassUtil.py", line 36, in certify_token
+    raise TokenTimeoutError()
+app.Modules.Auth.Exceptions.TokenTimeoutError.TokenTimeoutError: User login timeout
+[pid: 4116|app: 0|req: 1/1] 127.0.0.1 () {46 vars in 839 bytes} [Sun Aug  4 14:45:06 2019] GET /schedule/download => generated 241 bytes in 11 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+[pid: 4114|app: 0|req: 1/2] 127.0.0.1 () {50 vars in 893 bytes} [Sun Aug  4 14:45:46 2019] GET /auth/login => generated 129 bytes in 3 msecs (HTTP/1.1 405) 3 headers in 120 bytes (1 switches on core 0)
+[pid: 4111|app: 0|req: 1/3] 127.0.0.1 () {50 vars in 894 bytes} [Sun Aug  4 14:45:53 2019] POST /auth/login => generated 59 bytes in 384 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[pid: 4111|app: 0|req: 2/4] 127.0.0.1 () {46 vars in 839 bytes} [Sun Aug  4 14:46:46 2019] GET /schedule/download => generated 218 bytes in 5 msecs (HTTP/1.1 200) 3 headers in 104 bytes (1 switches on core 1)
+[pid: 4116|app: 0|req: 2/5] 127.0.0.1 () {50 vars in 1045 bytes} [Sun Aug  4 14:48:49 2019] GET /schedule/update => generated 129 bytes in 0 msecs (HTTP/1.1 405) 3 headers in 120 bytes (1 switches on core 1)
+[pid: 4116|app: 0|req: 3/6] 127.0.0.1 () {50 vars in 1045 bytes} [Sun Aug  4 14:48:56 2019] PUT /schedule/update => generated 44 bytes in 11 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+[2019-08-04 14:50:07,803] ERROR in app: Exception on /schedule/delete [DELETE]
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Schedule/Routes/ScheduleBlue.py", line 57, in DeleteScheduleRoute
+    ScheduleCtrl.deleteSchedule(Schedule(username, ''))
+  File "./app/Modules/Schedule/Controllers/ScheduleCtrl.py", line 39, in deleteSchedule
+    raise DeleteError(schedule.username)
+app.Modules.Schedule.Exceptions.DeleteError.DeleteError: Schedule of user "Gordon" delete error
+[pid: 4112|app: 0|req: 1/7] 127.0.0.1 () {48 vars in 863 bytes} [Sun Aug  4 14:50:07 2019] DELETE /schedule/delete => generated 241 bytes in 14 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 1 (pid: 4111)...
+Gracefully killing worker 2 (pid: 4112)...
+Gracefully killing worker 4 (pid: 4116)...
+Gracefully killing worker 3 (pid: 4114)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 14:59:06 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x5577490a4610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x5577490a4610 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 4370, cores: 2)
+spawned uWSGI worker 2 (pid: 4371, cores: 2)
+spawned uWSGI worker 3 (pid: 4373, cores: 2)
+spawned uWSGI worker 4 (pid: 4375, cores: 2)
+[pid: 4370|app: 0|req: 1/1] 127.0.0.1 () {48 vars in 690 bytes} [Sun Aug  4 14:59:48 2019] POST /auth/login => generated 59 bytes in 346 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[pid: 4375|app: 0|req: 1/2] 127.0.0.1 () {50 vars in 1046 bytes} [Sun Aug  4 15:00:32 2019] POST /schedule/upload => generated 44 bytes in 13 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+[2019-08-04 15:01:01,606] ERROR in app: Exception on /schedule/delete [DELETE]
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Schedule/Routes/ScheduleBlue.py", line 57, in DeleteScheduleRoute
+    ScheduleCtrl.deleteSchedule(Schedule(username, ''))
+  File "./app/Modules/Schedule/Controllers/ScheduleCtrl.py", line 39, in deleteSchedule
+    raise DeleteError(schedule.username)
+app.Modules.Schedule.Exceptions.DeleteError.DeleteError: Schedule of user "Gordon" delete error
+[pid: 4370|app: 0|req: 2/3] 127.0.0.1 () {48 vars in 863 bytes} [Sun Aug  4 15:01:01 2019] DELETE /schedule/delete => generated 241 bytes in 5 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 1)
+...gracefully killing workers...
+Gracefully killing worker 2 (pid: 4371)...
+Gracefully killing worker 4 (pid: 4375)...
+Gracefully killing worker 3 (pid: 4373)...
+Gracefully killing worker 1 (pid: 4370)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 15:04:21 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x55c7469c6610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x55c7469c6610 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 4487, cores: 2)
+spawned uWSGI worker 2 (pid: 4488, cores: 2)
+spawned uWSGI worker 3 (pid: 4490, cores: 2)
+spawned uWSGI worker 4 (pid: 4492, cores: 2)
+[pid: 4490|app: 0|req: 1/1] 127.0.0.1 () {48 vars in 863 bytes} [Sun Aug  4 15:04:25 2019] DELETE /schedule/delete => generated 190 bytes in 12 msecs (HTTP/1.1 200) 3 headers in 104 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 1 (pid: 4487)...
+Gracefully killing worker 2 (pid: 4488)...
+Gracefully killing worker 3 (pid: 4490)...
+Gracefully killing worker 4 (pid: 4492)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 15:11:07 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x5618386a7610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x5618386a7610 pid: 3234 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 3234)
+spawned uWSGI worker 1 (pid: 4650, cores: 2)
+spawned uWSGI worker 2 (pid: 4651, cores: 2)
+spawned uWSGI worker 3 (pid: 4652, cores: 2)
+spawned uWSGI worker 4 (pid: 4655, cores: 2)
+[pid: 4652|app: 0|req: 1/1] 127.0.0.1 () {50 vars in 896 bytes} [Sun Aug  4 15:11:23 2019] DELETE /auth/login => generated 129 bytes in 2 msecs (HTTP/1.1 405) 3 headers in 120 bytes (1 switches on core 0)
+[pid: 4652|app: 0|req: 2/2] 127.0.0.1 () {50 vars in 894 bytes} [Sun Aug  4 15:11:28 2019] POST /auth/login => generated 59 bytes in 354 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 1)
+[pid: 4655|app: 0|req: 1/3] 127.0.0.1 () {48 vars in 863 bytes} [Sun Aug  4 15:12:09 2019] DELETE /schedule/delete => generated 44 bytes in 10 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+SIGINT/SIGQUIT received...killing workers...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+goodbye to uWSGI.

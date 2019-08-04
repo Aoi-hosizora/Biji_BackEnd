@@ -5,6 +5,8 @@
 + [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
 + [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
++ [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
++ [Schedule](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
 
 ### Environment
 + `Flask` 1.0.2
@@ -22,19 +24,22 @@ python3 ./listen.py
 ```
 
 ### Structure
-
 ```
 .
-│  listen.py    -> Main Program
-├─app           
-│  ├─Config     -> Some Config
-│  ├─Modules    
-│  │  ├─Auth    -> Auth Module
-│  │  ├─Note    -> Note Module
-│  │  └─Star    -> Star Module
-│  └─ ...       
-└─usr           -> User Files
-    └─img       -> Notes Image
+├── app
+│   ├── Config        -> Some Config
+│   ├── Modules
+│   │   ├── Auth      -> Auth Module
+│   │   ├── File      -> File Module
+│   │   ├── Note      -> Note Module
+│   │   ├── Schedule  -> Schedule Module
+│   │   └── Star      -> Star Module
+│   └── ...
+├── listen.py         -> Main Program
+├── usr               -> User Directory
+│   ├── file          -> User Files
+│   ├── img           -> Notes Image
+...
 ```
 
 ### Db Model
@@ -45,3 +50,5 @@ python3 ./listen.py
 + Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
 + Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
++ File doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
++ Schedule doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
