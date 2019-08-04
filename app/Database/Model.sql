@@ -43,3 +43,21 @@ CREATE TABLE `tbl_star` (
   `CONTENT` varchar(200) NOT NULL,
   PRIMARY KEY (`USERNAME`,`URL`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+-- tbl: tbl_file
+
+CREATE TABLE `tbl_file` (
+  `USERNAME` varchar(30) NOT NULL,
+  `FOLDERNAME` varchar(200) NOT NULL,
+  `FILENAME` varchar(200) NOT NULL,
+  `FILEPATH` varchar(2000) NOT NULL,
+  PRIMARY KEY (`USERNAME`,`FOLDERNAME`,`FILENAME`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+-- tbl: tbl_schedule
+
+CREATE TABLE `tbl_schedule` (
+  `USERNAME` varchar(30) NOT NULL,
+  `SCHEDULE` varchar(5000) NOT NULL,
+  PRIMARY KEY (`USERNAME`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
