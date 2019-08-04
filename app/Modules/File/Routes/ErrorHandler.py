@@ -4,7 +4,7 @@ from app.Modules.File.Exceptions.FileError import FileError
 
 def register_file_error_handler(error: TypeError):
     '''
-    Note 模块的错误处理
+    File 模块的错误处理
     '''
     if isinstance(error, FileError):
         return RespUtil.jsonRet(

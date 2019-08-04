@@ -124,7 +124,7 @@ class FileDAO(object):
             raise FileNotExistError(filename)
 
         try:
-            self.cursor.execute("DELETE FROM {} WHERE USERNAME == '{}' AND FOLDERNAME='{}'"
+            self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}' AND FOLDERNAME='{}'"
                                 "AND FILENAME='{}'".format(self.tbl_name, username, foldername, filename))
             self.db.commit()
             if self.queryOneFile(username, foldername, filename) != None:

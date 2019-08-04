@@ -73,7 +73,7 @@ class UserDAO(object):
         删除用户
         '''
         try:
-            self.cursor.execute("DELETE FROM {} WHERE {} == '{}'".format(self.tbl_name, self.col_username, username))
+            self.cursor.execute("DELETE FROM {} WHERE {} = '{}'".format(self.tbl_name, self.col_username, username))
             self.db.commit()
             return True
         except:

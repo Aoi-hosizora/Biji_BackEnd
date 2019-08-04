@@ -2,6 +2,7 @@ from app.Modules import Auth
 from app.Modules import Note
 from app.Modules import Star
 from app.Modules import File
+from app.Modules import Schedule
 
 from flask.app import Flask
 
@@ -13,3 +14,4 @@ def register_modules_blue(app: Flask):
     Note.register_note_blue(app)
     Star.register_star_blue(app)
     File.register_file_blue(app)
+    Schedule.register_schedule_blue(app)
