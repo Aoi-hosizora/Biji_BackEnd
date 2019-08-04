@@ -69,7 +69,7 @@ Example:
 
 |Message|Description|
 |--|--|
-|`Not Exist Error`|Delete/Update a unexist star item|
+|`Not Exist Error`|Delete/Update an unexist star item|
 |`Exist Error`|Insert an exist star item|
 |`Insert Error`|Insert a star item into database error|
 |`Update Error`|Update a star item database error|

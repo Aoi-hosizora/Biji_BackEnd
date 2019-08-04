@@ -147,10 +147,9 @@ Example:
 ```
 
 + `GET /note/img/blob/<usr>/<img>`
-    + Response an Image as `image/png`
+    + Response `Content-Type: image/png`
 
 Example: `GET /note/img/blob/aoihosizora/2019080223044764.png`
-
 
 ## Error Message Type
 
@@ -158,7 +157,7 @@ Example: `GET /note/img/blob/aoihosizora/2019080223044764.png`
 
 |Message|Description|
 |--|--|
-|`Not Exist Error`|Delete/Update a unexist note or group|
+|`Not Exist Error`|Delete/Update an unexist note or group|
 |`Exist Error`|Insert an exist note or group|
 |`Insert Error`|Insert into database error|
 |`Update Error`|Update database error|
