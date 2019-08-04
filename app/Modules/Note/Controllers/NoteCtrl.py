@@ -1,5 +1,6 @@
 from app.Database.NoteDAO import NoteDAO
 from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
+from app.Modules.Log.Controllers import LogCtrl
 
 from app.Modules.Note.Models.Note import Note
 from app.Modules.Note.Exceptions.NotExistError import NotExistError
@@ -35,7 +36,6 @@ def getNoteFromReqData(reqdata: str) -> Note:
         raise BodyRawJsonError()
 
     try:
-        print(postjson)
         return Note(*[postjson[key] for key in keys])
     except:
         # 内容错误
@@ -64,16 +64,18 @@ def updateNote(username: str, note: Note) -> bool:
     '''
     noteDao = NoteDAO()
     if noteDao.updateUserNote(username, note):
+        LogCtrl.updateNoteLog(username)
         return True
     else:
         raise UpdateError(note.id)
 
 def insertNote(username: str, note: Note) -> bool:
     '''
-    插入一个旧笔记
+    插入一个新笔记
     '''
     noteDao = NoteDAO()
     if noteDao.insertUserNote(username, note):
+        LogCtrl.updateNoteLog(username)
         return True
     else:
         raise InsertError(note.title)
@@ -84,6 +86,7 @@ def deleteNote(username: str, note: Note) -> bool:
     '''
     noteDao = NoteDAO()
     if noteDao.deleteUserNote(username, note):
+        LogCtrl.updateNoteLog(username)
         return True
     else:
         raise DeleteError(note.title)

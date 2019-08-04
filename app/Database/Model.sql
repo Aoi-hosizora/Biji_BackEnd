@@ -61,3 +61,12 @@ CREATE TABLE `tbl_schedule` (
   `SCHEDULE` varchar(5000) NOT NULL,
   PRIMARY KEY (`USERNAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+-- tbl: tbl_log
+
+CREATE TABLE `tbl_log` (
+  `USERNAME` varchar(30) NOT NULL,
+  `MODULE` varchar(10) NOT NULL,
+  `TIME` datetime NOT NULL,
+  PRIMARY KEY (`USERNAME`,`MODULE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8

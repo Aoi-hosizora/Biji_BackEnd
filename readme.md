@@ -7,6 +7,7 @@
 + [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
 + [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
 + [Schedule](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
++ [Log](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Log/readme.md)
 
 ### Environment
 + `Flask` 1.0.2
@@ -31,6 +32,7 @@ python3 ./listen.py
 │   ├── Modules
 │   │   ├── Auth      -> Auth Module
 │   │   ├── File      -> File Module
+│   │   ├── Log       -> Log Module
 │   │   ├── Note      -> Note Module
 │   │   ├── Schedule  -> Schedule Module
 │   │   └── Star      -> Star Module
@@ -51,3 +53,4 @@ python3 ./listen.py
 + Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
 + File doc see [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
 + Schedule doc see [Schedule](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
++ Log doc see [Log](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Log/Schedule/readme.md)

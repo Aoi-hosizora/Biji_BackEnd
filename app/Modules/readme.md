@@ -6,12 +6,17 @@
 + Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
 + File doc see [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
 + Schedule doc see [Schedule](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
++ Log doc see [Log](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Log/readme.md)
 
 ## Revision
 
 |Date|Remark|
 |--|--|
 |`2019/08/02`|Complete project structure & global error msg|
+
+
+## Log Route
+
 
 ## Status Code
 

@@ -1,5 +1,6 @@
 from app.Database.StarDAO import StarDAO
 from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
+from app.Modules.Log.Controllers import LogCtrl
 
 from app.Modules.Star.Models.StarItem import StarItem
 from app.Modules.Star.Exceptions.InsertError import InsertError
@@ -51,6 +52,7 @@ def insertStar(username: str, star: StarItem) -> bool:
     '''
     starDao = StarDAO()
     if starDao.insertUserStar(username, star):
+        LogCtrl.updateStarLog(username)
         return True
     else:
         raise InsertError(star.title)
@@ -61,6 +63,7 @@ def deleteStar(username: str, star: StarItem) -> bool:
     '''
     starDao = StarDAO()
     if starDao.deleteUserStar(username, star):
+        LogCtrl.updateStarLog(username)
         return True
     else:
         raise DeleteError(star.title)

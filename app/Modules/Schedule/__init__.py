@@ -9,7 +9,7 @@ def register_schedule_blue(app: Flask):
     '''
     register_blue_Schedule(app)
 
-def forward_note_error(error: TypeError):
+def forward_schedule_error(error: TypeError):
     '''
     转发 Schedule 模块的错误
     '''

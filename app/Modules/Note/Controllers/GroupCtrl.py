@@ -1,5 +1,6 @@
 from app.Database.GroupDAO import GroupDAO
 from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
+from app.Modules.Log.Controllers import LogCtrl
 
 from app.Modules.Note.Models.Group import Group
 from app.Modules.Note.Exceptions.NotExistError import NotExistError
@@ -55,16 +56,18 @@ def updateGroup(username: str, group: Group) -> bool:
     '''
     groupDao = GroupDAO()
     if groupDao.updateUserGroup(username, group):
+        LogCtrl.updateNoteLog(username)
         return True
     else:
         raise UpdateError(group.id, isNote=False)
         
 def insertGroup(username: str, group: Group) -> bool:
     '''
-    插入一个旧分组
+    插入一个新分组
     '''
     groupDao = GroupDAO()
     if groupDao.insertUserGroup(username, group):
+        LogCtrl.updateNoteLog(username)
         return True
     else:
         raise InsertError(group.name, isNote=False)
@@ -75,6 +78,7 @@ def deleteGroup(username: str, group: Group) -> bool:
     '''
     groupDao = GroupDAO()
     if groupDao.deleteUserGroup(username, group):
+        LogCtrl.updateNoteLog(username)
         return True
     else:
         raise DeleteError(group.name, isNote=False)
