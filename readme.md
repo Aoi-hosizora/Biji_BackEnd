@@ -5,6 +5,7 @@
 + [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
 + [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
++ [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
 
 ### Environment
 + `Flask` 1.0.2
@@ -31,7 +32,8 @@ python3 ./listen.py
 │  ├─Modules    
 │  │  ├─Auth    -> Auth Module
 │  │  ├─Note    -> Note Module
-│  │  └─Star    -> Star Module
+│  │  ├─Star    -> Star Module
+│  │  └─File    -> File Module
 │  └─ ...       
 └─usr           -> User Files
     └─img       -> Notes Image
@@ -45,3 +47,4 @@ python3 ./listen.py
 + Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
 + Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
++ Star doc see [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
