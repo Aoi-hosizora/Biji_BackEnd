@@ -12,9 +12,9 @@ Def_Expiration = 600 # Token Timeout (s)
 
 # MySql Config
 MySQL_Host = 'localhost'
-MySQL_Port = 3306
-MySQL_User = 'gordon'
-MySQL_Pass = 'gxf#$%'
+MySQL_Port = 3366
+MySQL_User = 'root'
+MySQL_Pass = '123'
 MySQL_Db = 'test'
 
 # Redis Config

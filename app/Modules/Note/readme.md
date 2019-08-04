@@ -152,7 +152,6 @@ Example:
 Example: `GET /note/img/blob/aoihosizora/2019080223044764.png`
 
 
-
 ## Error Message Type
 
 + Public error code and error message type see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)

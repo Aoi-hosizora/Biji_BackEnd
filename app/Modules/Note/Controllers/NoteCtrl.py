@@ -35,6 +35,7 @@ def getNoteFromReqData(reqdata: str) -> Note:
         raise BodyRawJsonError()
 
     try:
+        print(postjson)
         return Note(*[postjson[key] for key in keys])
     except:
         # 内容错误
