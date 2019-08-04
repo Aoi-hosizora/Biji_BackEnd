@@ -15,6 +15,14 @@ def isImg(filename: str) -> bool:
     supported = ['jpg', 'png', 'jpeg', 'bmp']
     return ext in supported
 
+def isFile(filename: str) -> bool:
+    '''
+    通过文件后缀名判断文件类型
+    '''
+    ext = getExt(filename)
+    supported = ['txt', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'rar']
+    return ext in supported
+
 def create_uuid() -> str:
     '''
     生成唯一文件名

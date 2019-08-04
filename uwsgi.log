@@ -1,0 +1,327 @@
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 09:20:41 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+writing pidfile to uwsgi.pid
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 bound to TCP address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x56257e783f40
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x56257e783f40 pid: 7329 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+spawned uWSGI master process (pid: 7329)
+spawned uWSGI worker 1 (pid: 7331, cores: 2)
+spawned uWSGI worker 2 (pid: 7332, cores: 2)
+spawned uWSGI worker 3 (pid: 7334, cores: 2)
+spawned uWSGI worker 4 (pid: 7336, cores: 2)
+[2019-08-04 09:43:34,696] ERROR in app: Exception on /auth/register [POST]
+Traceback (most recent call last):
+  File "./app/Modules/Auth/Routes/RegLogBlue.py", line 65, in RegisterRoute
+    postjson = json.loads(request.get_data(as_text=True))
+  File "/usr/lib/python3.7/json/__init__.py", line 348, in loads
+    return _default_decoder.decode(s)
+  File "/usr/lib/python3.7/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/usr/lib/python3.7/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/Auth/Routes/RegLogBlue.py", line 67, in RegisterRoute
+    raise BodyFormKeyError()
+app.Utils.Exceptions.BodyFormKeyError.BodyFormKeyError: Body: form-data error.
+[pid: 7331|app: 0|req: 1/1] 127.0.0.1 () {48 vars in 838 bytes} [Sun Aug  4 09:43:34 2019] POST /auth/register => generated 241 bytes in 206 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+[pid: 7336|app: 0|req: 1/2] 127.0.0.1 () {48 vars in 708 bytes} [Sun Aug  4 09:46:44 2019] POST /auth/register => generated 62 bytes in 652 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 1)
+[pid: 7336|app: 0|req: 2/3] 127.0.0.1 () {48 vars in 702 bytes} [Sun Aug  4 09:47:53 2019] POST /auth/login => generated 59 bytes in 413 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[pid: 7336|app: 0|req: 3/4] 127.0.0.1 () {50 vars in 1038 bytes} [Sun Aug  4 09:51:14 2019] POST /file/upload => generated 183 bytes in 16 msecs (HTTP/1.1 404) 3 headers in 111 bytes (1 switches on core 1)
+...gracefully killing workers...
+Gracefully killing worker 1 (pid: 7331)...
+Gracefully killing worker 4 (pid: 7336)...
+Gracefully killing worker 3 (pid: 7334)...
+Gracefully killing worker 2 (pid: 7332)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 09:52:37 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x55c3f1ff2610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x55c3f1ff2610 pid: 7329 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 7329)
+spawned uWSGI worker 1 (pid: 8302, cores: 2)
+spawned uWSGI worker 2 (pid: 8303, cores: 2)
+spawned uWSGI worker 3 (pid: 8305, cores: 2)
+spawned uWSGI worker 4 (pid: 8308, cores: 2)
+[2019-08-04 09:52:44,058] ERROR in app: Exception on /file/upload [POST]
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/File/Routes/FileBlue.py", line 65, in UploadFileRoute
+    FileCtrl.insertFile(file=file)
+  File "./app/Modules/File/Controllers/FileCtrl.py", line 39, in insertFile
+    fileDao = FileDAO()
+  File "./app/Database/FileDAO.py", line 23, in __init__
+    db=Config.MySQL_Tbl,
+AttributeError: module 'app.Config.Config' has no attribute 'MySQL_Tbl'
+[pid: 8308|app: 0|req: 1/1] 127.0.0.1 () {50 vars in 1038 bytes} [Sun Aug  4 09:52:44 2019] POST /file/upload => generated 241 bytes in 15 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 3 (pid: 8305)...
+Gracefully killing worker 1 (pid: 8302)...
+Gracefully killing worker 2 (pid: 8303)...
+Gracefully killing worker 4 (pid: 8308)...
+Exception ignored in: <function FileDAO.__del__ at 0x7ffbb5fe2378>
+Traceback (most recent call last):
+  File "./app/Database/FileDAO.py", line 30, in __del__
+    self.db.close()
+AttributeError: 'FileDAO' object has no attribute 'db'
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 09:54:33 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x557ab3358610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 1 seconds on interpreter 0x557ab3358610 pid: 7329 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 7329)
+spawned uWSGI worker 1 (pid: 8377, cores: 2)
+spawned uWSGI worker 2 (pid: 8378, cores: 2)
+spawned uWSGI worker 3 (pid: 8380, cores: 2)
+spawned uWSGI worker 4 (pid: 8382, cores: 2)
+[pid: 8377|app: 0|req: 1/1] 127.0.0.1 () {50 vars in 1038 bytes} [Sun Aug  4 09:54:37 2019] POST /file/upload => generated 78 bytes in 258 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+[pid: 8378|app: 0|req: 1/2] 127.0.0.1 () {50 vars in 1058 bytes} [Sun Aug  4 09:57:22 2019] GET /file/all?foldername=Math => generated 88 bytes in 97 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 0)
+[2019-08-04 10:04:39,223] ERROR in app: Exception on /file/download [GET]
+Traceback (most recent call last):
+  File "./app/Utils/PassUtil.py", line 34, in certify_token
+    data = Serializer(Config.SecretKey).loads(token)
+  File "/usr/local/lib/python3.7/dist-packages/itsdangerous/jws.py", line 205, in loads
+    date_signed=self.get_issue_date(header),
+itsdangerous.exc.SignatureExpired: Signature expired
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask_cors/extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/guoxiaofan/.local/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "./app/Modules/File/Routes/FileBlue.py", line 42, in DownloadFileRoute
+    username = RespUtil.getAuthUser(request.headers)
+  File "./app/Utils/RespUtil.py", line 37, in getAuthUser
+    return PassUtil.certify_token(token)
+  File "./app/Utils/PassUtil.py", line 36, in certify_token
+    raise TokenTimeoutError()
+app.Modules.Auth.Exceptions.TokenTimeoutError.TokenTimeoutError: User login timeout
+[pid: 8380|app: 0|req: 1/3] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:04:39 2019] GET /file/download?foldername=Math&filename=2019080409543794.txt => generated 241 bytes in 53 msecs (HTTP/1.1 500) 3 headers in 123 bytes (1 switches on core 0)
+[pid: 8382|app: 0|req: 1/4] 127.0.0.1 () {48 vars in 690 bytes} [Sun Aug  4 10:05:39 2019] POST /auth/login => generated 59 bytes in 421 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[pid: 8382|app: 0|req: 2/5] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:07:38 2019] GET /file/download?foldername=Math&filename=2019080409543794.txt => generated 183 bytes in 15 msecs (HTTP/1.1 404) 3 headers in 111 bytes (1 switches on core 1)
+[pid: 8378|app: 0|req: 2/6] 127.0.0.1 () {46 vars in 852 bytes} [Sun Aug  4 10:10:56 2019] GET /file/all?foldername=Math => generated 88 bytes in 25 msecs (HTTP/1.1 200) 3 headers in 103 bytes (1 switches on core 1)
+[pid: 8382|app: 0|req: 3/7] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:12:06 2019] GET /file/download?foldername=Math&filename=2019080409543794.txt => generated 183 bytes in 6 msecs (HTTP/1.1 404) 3 headers in 111 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 2 (pid: 8378)...
+Gracefully killing worker 3 (pid: 8380)...
+Gracefully killing worker 1 (pid: 8377)...
+Gracefully killing worker 4 (pid: 8382)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 10:13:07 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x562e68f03610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x562e68f03610 pid: 7329 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 7329)
+spawned uWSGI worker 1 (pid: 8795, cores: 2)
+spawned uWSGI worker 2 (pid: 8796, cores: 2)
+spawned uWSGI worker 3 (pid: 8798, cores: 2)
+spawned uWSGI worker 4 (pid: 8800, cores: 2)
+[pid: 8800|app: 0|req: 1/1] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:13:14 2019] GET /file/download?foldername=Math&filename=2019080409543794.txt => generated 5 bytes in 28 msecs (HTTP/1.1 200) 3 headers in 110 bytes (1 switches on core 0)
+...gracefully killing workers...
+Gracefully killing worker 1 (pid: 8795)...
+Gracefully killing worker 2 (pid: 8796)...
+Gracefully killing worker 4 (pid: 8800)...
+Gracefully killing worker 3 (pid: 8798)...
+worker 1 buried after 1 seconds
+worker 2 buried after 1 seconds
+worker 3 buried after 1 seconds
+worker 4 buried after 1 seconds
+binary reloading uWSGI...
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+closing all non-uwsgi socket fds > 2 (max_fd = 1024)...
+found fd 3 mapped to socket 0 (127.0.0.1:8000)
+running /home/guoxiaofan/.local/bin/uwsgi
+[uWSGI] getting INI configuration from uwsgi.ini
+*** Starting uWSGI 2.0.18 (64bit) on [Sun Aug  4 10:20:29 2019] ***
+compiled with version: 8.3.0 on 02 August 2019 01:17:56
+os: Linux-5.0.0-21-generic #22-Ubuntu SMP Tue Jul 2 13:27:33 UTC 2019
+nodename: TMX349-G2-M-guoxiaofan
+machine: x86_64
+clock source: unix
+pcre jit disabled
+detected number of CPU cores: 4
+current working directory: /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+detected binary path: /home/guoxiaofan/.local/bin/uwsgi
+chdir() to /home/guoxiaofan/PycharmProjects/Biji_BackEnd
+your processes number limit is 15052
+your memory page size is 4096 bytes
+detected max file descriptor number: 1024
+lock engine: pthread robust mutexes
+thunder lock: disabled (you can enable it with --thunder-lock)
+uwsgi socket 0 inherited INET address 127.0.0.1:8000 fd 3
+Python version: 3.7.3 (default, Apr  3 2019, 05:39:12)  [GCC 8.3.0]
+Python main interpreter initialized at 0x55f040548610
+python threads support enabled
+your server socket listen backlog is limited to 100 connections
+your mercy for graceful operations on workers is 60 seconds
+mapped 416720 bytes (406 KB) for 8 cores
+*** Operational MODE: preforking+threaded ***
+WSGI app 0 (mountpoint='') ready in 0 seconds on interpreter 0x55f040548610 pid: 7329 (default app)
+*** uWSGI is running in multiple interpreter mode ***
+gracefully (RE)spawned uWSGI master process (pid: 7329)
+spawned uWSGI worker 1 (pid: 9073, cores: 2)
+spawned uWSGI worker 2 (pid: 9074, cores: 2)
+spawned uWSGI worker 3 (pid: 9075, cores: 2)
+spawned uWSGI worker 4 (pid: 9078, cores: 2)
+[pid: 9075|app: 0|req: 1/1] 127.0.0.1 () {48 vars in 689 bytes} [Sun Aug  4 10:21:48 2019] GET /auth/login => generated 129 bytes in 2 msecs (HTTP/1.1 405) 3 headers in 120 bytes (1 switches on core 0)
+[pid: 9078|app: 0|req: 1/2] 127.0.0.1 () {48 vars in 690 bytes} [Sun Aug  4 10:22:05 2019] POST /auth/login => generated 59 bytes in 426 msecs (HTTP/1.1 200) 4 headers in 302 bytes (1 switches on core 0)
+[pid: 9078|app: 0|req: 2/3] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:23:33 2019] GET /file/download?foldername=Math&filename=2019080409543794.txt => generated 28 bytes in 18 msecs via sendfile() (HTTP/1.1 200) 7 headers in 277 bytes (0 switches on core 1)
+[pid: 9073|app: 0|req: 1/4] 127.0.0.1 () {50 vars in 1043 bytes} [Sun Aug  4 10:26:14 2019] GET /file/upload => generated 129 bytes in 62 msecs (HTTP/1.1 405) 3 headers in 120 bytes (1 switches on core 0)
+[pid: 9075|app: 0|req: 2/5] 127.0.0.1 () {50 vars in 1044 bytes} [Sun Aug  4 10:26:30 2019] POST /file/upload => generated 78 bytes in 280 msecs (HTTP/1.1 200) 3 headers in 103 bytes (2 switches on core 1)
+[pid: 9073|app: 0|req: 2/6] 127.0.0.1 () {46 vars in 922 bytes} [Sun Aug  4 10:27:30 2019] GET /file/download?foldername=Math&filename=2019080410263062.zip => generated 851770 bytes in 227 msecs via sendfile() (HTTP/1.1 200) 7 headers in 275 bytes (0 switches on core 1)
