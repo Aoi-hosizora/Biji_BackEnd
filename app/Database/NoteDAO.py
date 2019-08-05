@@ -130,6 +130,8 @@ class NoteDAO(object):
         if not self.queryUserOneNote(username, note.id) == None:
             raise ExistError(note.title)
 
+        # TODO 可能要删除
+        
         try:
             id = note.id
             title = note.title

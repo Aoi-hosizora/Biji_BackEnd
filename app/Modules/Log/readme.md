@@ -10,8 +10,11 @@
 
 |Method|Uri|Description|
 |--|--|--|
-|`GET`|`/log/<string:mod>`|Get user `mod` module log|
+|`GET`|`/log/<string>`|Get user module log|
 |`GET`|`/log/all`|Get user all logs|
+|`POST`|`/log/update`|Update user module log \*|
+
+[\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Log/readme.md#request-body)
 
 ## Request Header
 
@@ -27,7 +30,12 @@
 
 ## Request Body
 
-+ Nothing
++ `POST /log/update`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`module`|`int`|Required|Log module|\[Note|Group|Star|File|Schedule\]|
+|`ut`|`datetime`|Required|Log update time|Format like `%Y-%m-%d %H:%M:%S`|
 
 ## Response Header
 
@@ -35,7 +43,7 @@
 
 ## Response Body
 
-+ `GET /log/<string:mod>`
++ `GET /log/<string>`
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
@@ -55,10 +63,13 @@ Example:
     + Array
     + Content is same as `GET /log/<string:mod>`
 
++ `POST /log/update`
+    + Same as [Request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Log/readme.md#request-body)
+
 ## Error Message Type
 
 + Public error code and error message type see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
 
 |Message|Description|
 |--|--|
-|`Log Not Found Error`|Log type unknown|
+|`Log Not Found Error`|Log module unknown|

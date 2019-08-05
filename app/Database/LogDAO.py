@@ -118,7 +118,7 @@ class LogDAO(object):
         except:
             return None
 
-    def updateUserLog(self, username: str, module: str) -> bool:
+    def updateUserLog(self, username: str, module: str, ut: datetime = datetime.datetime.now()) -> bool:
         '''
         对数据库中用户的指定日志更新
         '''
@@ -126,7 +126,7 @@ class LogDAO(object):
             self.createLogLine(username, module)
             self.cursor.execute("""UPDATE {} SET {} = '{}'
                 WHERE {} = '{}' AND {} = '{}'""".format(self.tbl_name,
-                    self.col_time, datetime.datetime.now(),
+                    self.col_time, ut,
                     self.col_username, username, self.col_module, module
                 )
             )

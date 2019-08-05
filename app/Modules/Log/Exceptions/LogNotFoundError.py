@@ -7,6 +7,6 @@ class LogNotFoundError(Exception):
 
     def __str__(self):
         if self.log == None or self.log == "":
-            return "Log not found"
+            return "Log module not found"
         else:
-            return "Log: \"%s\" not found" % self.log
+            return "Log module: \"%s\" not found" % self.log

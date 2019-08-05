@@ -36,28 +36,28 @@ def register_error_forward(app: Flask):
         500 Error Forwarding
         '''
 
-        glob = register_global_error_handler(error)
-        auth = Auth.forward_auth_error(error)
-        note = Note.forward_note_error(error)
-        star = Star.forward_star_error(error)
-        file = File.forward_file_error(error)
-        schedule = Schedule.forward_schedule_error(error)
-        log = Log.forward_log_error(error)
+        err_glob = register_global_error_handler(error)
+        err_auth = Auth.forward_auth_error(error)
+        err_note = Note.forward_note_error(error)
+        err_star = Star.forward_star_error(error)
+        err_file = File.forward_file_error(error)
+        err_schedule = Schedule.forward_schedule_error(error)
+        err_log = Log.forward_log_error(error)
 
-        if not glob == None:
-            return glob
-        elif not auth == None:
-            return auth
-        elif not note == None:
-            return note
-        elif not star == None:
-            return star
-        elif not file == None:
-            return file
-        elif not schedule == None:
-            return schedule
-        elif not log == None:
-            return log
+        if not err_glob == None:
+            return err_glob
+        elif not err_auth == None:
+            return err_auth
+        elif not err_note == None:
+            return err_note
+        elif not err_star == None:
+            return err_star
+        elif not err_file == None:
+            return err_file
+        elif not err_schedule == None:
+            return err_schedule
+        elif not err_log == None:
+            return err_log
         else:
             return RespUtil.jsonRet(
                 dict=ErrorUtil.getErrorMessageJson(error=error, title="Internal Server Error"),

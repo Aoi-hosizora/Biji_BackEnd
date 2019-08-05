@@ -1,5 +1,4 @@
 from app.Database.NoteDAO import NoteDAO
-from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
 from app.Modules.Log.Controllers import LogCtrl
 
 from app.Modules.Note.Models.Note import Note
@@ -7,6 +6,7 @@ from app.Modules.Note.Exceptions.NotExistError import NotExistError
 from app.Modules.Note.Exceptions.UpdateError import UpdateError
 from app.Modules.Note.Exceptions.InsertError import InsertError
 from app.Modules.Note.Exceptions.DeleteError import DeleteError
+from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
 
 import json
 

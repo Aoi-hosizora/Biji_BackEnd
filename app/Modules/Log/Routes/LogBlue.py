@@ -52,3 +52,18 @@ def OneLogRoute(mod):
         dict=log.toJson(), 
         code=ErrorUtil.Success
     )
+
+@blue_Log.route("/update", methods=['POST'])
+def updateLogRoute():
+    '''
+    同步客户端日志处理
+    '''
+    username = RespUtil.getAuthUser(request.headers)
+    log = LogCtrl.getLogFromReqData(request.get_data(as_text=True))
+    if not log.module in ['Note', 'Group', 'Star', 'File', 'Schedule']:
+        raise LogNotFoundError(log.module)
+    LogCtrl.updateLog(username=username, log=log)
+    return RespUtil.jsonRet(
+        dict=log.toJson(), 
+        code=ErrorUtil.Success
+    )
