@@ -5,6 +5,7 @@
 |Date|Remark|
 |--|--|
 |`2019/08/04`|Complete log module|
+|`2019/08/05`|Add update log route|
 
 ## URI
 

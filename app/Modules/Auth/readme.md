@@ -5,6 +5,7 @@
 |Date|Remark|
 |--|--|
 |`2019/08/02`|Complete Auth Module|
+|`2019/08/07`|Add logout route|
 
 ## URI
 
@@ -12,12 +13,17 @@
 |--|--|--|
 |POST|`/auth/register`|Register an unexisting user \*|
 |POST|`/auth/login`|Login as an existing user \*|
+|POST|`/auth/logout`|Logout the current user \*|
 
 [\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md#request-body)
 
 ## Request Header
 
-+ Nothing
++ `POST /auth/logout`
+
+|Key|Is Required|Description|
+|--|--|--|
+|`Authorization`|Required|User Login Token|
 
 ## Request Query Param
 
@@ -85,6 +91,20 @@ Example:
 {
     "username": "aoihosizora",
     "status": "Login Success"
+}
+```
+
++ `POST /auth/logout`
+
+|Field|Type|Description|
+|--|--|--|
+|`title`|`string`|Logout Success|
+
+Example:
+
+```json
+{
+    "title": "User \"aoihosizora\" logout success"
 }
 ```
 

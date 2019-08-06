@@ -7,6 +7,7 @@ from app.Modules.Auth.Exceptions.PasswordFormatError import PasswordFormatError
 from app.Modules.Auth.Exceptions.UsernameFormatError import UsernameFormatError
 from app.Modules.Auth.Exceptions.TokenTimeoutError import TokenTimeoutError
 from app.Modules.Auth.Exceptions.LoginError import LoginError
+from app.Modules.Auth.Exceptions.LogoutError import LogoutError
 
 def register_auth_error_handler(error: TypeError):
     '''
@@ -47,6 +48,12 @@ def register_auth_error_handler(error: TypeError):
         return RespUtil.jsonRet(
             dict=ErrorUtil.getErrorMessageJson(error=error, title="Login Timeout"),
             code=ErrorUtil.UnAuthorized
+        )
+    ###############################################################################################
+    elif isinstance(error, LogoutError): # 注销失败
+        return RespUtil.jsonRet(
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Logout Error"),
+            code=ErrorUtil.NotAcceptable
         )
     else:
         return None

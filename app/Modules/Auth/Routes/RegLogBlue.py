@@ -4,6 +4,7 @@ from app.Utils.Exceptions.BodyFormKeyError import BodyFormKeyError
 
 from app.Modules.Auth.Exceptions.RegisterError import RegisterError
 from app.Modules.Auth.Exceptions.LoginError import LoginError
+from app.Modules.Auth.Exceptions.LogoutError import LogoutError
 
 from app.Modules.Auth.Models.RegLogInfo import RegLogInfo
 from app.Modules.Auth.Controllers import PasswordCtrl
@@ -83,3 +84,17 @@ def RegisterRoute():
         )
     else:
         raise(RegisterError(username))
+
+@blue_RegLog.route("/logout", methods=['POST'])
+def LogoutRoute():
+    '''
+    注销路由处理 `POST /logout`
+    '''
+    username = RespUtil.getAuthUser(request.headers)
+    if PasswordCtrl.Logout(username):
+        return RespUtil.jsonRet(
+            dict=Message("Logout Success").toJson(), 
+            code=ErrorUtil.Success
+        )
+    else:
+        raise LogoutError(username)

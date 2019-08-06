@@ -52,3 +52,14 @@ def Login(username: str, password: str, expiration: int = 0) -> bool:
             return False, ''
     else:
         return False, ''
+    
+def Logout(username: str) -> bool:
+    '''
+    用户注销处理
+
+    @param `username`
+
+    @return 注销是否成功
+    '''
+    tokenDao = TokenDAO()
+    return tokenDao.removeToken(username)
