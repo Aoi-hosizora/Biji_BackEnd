@@ -6,6 +6,7 @@
 |--|--|
 |`2019/08/02`|Complete note module|
 |`2019/08/03`|Add `ImgBlue`|
+|`2019/08/07`|Add `PushNote` and `PushGroup` route|
 
 ## URI
 
@@ -16,11 +17,13 @@
 |`POST`|`/note/update`|Update note content \*\*|
 |`PUT`|`/note/insert`|Add a new note \*\*|
 |`DELETE`|`/note/delete`|Delete an old note \*\*|
+|`POST`|`/note/push`|Through log update notes \*\*|
 |`GET`|`/group/all`|Get user all groups|
 |`GET`|`/group/one`|Get user one groups \*|
 |`POST`|`/group/update`|Update group content \*\*|
 |`PUT`|`/group/insert`|Add a new group \*\*|
 |`DELETE`|`/group/delete`|Delete an old group \*\*|
+|`POST`|`/group/push`|Through log update groups \*\*|
 |`POST`|`/note/img`|Upload user note image \*\*|
 |`GET`|`/note/img/blob/<usr>/<img>`|Download user note image|
 
@@ -100,6 +103,14 @@ Example:
 }
 ```
 
++ `POST /note/push`
+    + Array
+    + Same with `PUT /note/insert` Request Body
+
++ `POST /group/push`
+    + Array
+    + Same with `PUT /group/insert` Request Body
+
 + `POST /note/img`
 
 |Field|Type|Is Required|Description|Remark|
@@ -129,6 +140,14 @@ Example:
 + `PUT /group/insert`
 + `DELETE /group/delete`
     + Same as [request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
+
++ `POST /note/push`
++ `POST /group/push`
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`message`|`string`|Push status||
+|`detail`|`string`|Push items length||
 
 + `POST /note/img`
 

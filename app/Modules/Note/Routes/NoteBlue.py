@@ -96,3 +96,19 @@ def DeleteNoteRoute():
         dict=note.toJson(), 
         code=ErrorUtil.Success
     )
+
+@blue_Note.route("/push", methods=['POST'])
+def PushNoteRoute():
+    '''
+    同步笔记路由处理 `POST /push`
+
+    @body `Note []` JSON
+    '''
+    username = RespUtil.getAuthUser(request.headers)
+    notes = NoteCtrl.getNotesFromReqData(request.get_data(as_text=True))
+
+    NoteCtrl.pushNote(username, notes)
+    return RespUtil.jsonRet(
+        dict=Message(message="Notes push finished", detail=len(notes)).toJson(), 
+        code=ErrorUtil.Success
+    )

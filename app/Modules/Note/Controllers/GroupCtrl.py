@@ -14,13 +14,37 @@ def getGroupFromReqData(reqdata: str) -> Group:
     '''
     从 Req 的 headers 中获取 Group
 
-    `getNoteFromReqData(request.headers)`
+    `getGroupFromReqData(request.headers)`
     '''
     try:
         postjson = json.loads(reqdata)
     except:
         raise BodyRawJsonError()
 
+    return checkJson(postjson)
+
+def getGroupsFromReqData(reqdata: str) -> [Group]:
+    '''
+    从 Req 的 headers 中获取 Group[]
+
+    `getGroupsFromReqData(request.headers)`
+    '''
+    try:
+        postjson = json.loads(reqdata)
+
+        ret = []
+        for postjson in postjsons:
+            ret.append(checkJson(json.loads(postjson)))
+
+    except:
+        raise BodyRawJsonError()
+
+    return ret
+
+def checkJson(postjson) -> Group:
+    '''
+    检查 Json 并转换
+    '''
     keys = ['id', 'name', 'order', 'color']
     nonePostKeys = [
         key for key in keys
@@ -82,3 +106,17 @@ def deleteGroup(username: str, group: Group) -> bool:
         return True
     else:
         raise DeleteError(group.name, isNote=False)
+    
+def pushGroup(username: str, groups: [Group]) -> bool:
+    '''
+    同步分组
+    '''
+    groupDao = GroupDAO()
+    rets = groupDao.queryUserAllGroups(username)
+    for ret in rets:
+        r = groupDao.deleteUserGroup(username, ret)
+    
+    for group in groups:
+        r = groupDao.insertUserGroup(username, note)
+    
+    return r

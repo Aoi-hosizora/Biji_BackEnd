@@ -97,3 +97,19 @@ def DeleteGroupRoute():
         dict=group.toJson(), 
         code=ErrorUtil.Success
     )
+
+@blue_Group.route("/push", methods=['POST'])
+def PushGroupRoute():
+    '''
+    同步笔记路由处理 `POST /push`
+
+    @body `Note []` JSON
+    '''
+    username = RespUtil.getAuthUser(request.headers)
+    groups = GroupCtrl.getGroupsFromReqData(request.get_data(as_text=True))
+
+    GroupCtrl.pushGroup(username, groups)
+    return RespUtil.jsonRet(
+        dict=Message(message="Groups push finished", detail=len(groups)).toJson(), 
+        code=ErrorUtil.Success
+    )

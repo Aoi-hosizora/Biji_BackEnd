@@ -21,7 +21,32 @@ def getNoteFromReqData(reqdata: str) -> Note:
     except:
         # 解析错误
         raise BodyRawJsonError()
+    
+    return checkJson(postjson)
+    
+def getNotesFromReqData(reqdata: str) -> [Note]:
+    '''
+    从 Req 的 headers 中获取 Note[]
 
+    `getNotesFromReqData(request.headers)`
+    '''
+    try:
+        postjson = json.loads(reqdata)
+        
+        ret = []
+        for postjson in postjsons:
+            ret.append(checkJson(json.loads(postjson)))
+    
+    except:
+        # 解析错误
+        raise BodyRawJsonError()
+    
+    return ret
+
+def checkJson(postjson) -> Note:
+    '''
+    检查 Json 并转化
+    '''
     keys = ['id', 'title', 'content', 'group_id', 'create_time', 'update_time']
     nonePostKeys = [
         key for key in keys
@@ -90,3 +115,18 @@ def deleteNote(username: str, note: Note) -> bool:
         return True
     else:
         raise DeleteError(note.title)
+
+def pushNote(username: str, notes: [Note]) -> bool:
+    '''
+    同步笔记
+    '''
+    noteDao = NoteDAO()
+    rets = noteDao.queryUserAllNotes(username)
+    for ret in rets:
+        r = noteDao.deleteUserNote(username, ret)
+    
+    for note in notes:
+        r = noteDao.insertUserNote(username, note)
+    
+    return r
+    

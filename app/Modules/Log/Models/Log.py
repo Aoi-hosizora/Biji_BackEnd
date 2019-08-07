@@ -7,9 +7,7 @@ class Log(object):
         if isinstance(updateTime, datetime.datetime):
             self.updateTime = updateTime
         else:
-            print(updateTime)
             self.updateTime = datetime.datetime.strptime(updateTime, "%Y-%m-%d %H:%M:%S") 
-            print(type(self.updateTime))
     def toJson(self):
         return {
             'module': self.module,

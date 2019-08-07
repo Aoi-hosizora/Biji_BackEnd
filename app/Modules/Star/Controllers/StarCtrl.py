@@ -20,6 +20,31 @@ def getStarFromReqData(reqdata: str) -> StarItem:
         # 解析错误
         raise BodyRawJsonError()
 
+    return checkJson(postjson)
+
+def getStarsFromReqData(reqdata: str) -> [StarItem]:
+    '''
+    从 Req 的 headers 中获取 Star[]
+
+    `getStarsFromReqData(request.headers)`
+    '''
+    try:
+        postjsons = json.loads(reqdata)
+    
+        ret = []
+        for postjson in postjsons:
+            ret.append(checkJson(json.loads(postjson)))
+            
+    except:
+        # 解析错误
+        raise BodyRawJsonError()
+    
+    return ret
+
+def checkJson(postjson) -> StarItem:
+    '''
+    检查 Json 并转换
+    '''
     keys = ['title', 'url', 'content']
     nonePostKeys = [
         key for key in keys
@@ -67,3 +92,18 @@ def deleteStar(username: str, star: StarItem) -> bool:
         return True
     else:
         raise DeleteError(star.title)
+
+def pushStar(username: str, stars: [StarItem]) -> bool:
+    '''
+    同步收藏
+    '''
+    starDao = StarDAO()
+    rets = starDao.queryUserAllStars(username)
+    for ret in rets:
+        r = starDao.deleteUserStar(username, ret)
+    
+    for star in stars:
+        r = starDao.insertUserStar(username, star)
+    
+    return r
+    

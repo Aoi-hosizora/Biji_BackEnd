@@ -1,4 +1,5 @@
 from app.Utils import ErrorUtil, RespUtil
+from app.Models.Message import Message
 
 from app.Modules.Star.Controllers import StarCtrl
 from app.Modules.Star.Models.StarItem import StarItem
@@ -57,5 +58,21 @@ def DeleteStarRoute():
     StarCtrl.deleteStar(username=username, star=star)
     return RespUtil.jsonRet(
         dict=star.toJson(), 
+        code=ErrorUtil.Success
+    )
+
+@blue_Star.route("/push", methods=['POST'])
+def PushStarRoute():
+    '''
+    同步收藏路由处理 `POST /push`
+
+    @body `Star []` JSON
+    '''
+    username = RespUtil.getAuthUser(request.headers)
+    stars = StarCtrl.getStarsFromReqData(request.get_data(as_text=True))
+
+    StarCtrl.pushStar(username, stars)
+    return RespUtil.jsonRet(
+        dict=Message(message="Stars push finished", detail=len(stars)).toJson(), 
         code=ErrorUtil.Success
     )

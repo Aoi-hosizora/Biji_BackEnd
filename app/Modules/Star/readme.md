@@ -5,6 +5,7 @@
 |Date|Remark|
 |--|--|
 |`2019/08/03`|Complete star module|
+|`2019/08/07`|Add `PushStar` route|
 
 ## URI
 
@@ -13,6 +14,7 @@
 |`GET`|`/star/all`|Get user all stars|
 |`PUT`|`/star/insert`|Add a new star \*|
 |`DELETE`|`/star/delete`|Delete an old star \*|
+|`POST`|`/star/push`|Through log update stars \*\*|
 
 [\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md#request-body)
 
@@ -49,6 +51,10 @@ Example:
 }
 ```
 
++ `POST /star/push`
+    + Array
+    + Same with `PUT /star/insert` Request Body
+
 ## Response Header
 
 + Nothing
@@ -62,6 +68,13 @@ Example:
 + `PUT /star/insert`
 + `DELETE /star/delete`
     + Content is same as [request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md#request-body)
+
++ `POST /star/push`
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`message`|`string`|Push status||
+|`detail`|`string`|Push items length||
 
 ## Error Message Type
 
