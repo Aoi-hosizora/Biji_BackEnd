@@ -30,7 +30,7 @@ def getGroupsFromReqData(reqdata: str) -> [Group]:
     `getGroupsFromReqData(request.headers)`
     '''
     try:
-        postjson = json.loads(reqdata)
+        postjsons = json.loads(reqdata)
 
         ret = []
         for postjson in postjsons:
@@ -113,10 +113,11 @@ def pushGroup(username: str, groups: [Group]) -> bool:
     '''
     groupDao = GroupDAO()
     rets = groupDao.queryUserAllGroups(username)
+    r = True
     for ret in rets:
         r = groupDao.deleteUserGroup(username, ret)
     
     for group in groups:
-        r = groupDao.insertUserGroup(username, note)
+        r = groupDao.insertUserGroup(username, group)
     
     return r

@@ -30,7 +30,7 @@ class TokenDAO(object):
             }): ex
         }) == 1
 
-    def removeToken(self, username: str) -> bool:
+    def removeToken(self, username: str):
         '''
         删除用户 token
         '''

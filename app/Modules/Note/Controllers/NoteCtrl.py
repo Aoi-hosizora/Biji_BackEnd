@@ -31,7 +31,7 @@ def getNotesFromReqData(reqdata: str) -> [Note]:
     `getNotesFromReqData(request.headers)`
     '''
     try:
-        postjson = json.loads(reqdata)
+        postjsons = json.loads(reqdata)
         
         ret = []
         for postjson in postjsons:
@@ -122,6 +122,7 @@ def pushNote(username: str, notes: [Note]) -> bool:
     '''
     noteDao = NoteDAO()
     rets = noteDao.queryUserAllNotes(username)
+    r = False
     for ret in rets:
         r = noteDao.deleteUserNote(username, ret)
     

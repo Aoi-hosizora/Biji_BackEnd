@@ -91,10 +91,8 @@ def LogoutRoute():
     注销路由处理 `POST /logout`
     '''
     username = RespUtil.getAuthUser(request.headers)
-    if PasswordCtrl.Logout(username):
-        return RespUtil.jsonRet(
-            dict=Message("Logout Success").toJson(), 
-            code=ErrorUtil.Success
-        )
-    else:
-        raise LogoutError(username)
+    PasswordCtrl.Logout(username)
+    return RespUtil.jsonRet(
+        dict=Message("Logout Success").toJson(), 
+        code=ErrorUtil.Success
+    )
