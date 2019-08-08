@@ -4,6 +4,7 @@ from app.Utils.Exceptions.BodyFormKeyError import BodyFormKeyError
 
 from app.Modules.Auth.Exceptions.RegisterError import RegisterError
 from app.Modules.Auth.Exceptions.LoginError import LoginError
+from app.Modules.Auth.Exceptions.LoginPasswordError import LoginPasswordError
 from app.Modules.Auth.Exceptions.LogoutError import LogoutError
 
 from app.Modules.Auth.Models.RegLogInfo import RegLogInfo
@@ -55,7 +56,8 @@ def LoginRoute():
             headers={ 'Authorization': token }
         )
     else:
-        raise(LoginError(username))
+        # 密码不一致 或者 redis 插入错误
+        raise(LoginPasswordError(username))
 
 @blue_RegLog.route("/register", methods=['POST'])
 def RegisterRoute():
@@ -90,7 +92,7 @@ def LogoutRoute():
     '''
     注销路由处理 `POST /logout`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     PasswordCtrl.Logout(username)
     return RespUtil.jsonRet(
         dict=Message("Logout Success").toJson(), 

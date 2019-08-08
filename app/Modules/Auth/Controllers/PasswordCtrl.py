@@ -46,7 +46,7 @@ def Login(username: str, password: str, expiration: int = 0) -> bool:
         token = PassUtil.generate_token(username, expiration)
         tokenDao = TokenDAO()
         tokenDao.removeToken(username=username)
-        if tokenDao.addToken(username=username, token=token, ex=expiration):
+        if tokenDao.addToken(username=username, token=token):
             return True, token
         else:
             return False, ''

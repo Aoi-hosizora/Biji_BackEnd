@@ -19,13 +19,14 @@ def DownloadScheduleRoute():
     '''
     下载课表路由处理 `GET /download`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
 
     schedule = ScheduleCtrl.getSchedule(username=username)
 
     return RespUtil.jsonRet(
         dict=schedule.toJson(),
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 
@@ -34,7 +35,7 @@ def UploadScheduleRoute():
     '''
     上传课表路由处理 `POST /upload`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
     schedulejson = form['schedulejson']
     schedule = Schedule(username, schedulejson)
@@ -43,7 +44,8 @@ def UploadScheduleRoute():
         dict=Message(
             message="Schedule upload success",
         ).toJson(),
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 
@@ -52,14 +54,15 @@ def DeleteScheduleRoute():
     '''
     删除课表路由处理 `DELETE /delete`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
 
     ScheduleCtrl.deleteSchedule(Schedule(username, ''))
     return RespUtil.jsonRet(
         dict=Message(
             message="Schedule delete success",
         ).toJson(),
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 
@@ -69,7 +72,7 @@ def UpdateScheduleRoute():
     更新用户课表 'PUT /update'
     :return:
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
     schedulejson = form['schedulejson']
     schedule = Schedule(username, schedulejson)
@@ -78,5 +81,6 @@ def UpdateScheduleRoute():
         dict=Message(
             message="Schedule update success",
         ).toJson(),
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

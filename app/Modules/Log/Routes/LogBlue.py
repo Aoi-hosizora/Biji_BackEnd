@@ -23,11 +23,12 @@ def AllLogRoute():
     '''
     获得所有日志路由处理 `GET /all`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     logs = LogCtrl.getUserAllLog(username=username)
     return RespUtil.jsonRet(
         dict=Log.toJsonSet(logs), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Log.route("/one/<string:mod>", methods=['GET'])
@@ -35,7 +36,7 @@ def OneLogRoute(mod):
     '''
     获得一个日志路由处理 `GET /one`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     if mod.lower() == "note":
         log = LogCtrl.getNoteLog(username=username)
     elif mod.lower() == "group":
@@ -50,7 +51,8 @@ def OneLogRoute(mod):
         raise LogNotFoundError(mod)
     return RespUtil.jsonRet(
         dict=log.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Log.route("/update", methods=['POST'])
@@ -58,12 +60,13 @@ def updateLogRoute():
     '''
     同步客户端日志处理
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     log = LogCtrl.getLogFromReqData(request.get_data(as_text=True))
     if not log.module in ['Note', 'Group', 'Star', 'File', 'Schedule']:
         raise LogNotFoundError(log.module)
     LogCtrl.updateLog(username=username, log=log)
     return RespUtil.jsonRet(
         dict=log.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

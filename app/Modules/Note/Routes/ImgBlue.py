@@ -21,7 +21,7 @@ def UploadImgRoute():
     '''
     上传笔记图片路由处理 `POST /upload`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     img = request.files.get('noteimg')
     filename = ImgCtrl.saveUserImg(username, img)
     return RespUtil.jsonRet(
@@ -29,7 +29,8 @@ def UploadImgRoute():
             message="Image upload success",
             detail=filename
         ).toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Img.route("/blob/<string:usr>/<string:img>", methods=["GET"])
@@ -37,11 +38,11 @@ def GetImgRoute(usr: str, img: str):
     '''
     查看图片路由处理 `GET /blob/<usr>/<img>`
     '''
-    # username = RespUtil.getAuthUser(request.headers)
+    # username, newToken = RespUtil.getAuthUser(request.headers)
     image = ImgCtrl.getUserImg(usr, img)
     return RespUtil.jsonRet(
         isImg=True,
         dict=image,
         code=ErrorUtil.Success,
-        headers={ 'Content-Type': 'image/png' },
+        headers={'Content-Type': 'image/png', 'Authorization': newToken} if newToken != "" else { 'Content-Type': 'image/png' }
     )

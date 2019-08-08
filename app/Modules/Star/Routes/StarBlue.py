@@ -22,11 +22,12 @@ def AllStarRoute():
     '''
     获得所有收藏路由处理 `GET /all`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     stars = StarCtrl.getAllStars(username=username)
     return RespUtil.jsonRet(
         dict=StarItem.toJsonSet(stars), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Star.route("/insert", methods=['PUT'])
@@ -36,13 +37,14 @@ def InsertStarRoute():
 
     @body `Star` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     star = StarCtrl.getStarFromReqData(request.get_data(as_text=True))
     
     StarCtrl.insertStar(username=username, star=star)
     return RespUtil.jsonRet(
         dict=star.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Star.route("/delete", methods=['DELETE'])
@@ -52,13 +54,14 @@ def DeleteStarRoute():
 
     @body `Star` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     star = StarCtrl.getStarFromReqData(request.get_data(as_text=True))
 
     StarCtrl.deleteStar(username=username, star=star)
     return RespUtil.jsonRet(
         dict=star.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Star.route("/push", methods=['POST'])
@@ -68,11 +71,12 @@ def PushStarRoute():
 
     @body `Star []` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     stars = StarCtrl.getStarsFromReqData(request.get_data(as_text=True))
 
     StarCtrl.pushStar(username, stars)
     return RespUtil.jsonRet(
         dict=Message(message="Stars push finished", detail=len(stars)).toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

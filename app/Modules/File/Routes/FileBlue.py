@@ -20,17 +20,19 @@ def AllFileRoute():
     '''
     获得目录下所有文件路由处理 `GET /all?foldername=<str>`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     foldername = request.args.get('foldername', '')
     if foldername == '':
         return RespUtil.jsonRet(
             dict={},
-            code=ErrorUtil.BadRequest
+            code=ErrorUtil.BadRequest,
+            headers={'Authorization': newToken} if newToken != "" else {}
         )
     files = FileCtrl.getAllFiles(username=username, foldername=foldername)
     return RespUtil.jsonRet(
         dict=File.toJsonSet(files),
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 
@@ -39,7 +41,7 @@ def DownloadFileRoute():
     '''
     下载文件路由处理 `GET /download?foldername=<str>&filename=<str>`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     foldername = request.args.get('foldername')
     filename = request.args.get('filename')
 
@@ -55,7 +57,7 @@ def UploadFileRoute():
 
     上传文件路由处理 `POST /upload`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
     foldername = form['foldername']
     file = request.files['file']
@@ -68,13 +70,15 @@ def UploadFileRoute():
                 message="File upload success",
                 detail=file.filename
             ).toJson(),
-            code=ErrorUtil.Success
+            code=ErrorUtil.Success,
+            headers={'Authorization': newToken} if newToken != "" else {}
         )
     return RespUtil.jsonRet(
         dict=Message(
             message="File upload fail",
         ).toJson(),
-        code=ErrorUtil.BadRequest
+        code=ErrorUtil.BadRequest,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 
@@ -83,7 +87,7 @@ def DeleteFileRoute():
     '''
     删除文件路由处理 `DELETE /delete`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
     foldername = form['foldername']
     filename = form['filename']
@@ -94,5 +98,6 @@ def DeleteFileRoute():
             message="File delete success",
             detail=filename
         ).toJson(),
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

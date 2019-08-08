@@ -7,6 +7,7 @@ from app.Modules.Auth.Exceptions.PasswordFormatError import PasswordFormatError
 from app.Modules.Auth.Exceptions.UsernameFormatError import UsernameFormatError
 from app.Modules.Auth.Exceptions.TokenTimeoutError import TokenTimeoutError
 from app.Modules.Auth.Exceptions.LoginError import LoginError
+from app.Modules.Auth.Exceptions.LoginPasswordError import LoginPasswordError
 from app.Modules.Auth.Exceptions.LogoutError import LogoutError
 
 def register_auth_error_handler(error: TypeError):
@@ -39,12 +40,17 @@ def register_auth_error_handler(error: TypeError):
             dict=ErrorUtil.getErrorMessageJson(error=error, title="Login Error"),
             code=ErrorUtil.UnAuthorized
         )
+    elif isinstance(error, LoginPasswordError): # 密码错误
+        return RespUtil.jsonRet(
+            dict=ErrorUtil.getErrorMessageJson(error=error, title="Password Error"),
+            code=ErrorUtil.UnAuthorized
+        )
     elif isinstance(error, UserNotExistError): # 用户未存在
         return RespUtil.jsonRet(
             dict=ErrorUtil.getErrorMessageJson(error=error, title="User Not Exist Error"),
             code=ErrorUtil.UnAuthorized
         )
-    elif isinstance(error, TokenTimeoutError): # Token 过期
+    elif isinstance(error, TokenTimeoutError): # 登录过期
         return RespUtil.jsonRet(
             dict=ErrorUtil.getErrorMessageJson(error=error, title="Login Timeout"),
             code=ErrorUtil.UnAuthorized

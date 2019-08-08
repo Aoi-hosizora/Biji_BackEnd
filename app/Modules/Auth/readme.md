@@ -55,7 +55,7 @@ Example:
 |`password`|`string`|Required|Login Password|
 |`expiration`|`int`|Not Required \*|Token Timeout Expiration (second)|
 
-\* Expiration default for 10 minutes
+\* Expiration default for 30 days
 
 Example:
 

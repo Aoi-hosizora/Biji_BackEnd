@@ -24,11 +24,12 @@ def AllNoteRoute():
     '''
     获得所有笔记路由处理 `GET /all`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     notes = NoteCtrl.getAllNotes(username=username)
     return RespUtil.jsonRet(
         dict=Note.toJsonSet(notes), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Note.route("/one", methods=['GET'])
@@ -36,7 +37,7 @@ def OneNoteRoute():
     '''
     获得单个笔记路由处理 `GET /one?id=<int>`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     id = request.args.get('id')
     try:
         id = int(id)
@@ -46,7 +47,8 @@ def OneNoteRoute():
     note = NoteCtrl.getOneNote(username=username, id=id)
     return RespUtil.jsonRet(
         dict=note.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Note.route("/update", methods=['POST'])
@@ -56,13 +58,14 @@ def UpdateNoteRoute():
     
     @body `Note` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     note = NoteCtrl.getNoteFromReqData(request.get_data(as_text=True))
     
     NoteCtrl.updateNote(username=username, note=note)
     return RespUtil.jsonRet(
         dict=note.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Note.route("/insert", methods=['PUT'])
@@ -72,13 +75,14 @@ def InsertNoteRoute():
 
     @body `Note` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     note = NoteCtrl.getNoteFromReqData(request.get_data(as_text=True))
     
     NoteCtrl.insertNote(username=username, note=note)
     return RespUtil.jsonRet(
         dict=note.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Note.route("/delete", methods=['DELETE'])
@@ -88,13 +92,14 @@ def DeleteNoteRoute():
 
     @body `Note` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     note = NoteCtrl.getNoteFromReqData(request.get_data(as_text=True))
 
     NoteCtrl.deleteNote(username=username, note=note)
     return RespUtil.jsonRet(
         dict=note.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Note.route("/push", methods=['POST'])
@@ -104,11 +109,12 @@ def PushNoteRoute():
 
     @body `Note []` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     notes = NoteCtrl.getNotesFromReqData(request.get_data(as_text=True))
 
     NoteCtrl.pushNote(username, notes)
     return RespUtil.jsonRet(
         dict=Message(message="Notes push finished", detail=len(notes)).toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

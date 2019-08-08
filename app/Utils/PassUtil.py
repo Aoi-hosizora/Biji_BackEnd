@@ -2,6 +2,7 @@ from app.Config import Config
 from app.Modules.Auth.Exceptions.LoginError import LoginError
 from app.Modules.Auth.Exceptions.TokenTimeoutError import TokenTimeoutError
 
+import time
 from passlib.apps import custom_app_context
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
@@ -24,7 +25,11 @@ def generate_token(username, expiration) -> str:
     '''
     生成token(去除b')，有效期 expiration
     '''
-    return Serializer(Config.SecretKey, expires_in = expiration).dumps({'username': username}).__str__()[2:-1]
+    return Serializer(Config.SecretKey, expires_in = expiration).dumps({
+        'username': username, 
+        'expiration': expiration,
+        'ct': time.time()
+    }).__str__()[2:-1]
 
 def certify_token(token) -> str:
     '''
@@ -41,3 +46,16 @@ def certify_token(token) -> str:
     if username == "":
         raise LoginError()
     return username
+
+def get_ex_ct_from_token(token) -> [int, int]:
+    '''
+    检查 token，返回总共时长和 token 的创建时间
+    '''
+    try:
+        data = Serializer(Config.SecretKey).loads(token)
+    except SignatureExpired:
+        raise TokenTimeoutError()
+    except BadSignature:
+        raise LoginError()
+    
+    return data['expiration'], data['ct']

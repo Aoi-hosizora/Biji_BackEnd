@@ -25,11 +25,12 @@ def AllGroupRoute():
     '''
     获得所有分组路由处理 `GET /all`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     groups = GroupCtrl.getAllGroups(username=username)
     return RespUtil.jsonRet(
         dict=Group.toJsonSet(groups), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Group.route("/one", methods=['GET'])
@@ -37,7 +38,7 @@ def OneGroupRoute():
     '''
     获得单个分组路由处理 `GET /one?id=<int>`
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     id = request.args.get('id')
     try:
         id = int(id)
@@ -47,7 +48,8 @@ def OneGroupRoute():
     groups = GroupCtrl.getOneGroup(username=username, id=id)
     return RespUtil.jsonRet(
         dict=groups.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Group.route("/update", methods=['Post'])
@@ -57,13 +59,14 @@ def UpdateGroupRoute():
     
     @body `Group` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     group = GroupCtrl.getGroupFromReqData(request.get_data(as_text=True))
     
     GroupCtrl.updateGroup(username=username, group=group)
     return RespUtil.jsonRet(
         dict=group.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Group.route("/insert", methods=['Put'])
@@ -73,13 +76,14 @@ def InsertGroupRoute():
 
     @body `Group` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     group = GroupCtrl.getGroupFromReqData(request.get_data(as_text=True))
     
     GroupCtrl.insertGroup(username=username, group=group)
     return RespUtil.jsonRet(
         dict=group.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Group.route("/delete", methods=['Delete'])
@@ -89,13 +93,14 @@ def DeleteGroupRoute():
 
     @body `Group` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     group = GroupCtrl.getGroupFromReqData(request.get_data(as_text=True))
 
     GroupCtrl.deleteGroup(username=username, group=group)
     return RespUtil.jsonRet(
         dict=group.toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )
 
 @blue_Group.route("/push", methods=['POST'])
@@ -105,11 +110,12 @@ def PushGroupRoute():
 
     @body `Note []` JSON
     '''
-    username = RespUtil.getAuthUser(request.headers)
+    username, newToken = RespUtil.getAuthUser(request.headers)
     groups = GroupCtrl.getGroupsFromReqData(request.get_data(as_text=True))
 
     GroupCtrl.pushGroup(username, groups)
     return RespUtil.jsonRet(
         dict=Message(message="Groups push finished", detail=len(groups)).toJson(), 
-        code=ErrorUtil.Success
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

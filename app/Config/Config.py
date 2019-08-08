@@ -8,7 +8,8 @@ PassWordMaxLength = 20 # 20
 SecretKey = "" # app.config
 
 # Token Setting
-Def_Expiration = 600 # Token Timeout (s)
+Def_Expiration = 2592000 # Token Timeout (s) -> 30d
+Def_Redis_Ex = 10 # Redis zset token Timeout (s) -> 2h
 
 # MySql Config
 MySQL_Host = 'localhost'
