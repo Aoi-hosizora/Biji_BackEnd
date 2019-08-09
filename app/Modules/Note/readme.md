@@ -7,6 +7,7 @@
 |`2019/08/02`|Complete note module|
 |`2019/08/03`|Add `ImgBlue`|
 |`2019/08/07`|Add `PushNote` and `PushGroup` route|
+|`2019/08/09`|Add `DeleteImg` route|
 
 ## URI
 
@@ -24,8 +25,9 @@
 |`PUT`|`/group/insert`|Add a new group \*\*|
 |`DELETE`|`/group/delete`|Delete an old group \*\*|
 |`POST`|`/group/push`|Through log update groups \*\*|
-|`POST`|`/note/img`|Upload user note image \*\*|
+|`POST`|`/note/img/upload`|Upload user note image \*\*|
 |`GET`|`/note/img/blob/<usr>/<img>`|Download user note image|
+|`DELETE`|`/note/img/delete`|Delete user note image \*\*|
 
 [\* Need request query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-query-param)
 
@@ -111,11 +113,29 @@ Example:
     + Array
     + Same with `PUT /group/insert` Request Body
 
-+ `POST /note/img`
++ `POST /note/img/upload`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`noteimg`|`File`|Required|Image File|Only support `jpg, png, 'jpeg, bmp`|
+
++ `DELETE /note/img/delete`
+    + Array
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`username`|`string`|Required|Deleted Image Username||
+|`filename`|`string`|Required|Deleted Image Filename|Contain Img extension|
+
+Example:
+```json
+[
+    {
+        "usernsme": "aoihosizora",
+        "filename": "2019080920071958.jpg"
+    }
+]
+```
 
 ## Response Header
 
@@ -149,7 +169,7 @@ Example:
 |`message`|`string`|Push status||
 |`detail`|`string`|Push items length||
 
-+ `POST /note/img`
++ `POST /note/img/upload`
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
@@ -169,6 +189,22 @@ Example:
     + Response `Content-Type: image/png`
 
 Example: `GET /note/img/blob/aoihosizora/2019080223044764.png`
+
++ `DELETE /note/img/delete`
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`message`|`string`|Delete status||
+|`detail`|`int`|Deleted items count||
+
+Example:
+
+```json
+{
+    "message": "Images delete success",
+    "detail": 3
+}
+```
 
 ## Error Message Type
 

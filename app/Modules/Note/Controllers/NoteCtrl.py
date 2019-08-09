@@ -14,7 +14,7 @@ def getNoteFromReqData(reqdata: str) -> Note:
     '''
     从 Req 的 headers 中获取 Note
 
-    `getNoteFromReqData(request.headers)`
+    `getNoteFromReqData(request.get_data(as_text=True))`
     '''
     try:
         postjson = json.loads(reqdata)
@@ -28,7 +28,7 @@ def getNotesFromReqData(reqdata: str) -> [Note]:
     '''
     从 Req 的 headers 中获取 Note[]
 
-    `getNotesFromReqData(request.headers)`
+    `getNotesFromReqData(request.get_data(as_text=True))`
     '''
     try:
         postjsons = json.loads(reqdata)

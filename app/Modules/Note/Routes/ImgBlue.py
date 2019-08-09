@@ -2,6 +2,7 @@ from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
 
 from app.Modules.Note.Controllers import ImgCtrl 
+from app.Modules.Note.Models.DelImg import DelImg
 
 from flask import Blueprint, request
 from flask.app import Flask
@@ -23,11 +24,13 @@ def UploadImgRoute():
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
     img = request.files.get('noteimg')
-    filename = ImgCtrl.saveUserImg(username, img)
+    filepath = ImgCtrl.saveUserImg(username, img) # ./usr/img/aoihosizora/2019080919590813.jpg
+
+    filepath = "%s/%s" % (filepath.split("/")[-2], filepath.split("/")[-1]) # aoihosizora/2019080919590813.jpg
     return RespUtil.jsonRet(
         dict=Message(
             message="Image upload success",
-            detail=filename
+            detail=filepath
         ).toJson(), 
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
@@ -37,12 +40,30 @@ def UploadImgRoute():
 def GetImgRoute(usr: str, img: str):
     '''
     查看图片路由处理 `GET /blob/<usr>/<img>`
+    (不进行验证)
     '''
-    # username, newToken = RespUtil.getAuthUser(request.headers)
     image = ImgCtrl.getUserImg(usr, img)
     return RespUtil.jsonRet(
         isImg=True,
         dict=image,
         code=ErrorUtil.Success,
-        headers={'Content-Type': 'image/png', 'Authorization': newToken} if newToken != "" else { 'Content-Type': 'image/png' }
+        headers={ 'Content-Type': 'image/png' }
+    )
+
+@blue_Img.route("/delete", methods=["DELETE"])
+def DelImgRoute():
+    '''
+    删除图片路由处理 `DELETE /delete`
+    (进行验证)
+    '''
+    username, newToken = RespUtil.getAuthUser(request.headers)
+    delimgs = ImgCtrl.getImgsFromReqData(request.get_data(as_text=True))
+    l = ImgCtrl.delUsrImgs(username, delimgs)
+    return RespUtil.jsonRet(
+        dict=Message(
+            message="Images delete success",
+            detail=l
+        ).toJson(),
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
     )

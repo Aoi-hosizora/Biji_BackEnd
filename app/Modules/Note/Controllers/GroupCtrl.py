@@ -14,7 +14,7 @@ def getGroupFromReqData(reqdata: str) -> Group:
     '''
     从 Req 的 headers 中获取 Group
 
-    `getGroupFromReqData(request.headers)`
+    `getGroupFromReqData(request.get_data(as_text=True))`)
     '''
     try:
         postjson = json.loads(reqdata)
@@ -27,7 +27,7 @@ def getGroupsFromReqData(reqdata: str) -> [Group]:
     '''
     从 Req 的 headers 中获取 Group[]
 
-    `getGroupsFromReqData(request.headers)`
+    `getGroupsFromReqData(request.get_data(as_text=True))`
     '''
     try:
         postjsons = json.loads(reqdata)

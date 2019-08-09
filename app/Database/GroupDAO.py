@@ -152,9 +152,9 @@ class GroupDAO(object):
                 self.col_username, username, self.col_id, group.id
             ))
             self.db.commit()
-            if not self.queryUserOneGroup(username, group.id) == None:
-                return False
-            return True
+            if self.queryUserOneGroup(username, group.id) == None:
+                return True
+            return False
         except:
             self.db.rollback()
             return False
