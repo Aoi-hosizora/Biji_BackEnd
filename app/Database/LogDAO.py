@@ -17,9 +17,10 @@ class LogDAO(object):
     mod_note = "Note"
     mod_group = "Group"
     mod_star = "Star"
+    mod_file_class = "FileClass"
     mod_file = "File"
     mod_schedule = "Schedule"
-    mods = [mod_note, mod_group, mod_star, mod_file, mod_schedule]
+    mods = [mod_note, mod_group, mod_star, mod_file_class, mod_file, mod_schedule]
 
     def __init__(self):
         self.db = pymysql.connect(

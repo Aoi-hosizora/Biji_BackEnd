@@ -70,13 +70,19 @@ def getScheduleLog(username: str) -> Log:
     logDao = LogDAO()
     return logDao.queryUserOneLog(username, logDao.mod_schedule)
 
+def getFileClassLog(username: str) -> Log:
+    '''
+    获得用户文件分类的更新日志
+    '''
+    logDao = LogDAO()
+    return logDao.queryUserOneLog(username, logDao.mod_file_class)
+
 def getFileLog(username: str) -> Log:
     '''
     获得用户文件的更新日志
     '''
     logDao = LogDAO()
     return logDao.queryUserOneLog(username, logDao.mod_file)
-
 
 def updateLog(username: str, log: Log) -> bool:
     '''
@@ -112,6 +118,13 @@ def updateScheduleLog(username: str) -> bool:
     '''
     logDao = LogDAO()
     return logDao.updateUserLog(username, logDao.mod_schedule)
+
+def updateFileClassLog(username: str) -> bool:
+    '''
+    更新用户文件分类的更新日志
+    '''
+    logDao = LogDAO()
+    return logDao.updateUserLog(username, logDao.mod_file_class)
 
 def updateFileLog(username: str) -> bool:
     '''

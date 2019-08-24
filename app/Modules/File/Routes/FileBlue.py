@@ -23,12 +23,9 @@ def AllFileRoute():
     username, newToken = RespUtil.getAuthUser(request.headers)
     foldername = request.args.get('foldername', '')
     if foldername == '':
-        return RespUtil.jsonRet(
-            dict={},
-            code=ErrorUtil.BadRequest,
-            headers={'Authorization': newToken} if newToken != "" else {}
-        )
-    files = FileCtrl.getAllFiles(username=username, foldername=foldername)
+        files = FileCtrl.getAllFilesByUsername(username=username)
+    else:
+        files = FileCtrl.getAllFiles(username=username, foldername=foldername)
     return RespUtil.jsonRet(
         dict=File.toJsonSet(files),
         code=ErrorUtil.Success,
@@ -59,12 +56,13 @@ def UploadFileRoute():
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
+    id = form['id']
     foldername = form['foldername']
     file = request.files['file']
     if file != None:
         filename, filepath = FileCtrl.saveFile(file=file, username=username)
-        file = File(username, foldername, filename, filepath)
-        FileCtrl.insertFile(file=file)
+        file = File(username, id, foldername, filename, filepath)
+        FileCtrl.insertFile(username=username, file=file)
         return RespUtil.jsonRet(
             dict=Message(
                 message="File upload success",
@@ -81,7 +79,6 @@ def UploadFileRoute():
         headers={'Authorization': newToken} if newToken != "" else {}
     )
 
-
 @blue_File.route("/delete", methods=['DELETE'])
 def DeleteFileRoute():
     '''
@@ -89,15 +86,53 @@ def DeleteFileRoute():
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
+    id = form['id']
     foldername = form['foldername']
     filename = form['filename']
 
-    FileCtrl.deleteFile(File(username, foldername, filename, ''))
+    FileCtrl.deleteFile(username, File(username, id, foldername, filename, ''))
     return RespUtil.jsonRet(
         dict=Message(
             message="File delete success",
             detail=filename
         ).toJson(),
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
+    )
+
+
+@blue_File.route("/delete_all", methods=['DELETE'])
+def DeleteFileByClassRoute():
+    '''
+    删除文件路由处理 `DELETE /delete_all`
+    '''
+    username, newToken = RespUtil.getAuthUser(request.headers)
+    form = request.form
+    foldername = form['foldername']
+
+    FileCtrl.deleteFileByClass(username, foldername)
+    return RespUtil.jsonRet(
+        dict=Message(
+            message="Files delete success",
+            detail=foldername
+        ).toJson(),
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
+    )
+
+@blue_File.route("/push", methods=['POST'])
+def PushFileRoute():
+    '''
+    同步文件路由处理 `POST /push`
+
+    @body `File []` JSON
+    '''
+    username, newToken = RespUtil.getAuthUser(request.headers)
+    files = FileCtrl.getDocumentsFromReqData(request.get_data(as_text=True))
+
+    FileCtrl.pushFile(username, files)
+    return RespUtil.jsonRet(
+        dict=Message(message="Files push finished", detail=len(files)).toJson(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
