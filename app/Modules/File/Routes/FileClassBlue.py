@@ -1,14 +1,15 @@
+import qrcode
+
+from app.Database.ShareCodeDAO import ShareCodeDAO
+
 from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
-from app.Utils.Exceptions.BodyRawJsonError import BodyRawJsonError
-from app.Utils.Exceptions.QueryError import QueryError
 
 from app.Modules.File.Controllers import FileClassCtrl
 from app.Modules.File.Models.FileClass import FileClass
 
-from flask import Blueprint, request
+from flask import Blueprint, request, send_file
 from flask.app import Flask
-import json
 
 blue_FileClass = Blueprint("blue_FileClass", __name__, url_prefix="/fileclass")
 def register_blue_FileClass(app: Flask):
@@ -33,34 +34,15 @@ def AllFileClassRoute():
         headers={'Authorization': newToken} if newToken != "" else {}
     )
 
-@blue_FileClass.route("/one", methods=['GET'])
-def OneGroupRoute():
-    '''
-    获得单个文件分类路由处理 `GET /one?id=<int>`
-    '''
-    username, newToken = RespUtil.getAuthUser(request.headers)
-    id = request.args.get('id')
-    try:
-        id = int(id)
-    except:
-        raise QueryError(list(['id']))
-        
-    fileClasses = FileClassCtrl.getOneFileClass(username=username, id=id)
-    return RespUtil.jsonRet(
-        dict=fileClasses.toJson(),
-        code=ErrorUtil.Success,
-        headers={'Authorization': newToken} if newToken != "" else {}
-    )
-
-@blue_FileClass.route("/update", methods=['Post'])
+@blue_FileClass.route("/update", methods=['Put'])
 def UpdateFileClassRoute():
     '''
-    更新文件分类路由处理 `POST /update`
+    更新文件分类路由处理 `PUT /update`
     
     @body `FileClass` JSON
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
-    fileClass = FileClassCtrl.getFileClassesFromReqData(request.get_data(as_text=True))
+    fileClass = FileClassCtrl.getFileClassFromReqData(request.get_data(as_text=True))
     
     FileClassCtrl.updateFileClass(username=username, fileClass=fileClass)
     return RespUtil.jsonRet(
@@ -69,7 +51,7 @@ def UpdateFileClassRoute():
         headers={'Authorization': newToken} if newToken != "" else {}
     )
 
-@blue_FileClass.route("/insert", methods=['Put'])
+@blue_FileClass.route("/insert", methods=['Post'])
 def InsertFileClassRoute():
     '''
     插入文件分类路由处理 `POST /insert`
@@ -78,7 +60,7 @@ def InsertFileClassRoute():
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
     fileClass = FileClassCtrl.getFileClassFromReqData(request.get_data(as_text=True))
-    
+
     FileClassCtrl.insertFileClass(username=username, fileClass=fileClass)
     return RespUtil.jsonRet(
         dict=fileClass.toJson(),
@@ -119,3 +101,17 @@ def PushFileClassRoute():
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
+
+@blue_FileClass.route("/share", methods=['GET'])
+def ShareFilesRoute():
+    '''
+    生成文件共享二维码和共享码
+    :return:
+    '''
+    username, newToken = RespUtil.getAuthUser(request.headers)
+    foldername = request.args.get('foldername')
+    codeJson = FileClassCtrl.shareCode2Json(username=username, foldername=foldername)
+    shareCodeDao = ShareCodeDAO()
+    shareCodeDao.addShareCode(username+foldername, codeJson)
+    qrcode.make(data=codeJson).save('temp.png')
+    return send_file('temp.png')

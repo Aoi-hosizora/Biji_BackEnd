@@ -56,14 +56,12 @@ def getAllFileClasses(username: str) -> [FileClass]:
     fileClassDao = FileClassDAO()
     return fileClassDao.queryUserAllFileClasses(username)
 
-def getOneFileClass(username: str, id: int) -> FileClass:
+def getOneFileClass(username: str, fileClass: FileClass) -> FileClass:
     '''
     查询一个文件分类
     '''
     fileClassDao = FileClassDAO()
-    ret = fileClassDao.queryUserOneFileClass(username, id)
-    if ret == None:
-        raise FileClassNotExistError(username)
+    ret = fileClassDao.queryUserOneFileClass(username, fileClass)
     return ret
 
 def updateFileClass(username: str, fileClass: FileClass) -> bool:
@@ -104,12 +102,13 @@ def pushFileClass(username: str, fileClasses: [FileClass]) -> bool:
     同步分类
     '''
     fileClassDao = FileClassDAO()
-    rets = fileClassDao.queryUserAllFileClasses(username)
     r = True
-    for ret in rets:
-        r = fileClassDao.deleteUserFileClass(username, ret)
-    
+
     for fileClass in fileClasses:
-        r = fileClassDao.insertUserFileClass(username, fileClass)
+        if fileClassDao.queryUserOneFileClass(username, fileClass) is None: 
+            r = insertFileClass(username, fileClass)
     
     return r
+
+def shareCode2Json(username: str, foldername: str):
+    return "{\"usr\":\""+username+"\",\"folder\":\""+foldername+"\"}"

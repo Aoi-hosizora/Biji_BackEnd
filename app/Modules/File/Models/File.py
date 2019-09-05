@@ -10,7 +10,7 @@ class File(object):
         return {
             'id': self.id,
             'foldername': self.foldername,
-            'filename': self.filename,
+            'filename': self.filename
         }
 
     @staticmethod

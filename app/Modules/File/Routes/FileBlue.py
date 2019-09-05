@@ -1,8 +1,11 @@
+import json
+
 from app.Utils import ErrorUtil, RespUtil
 from app.Models.Message import Message
 
-from app.Modules.File.Controllers import FileCtrl
+from app.Modules.File.Controllers import FileCtrl, FileClassCtrl
 from app.Modules.File.Models.File import File
+from app.Modules.File.Models.FileClass import FileClass
 
 from flask import Blueprint, request, send_file
 from flask.app import Flask
@@ -32,7 +35,6 @@ def AllFileRoute():
         headers={'Authorization': newToken} if newToken != "" else {}
     )
 
-
 @blue_File.route("/download", methods=['GET'])
 def DownloadFileRoute():
     '''
@@ -41,12 +43,12 @@ def DownloadFileRoute():
     username, newToken = RespUtil.getAuthUser(request.headers)
     foldername = request.args.get('foldername')
     filename = request.args.get('filename')
+    id = request.args.get('id')
 
-    file = FileCtrl.getOneFile(username=username, foldername=foldername, filename=filename)
+    file = FileCtrl.getOneFile(username=username, foldername=foldername, filename=filename, id=id)
     filepath = file.filepath
 
     return send_file(filepath)
-
 
 @blue_File.route("/upload", methods=['POST'])
 def UploadFileRoute():
@@ -56,9 +58,13 @@ def UploadFileRoute():
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
     form = request.form
-    id = form['id']
-    foldername = form['foldername']
-    file = request.files['file']
+    try:
+        id = form['id']
+        foldername = form['foldername']
+        file = request.files['file']
+    except Exception as ex:
+        print(ex)
+        return ''
     if file != None:
         filename, filepath = FileCtrl.saveFile(file=file, username=username)
         file = File(username, id, foldername, filename, filepath)
@@ -85,7 +91,8 @@ def DeleteFileRoute():
     删除文件路由处理 `DELETE /delete`
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
-    form = request.form
+    print(request.get_data(as_text=True))
+    form = json.loads(request.get_data(as_text=True))
     id = form['id']
     foldername = form['foldername']
     filename = form['filename']
@@ -100,15 +107,13 @@ def DeleteFileRoute():
         headers={'Authorization': newToken} if newToken != "" else {}
     )
 
-
 @blue_File.route("/delete_all", methods=['DELETE'])
 def DeleteFileByClassRoute():
     '''
     删除文件路由处理 `DELETE /delete_all`
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
-    form = request.form
-    foldername = form['foldername']
+    foldername = json.loads(request.get_data(as_text=True))['foldername']
 
     FileCtrl.deleteFileByClass(username, foldername)
     return RespUtil.jsonRet(
@@ -128,11 +133,48 @@ def PushFileRoute():
     @body `File []` JSON
     '''
     username, newToken = RespUtil.getAuthUser(request.headers)
-    files = FileCtrl.getDocumentsFromReqData(request.get_data(as_text=True))
+    files = FileCtrl.getDocumentsFromReqData(username, request.get_data(as_text=True))
 
     FileCtrl.pushFile(username, files)
     return RespUtil.jsonRet(
         dict=Message(message="Files push finished", detail=len(files)).toJson(),
         code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
+    )
+
+@blue_File.route("/get_share", methods=['GET'])
+def GetSharedFiles():
+    '''
+    获取共享的文件
+    :return:
+    '''
+    username, newToken = RespUtil.getAuthUser(request.headers)
+    usernameShared = request.args.get('username')
+    foldernameShared = request.args.get('foldername')
+
+    shareCodeJson = FileClassCtrl.shareCode2Json(usernameShared, foldernameShared)
+
+    if FileCtrl.checkShareCode(usernameShared+foldernameShared, shareCodeJson):
+        
+        fileClass = FileClassCtrl.getOneFileClass(usernameShared, FileClass(0, foldernameShared))
+        files = FileCtrl.getAllFiles(usernameShared, foldernameShared)
+        for file in files:
+            file.username = username
+        if FileClassCtrl.getOneFileClass(username, fileClass) is None:
+            FileClassCtrl.insertFileClass(username, fileClass)
+        FileCtrl.pushFile(username, files)
+
+        return RespUtil.jsonRet(
+            dict=Message(
+            message="Get share files success",
+        ).toJson(),
+            code=ErrorUtil.Success,
+            headers={'Authorization': newToken} if newToken != "" else {}
+        )
+    return RespUtil.jsonRet(
+        dict=Message(
+            message="Get share files fail",
+        ).toJson(),
+        code=ErrorUtil.NotFound,
         headers={'Authorization': newToken} if newToken != "" else {}
     )

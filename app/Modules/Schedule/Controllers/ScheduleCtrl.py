@@ -13,8 +13,6 @@ def getSchedule(username: str) -> Schedule:
     '''
     scheduleDao = ScheduleDAO()
     ret = scheduleDao.querySchedule(username)
-    if ret == None:
-        raise ScheduleNotExistError(username)
     return ret
 
 

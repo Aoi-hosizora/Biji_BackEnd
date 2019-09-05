@@ -32,4 +32,4 @@ def setup(app: app.Flask):
 # nginx + uwsgi + flask + blueprint
 setup(FlaskApp)
 if __name__ == "__main__":
-    FlaskApp.run(host=host, port=port)
+    FlaskApp.run(host=host, port=port, threaded=True, debug=True)

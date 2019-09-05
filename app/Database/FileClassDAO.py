@@ -40,8 +40,8 @@ class FileClassDAO(object):
                     {} VARCHAR(30) NOT NULL,
                     {} INT NOT NULL,
                     {} VARCHAR(100) NOT NULL,
-                    PRIMARY KEY ({}, {}) )""".format(self.tbl_name,
-                        self.col_username, self.col_id, self.col_name, self.col_username, self.col_id
+                    PRIMARY KEY ({}, {}, {}) )""".format(self.tbl_name,
+                        self.col_username, self.col_id, self.col_name, self.col_username, self.col_id, self.col_name
                     )
                 )
                 self.db.commit()
@@ -65,12 +65,12 @@ class FileClassDAO(object):
                 pass
         return sets
     
-    def queryUserOneFileClass(self, username: str, id: int):
+    def queryUserOneFileClass(self, username: str, fileClass: FileClass):
         '''
         查询表中指定文件分类
         '''
-        self.cursor.execute("SELECT * FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,
-            self.col_username, username, self.col_id, id
+        self.cursor.execute("SELECT * FROM {} WHERE {} = '{}' AND {} = '{}'".format(self.tbl_name,
+            self.col_username, username, self.col_name, fileClass.name
         ))
         ret = self.cursor.fetchone()
         try:
@@ -83,7 +83,7 @@ class FileClassDAO(object):
         '''
         对数据库中用户的指定文件分类更新
         '''
-        if self.queryUserOneFileClass(username, fileClass.id) == None:
+        if self.queryUserOneFileClass(username, fileClass) == None:
             raise FileClassNotExistError(fileClass.name)
 
         try:
@@ -105,7 +105,7 @@ class FileClassDAO(object):
         '''
         往数据库添加新的文件分类
         '''
-        if not self.queryUserOneFileClass(username, fileClass.id) == None:
+        if self.queryUserOneFileClass(username, fileClass) is not None:
             raise FileClassExistError(fileClass.name)
 
         try:
@@ -120,10 +120,10 @@ class FileClassDAO(object):
                 )
             )
             self.db.commit()
-            if self.queryUserOneFileClass(username, fileClass.id) == None:
+            if self.queryUserOneFileClass(username, fileClass) is None:
                 return False
             return True
-        except:
+        except Exception as e:
             self.db.rollback()
             return False
     
@@ -131,15 +131,15 @@ class FileClassDAO(object):
         '''
         删除某个文件分类
         '''
-        if self.queryUserOneFileClass(username, fileClass.id) == None:
+        if self.queryUserOneFileClass(username, fileClass) == None:
             raise FileClassNotExistError(fileClass.name)
             
         try:
-            self.cursor.execute("DELETE FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,
-                self.col_username, username, self.col_id, fileClass.id
+            self.cursor.execute("DELETE FROM {} WHERE {} = '{}' AND {} = '{}'".format(self.tbl_name,
+                self.col_username, username, self.col_name, fileClass.name
             ))
             self.db.commit()
-            if self.queryUserOneFileClass(username, fileClass.id) == None:
+            if self.queryUserOneFileClass(username, fileClass) == None:
                 return True
             return False
         except:

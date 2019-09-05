@@ -46,9 +46,9 @@ class FileDAO(object):
                     {} VARCHAR(2000) NOT NULL,
                     PRIMARY KEY ( {}, {}, {}, {} )
                 ) CHARACTER SET = utf8;
-                """.format(self.tbl_name, self.col_username, self.col_id,
-                            self.col_foldername, self.col_filename,
-                            self.col_filepath, self.col_username, self.col_id,
+                """.format(self.tbl_name, self.col_username, self.col_id, self.col_foldername,
+                            self.col_filename, self.col_filepath,
+                            self.col_username, self.col_id,
                             self.col_foldername, self.col_filename))
                 self.db.commit()
             except:
@@ -117,14 +117,15 @@ class FileDAO(object):
 
         try:
             self.cursor.execute("INSERT INTO {} ({}, {}, {}, {}, {}) VALUES ('{}', '{}', '{}', '{}', {})".format(
-                self.tbl_name, self.col_username, self.col_foldername, self.col_filename, self.col_filepath,
+                self.tbl_name, self.col_username, self.col_foldername, self.col_filename, self.col_filepath, self.col_id,
                 username, foldername, filename, filepath, id
             ))
             self.db.commit()
             if self.queryOneFile(username, foldername, filename, id) == None:
                 return False
             return True
-        except:
+        except Exception as ex:
+            print(ex)
             self.db.rollback()
             return False
 
@@ -163,9 +164,10 @@ class FileDAO(object):
             self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}' AND FOLDERNAME='{}'"
                                 .format(self.tbl_name, username, fileClassName))
             self.db.commit()
-            if len(self.queryFiles(username, fileClassName)) == 0:
+            if len(self.queryFiles(username, fileClassName)) != 0:
                 return False
             return True
-        except:
+        except Exception as e:
+            print(str(e))
             self.db.rollback()
             return False

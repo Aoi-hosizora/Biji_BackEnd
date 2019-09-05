@@ -7,6 +7,8 @@ from app.Modules.Schedule.Models.Schedule import Schedule
 from flask import Blueprint, request
 from flask.app import Flask
 
+import json
+
 
 blue_Schedule = Blueprint("blue_Schedule", __name__, url_prefix="/schedule")
 
@@ -35,11 +37,15 @@ def UploadScheduleRoute():
     '''
     上传课表路由处理 `POST /upload`
     '''
+    print('UploadScheduleRoute ', request.get_data(as_text=True))
     username, newToken = RespUtil.getAuthUser(request.headers)
-    form = request.form
-    schedulejson = form['schedulejson']
+    form = json.loads(request.get_data(as_text=True))
+    schedulejson = json.dumps(form['schedulejson'], ensure_ascii=False)
     schedule = Schedule(username, schedulejson)
-    result = ScheduleCtrl.insertSchedule(schedule=schedule)
+    if ScheduleCtrl.getSchedule(username) is None:
+        ScheduleCtrl.insertSchedule(schedule)
+    else:
+        ScheduleCtrl.updateSchedule(schedule=schedule)
     return RespUtil.jsonRet(
         dict=Message(
             message="Schedule upload success",
@@ -67,16 +73,43 @@ def DeleteScheduleRoute():
 
 
 @blue_Schedule.route("/update", methods=['PUT'])
-def UpdateScheduleRoute():
+def UpdateScheduleRoute ():
     '''
     更新用户课表 'PUT /update'
     :return:
     '''
+    print('UpdateScheduleRoute ', request.get_data(as_text=True))
     username, newToken = RespUtil.getAuthUser(request.headers)
-    form = request.form
-    schedulejson = form['schedulejson']
+    form = json.loads(request.get_data(as_text=True))
+    schedulejson = json.dumps(form['schedulejson'], ensure_ascii=False)
     schedule = Schedule(username, schedulejson)
-    ScheduleCtrl.updateSchedule(schedule=schedule)
+    if ScheduleCtrl.getSchedule(username) is None:
+        ScheduleCtrl.insertSchedule(schedule)
+    else:
+        ScheduleCtrl.updateSchedule(schedule=schedule)
+    return RespUtil.jsonRet(
+        dict=Message(
+            message="Schedule update success",
+        ).toJson(),
+        code=ErrorUtil.Success,
+        headers={'Authorization': newToken} if newToken != "" else {}
+    )
+
+@blue_Schedule.route("/push", methods=['POST'])
+def PushScheduleRoute():
+    '''
+    更新服务器用户课表 'POST /push'
+    :return:
+    '''
+    print('PushScheduleRoute ', request.get_data(as_text=True))
+    username, newToken = RespUtil.getAuthUser(request.headers)
+    form = json.loads(request.get_data(as_text=True))
+    schedulejson = json.dumps(form['schedulejson'], ensure_ascii=False)
+    schedule = Schedule(username, schedulejson)
+    if ScheduleCtrl.getSchedule(username) is None:
+        ScheduleCtrl.insertSchedule(schedule)
+    else:
+        ScheduleCtrl.updateSchedule(schedule=schedule)
     return RespUtil.jsonRet(
         dict=Message(
             message="Schedule update success",

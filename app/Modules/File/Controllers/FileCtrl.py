@@ -1,4 +1,5 @@
 from app.Database.FileDAO import FileDAO
+from app.Database.ShareCodeDAO import ShareCodeDAO
 from app.Modules.Log.Controllers import LogCtrl
 
 from app.Modules.File.Models.File import File
@@ -62,7 +63,7 @@ def deleteFile(username: str, file: File) -> bool:
 
 def deleteFileByClass(username: str, fileClassName: str) -> bool:
     '''
-    删除一个文件
+    删除一类文件
     '''
     fileDao = FileDAO()
     if fileDao.deleteFileByClass(username, fileClassName):
@@ -71,14 +72,14 @@ def deleteFileByClass(username: str, fileClassName: str) -> bool:
     else:
         raise DeleteError(fileClassName, False)
 
-def getDocumentsFromReqData(reqdata: str) -> [File]:
+def getDocumentsFromReqData(username: str, reqdata: str) -> [File]:
 
     try:
         postjsons = json.loads(reqdata)
 
         ret = []
         for postjson in postjsons:
-            ret.append(checkJson(json.loads(postjson)))
+            ret.append(checkJson(username, json.loads(postjson)))
 
     except:
         # 解析错误
@@ -86,7 +87,7 @@ def getDocumentsFromReqData(reqdata: str) -> [File]:
 
     return ret
 
-def checkJson(postjson) -> File:
+def checkJson(username: str, postjson) -> File:
     '''
     检查 Json 并转化
     '''
@@ -104,7 +105,7 @@ def checkJson(postjson) -> File:
         raise BodyRawJsonError()
 
     try:
-        return File(*[postjson[key] for key in keys])
+        return File(username, postjson['id'], postjson['foldername'], postjson['filename'], '')
     except:
         # 内容错误
         raise BodyRawJsonError()
@@ -147,12 +148,24 @@ def pushFile(username: str, files: [File]) -> bool:
     同步文件
     '''
     fileDao = FileDAO()
-    rets = fileDao.queryFilesByUsername(username)
     r = False
-    for ret in rets:
-        r = fileDao.deleteFile(ret)
 
     for file in files:
-        r = fileDao.insertFile(file)
+        if fileDao.queryOneFile(username, file.foldername, file.filename, file.id) is None:
+            r = insertFile(username, file)
 
     return r
+
+def addShareCode(usr: str, folder: str) -> bool:
+    '''
+    存储share code
+    '''
+    shareCodeDao = ShareCodeDAO()
+    return shareCodeDao.addShareCode(usr, folder)
+
+def checkShareCode(usr: str, folder: str) -> bool:
+    '''
+    检查share code
+    '''
+    shareCodeDao = ShareCodeDAO()
+    return shareCodeDao.checkShareCode(usr, folder)
