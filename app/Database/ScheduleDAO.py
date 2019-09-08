@@ -65,6 +65,8 @@ class ScheduleDAO(object):
         username = schedule.username
         schedulejson = schedule.schedulejson
 
+        print('insertSchedule: ', schedulejson)
+
         if self.querySchedule(username) != None:
             raise ExistError(username)
 
@@ -76,7 +78,8 @@ class ScheduleDAO(object):
             if self.querySchedule(username) == None:
                 return False
             return True
-        except:
+        except Exception as e:
+            print(str(e))
             self.db.rollback()
             return False
 

@@ -1,7 +1,8 @@
 from app.Config import Config
+from app.Modules.File.Exceptions.FileClassNotExistError import FileClassNotExistError
 
 from app.Modules.File.Models.File import File
-from app.Modules.File.Exceptions.ExistError import ExistError
+from app.Modules.File.Exceptions.FileExistError import ExistError
 from app.Modules.File.Exceptions.FileNotExistError import FileNotExistError
 
 import pymysql
@@ -10,6 +11,7 @@ import pymysql
 class FileDAO(object):
     tbl_name = "TBL_FILE"
     col_username = "USERNAME"
+    col_id = "ID"
     col_foldername = "FOLDERNAME"
     col_filename = "FILENAME"
     col_filepath = "FILEPATH"
@@ -38,14 +40,15 @@ class FileDAO(object):
             try:
                 self.cursor.execute("""CREATE TABLE {} (
                     {} VARCHAR(30) NOT NULL,
+                    {} INT NOT NULL,
                     {} VARCHAR(200) NOT NULL,
                     {} VARCHAR(200) NOT NULL,
                     {} VARCHAR(2000) NOT NULL,
-                    PRIMARY KEY ( {}, {}, {} )
+                    PRIMARY KEY ( {}, {}, {}, {} )
                 ) CHARACTER SET = utf8;
-                """.format(self.tbl_name, self.col_username,
-                            self.col_foldername, self.col_filename,
-                            self.col_filepath, self.col_username,
+                """.format(self.tbl_name, self.col_username, self.col_id, self.col_foldername,
+                            self.col_filename, self.col_filepath,
+                            self.col_username, self.col_id,
                             self.col_foldername, self.col_filename))
                 self.db.commit()
             except:
@@ -59,7 +62,7 @@ class FileDAO(object):
         rets = self.cursor.fetchall()
         set = []
         for ret in rets:
-            set.append(File(ret[0], ret[1], ret[2], ret[3]))
+            set.append(File(ret[0], ret[1], ret[2], ret[3], ret[4]))
         return set
 
     def queryFiles(self, username: str, foldername: str):
@@ -71,19 +74,31 @@ class FileDAO(object):
         rets = self.cursor.fetchall()
         set = []
         for ret in rets:
-            set.append(File(ret[0], ret[1], ret[2], ret[3]))
+            set.append(File(ret[0], ret[1], ret[2], ret[3], ret[4]))
         return set
 
-    def queryOneFile(self, username: str, foldername: str, filename: str):
+    def queryFilesByUsername(self, username: str):
+        '''
+        查询指定用户名的表项
+        '''
+        self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}'"
+                            .format(self.tbl_name, username))
+        rets = self.cursor.fetchall()
+        set = []
+        for ret in rets:
+            set.append(File(ret[0], ret[1], ret[2], ret[3], ret[4]))
+        return set
+
+    def queryOneFile(self, username: str, foldername: str, filename: str, id: int):
         '''
         查询指定文件
         '''
         self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}' AND FOLDERNAME='{}'"
-                            "AND FILENAME='{}'".format(self.tbl_name, username, foldername, filename))
+                            "AND FILENAME='{}' AND ID={}".format(self.tbl_name, username, foldername, filename, id))
         ret = self.cursor.fetchone()
 
         try:
-            return File(ret[0], ret[1], ret[2], ret[3])
+            return File(ret[0], ret[1], ret[2], ret[3], ret[4])
         except:
             return None
 
@@ -92,23 +107,25 @@ class FileDAO(object):
         插入到数据库
         '''
         username = file.username
+        id = file.id
         foldername = file.foldername
         filename = file.filename
         filepath = file.filepath
 
-        if self.queryOneFile(username, foldername, filename) != None:
+        if self.queryOneFile(username, foldername, filename, id) != None:
             raise ExistError(foldername, filename)
 
         try:
-            self.cursor.execute("INSERT INTO {} ({}, {}, {}, {}) VALUES ('{}', '{}', '{}', '{}')".format(
-                self.tbl_name, self.col_username, self.col_foldername, self.col_filename, self.col_filepath,
-                username, foldername, filename, filepath
+            self.cursor.execute("INSERT INTO {} ({}, {}, {}, {}, {}) VALUES ('{}', '{}', '{}', '{}', {})".format(
+                self.tbl_name, self.col_username, self.col_foldername, self.col_filename, self.col_filepath, self.col_id,
+                username, foldername, filename, filepath, id
             ))
             self.db.commit()
-            if self.queryOneFile(username, foldername, filename) == None:
+            if self.queryOneFile(username, foldername, filename, id) == None:
                 return False
             return True
-        except:
+        except Exception as ex:
+            print(ex)
             self.db.rollback()
             return False
 
@@ -117,19 +134,40 @@ class FileDAO(object):
         删除文件
         '''
         username = file.username
+        id = file.id
         foldername = file.foldername
         filename = file.filename
 
-        if self.queryOneFile(username, foldername, filename) == None:
+        if self.queryOneFile(username, foldername, filename, id) == None:
             raise FileNotExistError(filename)
 
         try:
             self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}' AND FOLDERNAME='{}'"
-                                "AND FILENAME='{}'".format(self.tbl_name, username, foldername, filename))
+                                "AND FILENAME='{}' AND ID={}".format(self.tbl_name, username, foldername, filename, id))
             self.db.commit()
-            if self.queryOneFile(username, foldername, filename) != None:
+            if self.queryOneFile(username, foldername, filename, id) != None:
                 return False
             return True
         except:
+            self.db.rollback()
+            return False
+
+    def deleteFileByClass(self, username: str, fileClassName: str) -> bool:
+        '''
+        删除文件
+        '''
+
+        if len(self.queryFiles(username, fileClassName)) == 0:
+            raise FileClassNotExistError(fileClassName)
+
+        try:
+            self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}' AND FOLDERNAME='{}'"
+                                .format(self.tbl_name, username, fileClassName))
+            self.db.commit()
+            if len(self.queryFiles(username, fileClassName)) != 0:
+                return False
+            return True
+        except Exception as e:
+            print(str(e))
             self.db.rollback()
             return False

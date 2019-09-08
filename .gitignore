@@ -5,3 +5,5 @@ logs/
 .idea/
 *.log
 *.pid
+temp.*
+uwsgi.ini

@@ -14,6 +14,7 @@
 |`POST`|`/schedule/upload`|Upload a schedule \*\*|
 |`DELETE`|`/schedule/delete`|Delete a schedule|
 |`PUT`|`/schedule/update`|Update a schedule \*\*|
+|`POST`|`/schedule/push`|Push a schedule \*\*|
 
 
 [\* Need request query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md#request-query-param)
@@ -34,8 +35,9 @@
 
 ## Request Body
 
-+ `POST /schedule/upload`
-+ `DELETE /schedule/update`
++ `POST` `/schedule/upload`
++ `DELETE` `/schedule/update`
++ `POST` `/schedule/push`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
@@ -54,9 +56,10 @@ Example:
 + `GET /schedule/download`
     + Same as [request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md#request-body)
 
-+ `POST /schedule/upload`
-+ `DELETE /schedule/delete`
-+ `PUT /schedule/update`
++ `POST` `/schedule/upload`
++ `DELETE` `/schedule/delete`
++ `PUT` `/schedule/update`
++ `POST` `/schedule/push`
 
 |Field|Type|Description|Remark|
 |--|--|--|--|

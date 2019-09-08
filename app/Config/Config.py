@@ -9,13 +9,13 @@ SecretKey = "" # app.config
 
 # Token Setting
 Def_Expiration = 2592000 # Token Timeout (s) -> 30d
-Def_Redis_Ex = 10 # Redis zset token Timeout (s) -> 2h
+Def_Redis_Ex = 7200 # Redis zset token Timeout (s) -> 2h
 
 # MySql Config
 MySQL_Host = 'localhost'
-MySQL_Port = 3366
+MySQL_Port = 3306
 MySQL_User = 'root'
-MySQL_Pass = '123'
+MySQL_Pass = '111111'
 MySQL_Db = 'test'
 
 # Redis Config

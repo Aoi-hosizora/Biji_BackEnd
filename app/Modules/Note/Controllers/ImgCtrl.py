@@ -78,7 +78,7 @@ def getUserImg(username: str, filename: str):
     '''
     获得用户笔记图片
     '''
-    filepath = './usr/img/{}/'.format(username)
+    filepath = './usr/img/{}'.format(username)
     filepath = os.path.join(filepath, filename)
 
     if not os.path.exists(filepath):

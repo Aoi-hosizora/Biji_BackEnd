@@ -130,4 +130,3 @@ def pushNote(username: str, notes: [Note]) -> bool:
         r = noteDao.insertUserNote(username, note)
     
     return r
-    
