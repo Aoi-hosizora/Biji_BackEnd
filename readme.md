@@ -13,6 +13,7 @@
 + `Flask` 1.0.2
 + `MySQL` 8.0.15
 + `Redis` 3.2.100 for windows
++ `Redis` for linux
 
 ### Config
 + See [Config.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Config/Config.py)
@@ -20,8 +21,8 @@
 ### Run
 
 ```bash
-# Modify config in ./app/Config/Config.py
-python3 ./listen.py
+# Modify config in ./app/config/Config.py
+python3 ./server.py
 ```
 
 ### Structure
