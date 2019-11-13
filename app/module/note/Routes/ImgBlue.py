@@ -2,11 +2,9 @@ from app.util import ErrorUtil, RespUtil
 from app.model.Message import Message
 
 from app.module.note.Controllers import ImgCtrl
-from app.module.note.Models.DelImg import DelImg
 
 from flask import Blueprint, request
 from flask.app import Flask
-import json
 
 blue_Img = Blueprint("blue_Img", __name__, url_prefix="/note/img")
 

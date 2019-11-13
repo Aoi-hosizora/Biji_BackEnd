@@ -1,7 +1,7 @@
 from app.database.NoteDAO import NoteDao
 from app.module.log.Controllers import LogCtrl
 
-from app.module.note.Models.Note import Note
+from app.model.po.Note import Note
 from app.module.note.Exceptions.NotExistError import NotExistError
 from app.module.note.Exceptions.UpdateError import UpdateError
 from app.module.note.Exceptions.InsertError import InsertError

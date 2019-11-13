@@ -1,14 +1,12 @@
 from app.util import ErrorUtil, RespUtil
 from app.model.Message import Message
-from app.util.exception.BodyRawJsonError import BodyRawJsonError
 from app.util.exception.QueryError import QueryError
 
 from app.module.note.Controllers import GroupCtrl
-from app.module.note.Models.Group import Group
+from app.model.po.Group import Group
 
 from flask import Blueprint, request
 from flask.app import Flask
-import json
 
 blue_Group = Blueprint("blue_Group", __name__, url_prefix="/group")
 def register_blue_Group(app: Flask):
@@ -47,7 +45,7 @@ def OneGroupRoute():
         
     groups = GroupCtrl.getOneGroup(username=username, id=id)
     return RespUtil.jsonRet(
-        data=groups.toJson(),
+        data=groups.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -64,7 +62,7 @@ def UpdateGroupRoute():
     
     GroupCtrl.updateGroup(username=username, group=group)
     return RespUtil.jsonRet(
-        data=group.toJson(),
+        data=group.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -81,7 +79,7 @@ def InsertGroupRoute():
     
     GroupCtrl.insertGroup(username=username, group=group)
     return RespUtil.jsonRet(
-        data=group.toJson(),
+        data=group.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -98,7 +96,7 @@ def DeleteGroupRoute():
 
     GroupCtrl.deleteGroup(username=username, group=group)
     return RespUtil.jsonRet(
-        data=group.toJson(),
+        data=group.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )

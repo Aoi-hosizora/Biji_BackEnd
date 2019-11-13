@@ -1,6 +1,7 @@
-from enum import Enum
+from enum import Enum, unique
 
 
+@unique
 class ResultCode(Enum):
     """
     Http 状态返回码

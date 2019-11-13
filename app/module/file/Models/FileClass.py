@@ -15,5 +15,5 @@ class FileClass(object):
     def toJsonSet(fileclasses):
         sets = []
         for fileclass in fileclasses:
-            sets.append(fileclass.toJson())
+            sets.append(fileclass.to_json())
         return sets

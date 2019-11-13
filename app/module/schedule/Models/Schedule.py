@@ -12,5 +12,5 @@ class Schedule(object):
     def toJsonSet(schedules):
         sets = []
         for schedule in schedules:
-            sets.append(schedule.toJson())
+            sets.append(schedule.to_json())
         return sets

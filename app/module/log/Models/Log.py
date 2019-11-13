@@ -18,5 +18,5 @@ class Log(object):
     def toJsonSet(logs):
         sets = []
         for log in logs:
-            sets.append(log.toJson())
+            sets.append(log.to_json())
         return sets

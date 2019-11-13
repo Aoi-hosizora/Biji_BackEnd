@@ -26,7 +26,7 @@ class DbHelper(object):
 
     def create_tbl(self) -> bool:
         """
-        判断是否存在并建表
+        判断是否存在并建表 Must Override
         :return: 建表过程是否错误
         """
         pass

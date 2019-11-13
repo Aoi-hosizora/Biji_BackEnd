@@ -4,7 +4,7 @@ from app.util.exception.BodyRawJsonError import BodyRawJsonError
 from app.module.note.Exceptions.ImageUploadError import ImageUploadError
 from app.module.note.Exceptions.ImageTypeError import ImageTypeError
 from app.module.note.Exceptions.ImageNotExistError import ImageNotExistError
-from app.module.note.Models.DelImg import DelImg
+from app.model.dto.DelImg import DelImg
 
 from werkzeug.utils import secure_filename
 import os, json

@@ -2,7 +2,7 @@ from app.database.GroupDAO import GroupDao
 from app.util.exception.BodyRawJsonError import BodyRawJsonError
 from app.module.log.Controllers import LogCtrl
 
-from app.module.note.Models.Group import Group
+from app.model.po.Group import Group
 from app.module.note.Exceptions.NotExistError import NotExistError
 from app.module.note.Exceptions.UpdateError import UpdateError
 from app.module.note.Exceptions.InsertError import InsertError
@@ -62,14 +62,14 @@ def getAllGroups(username: str) -> [Group]:
     查询所有分组
     '''
     groupDao = GroupDao()
-    return groupDao.queryUserAllGroups(username)
+    return groupDao.queryAllGroups(username)
 
 def getOneGroup(username: str, id: int) -> Group:
     '''
     查询一个分组
     '''
     groupDao = GroupDao()
-    ret = groupDao.queryUserOneGroup(username, id)
+    ret = groupDao.queryGroupById(username, id)
     if ret == None:
         raise NotExistError(id, isNote=False)
     return ret
@@ -112,7 +112,7 @@ def pushGroup(username: str, groups: [Group]) -> bool:
     同步分组
     '''
     groupDao = GroupDao()
-    rets = groupDao.queryUserAllGroups(username)
+    rets = groupDao.queryAllGroups(username)
     r = True
     for ret in rets:
         r = groupDao.deleteUserGroup(username, ret)

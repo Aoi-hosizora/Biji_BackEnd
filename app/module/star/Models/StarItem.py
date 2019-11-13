@@ -16,5 +16,5 @@ class StarItem(object):
     def toJsonSet(stars):
         sets = []
         for star in stars:
-            sets.append(star.toJson())
+            sets.append(star.to_json())
         return sets

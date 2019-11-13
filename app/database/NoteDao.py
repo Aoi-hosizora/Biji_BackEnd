@@ -3,45 +3,46 @@ from app.database.DbHelper import DbHelper
 from typing import List
 
 from app.database.GroupDao import GroupDao
-from app.module.note.Models.Note import Note
+from app.model.po.Note import Note
 
 
 class NoteDao(DbHelper):
-    tbl_name = "TBL_NOTE"
+    tbl_name = "tbl_note"
 
-    col_username = "USERNAME"
-    col_id = "ID"
-    col_title = "TITLE"
-    col_content = "CONTENT"
-    col_group_id = "GROUP_ID"
-    col_create_time = "CREATE_TIME"
-    col_update_time = "UPDATE_TIME"
+    col_username = "n_user"
+    col_id = "n_id"
+    col_title = "n_title"
+    col_content = "n_content"
+    col_group_id = "n_group_id"
+    col_create_time = "n_create_time"
+    col_update_time = "n_create_time"
 
     def __init__(self):
         super().__init__()
 
-    def createTbl(self) -> bool:
+    def create_tbl(self) -> bool:
         """
-        判断表是否存在，并且创建表
+        判断是否存在并建表
         """
         # noinspection PyBroadException
         try:
             self.cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_username} VARCHAR(30) NOT NULL,
-                    {self.col_id} INT NOT NULL,
+                    {self.col_id} INT AUTO_INCREMENT,
                     {self.col_title} VARCHAR(100) NOT NULL,
                     {self.col_content} TEXT,
                     {self.col_group_id} INT NOT NULL,
                     {self.col_create_time} DATETIME NOT NULL,
                     {self.col_update_time} DATETIME NOT NULL,
+                    PRIMARY KEY ({self.col_username}, {self.col_id})
                 )
             ''')
-            self.db.commit()
         except:
             self.db.rollback()
-            self.db.commit()
             return False
+        finally:
+            self.db.commit()
         return True
 
     def queryAllNotes(self, username: str) -> List[Note]:
@@ -75,11 +76,10 @@ class NoteDao(DbHelper):
             # noinspection PyBroadException
             try:
                 group_id: int = int(result[4])
-                group = GroupDao().queryUserOneGroup(username, group_id)
+                group = GroupDao().queryGroupById(username, group_id)
                 if group is None:
                     group = GroupDao().queryDefaultGroup()
-                note = Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6])
-                returns.append(note)
+                returns.append(Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6]))
             except:
                 pass
         return returns
@@ -98,7 +98,7 @@ class NoteDao(DbHelper):
         # noinspection PyBroadException
         try:
             group_id: int = int(result[4])
-            group = GroupDao().queryUserOneGroup(username, group_id)
+            group = GroupDao().queryGroupById(username, group_id)
             if group is None:
                 group = GroupDao().queryDefaultGroup()
             return Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6])

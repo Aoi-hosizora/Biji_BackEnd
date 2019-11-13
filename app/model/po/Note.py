@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from app.module.note.Models import Group
+from app.model.BaseModel import BaseModel
+from app.model.po import Group
 
 
-class Note(object):
+class Note(BaseModel):
     def __init__(self, nid: int, title: str, content: str, group: Group, create_time: datetime, update_time: datetime):
         self.id = int(nid)
         self.title = title
@@ -20,19 +21,12 @@ class Note(object):
         else:
             self.update_time = datetime.strptime(update_time, '%Y-%m-%d %H:%M:%S')
 
-    def toJson(self):
+    def to_json(self) -> dict:
         return {
             'id': self.id,
             'title': self.title,
             'content': self.content,
-            'group': self.group.toJson(),
+            'group': self.group.to_json(),
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
             'update_time': self.update_time.strftime('%Y-%m-%d %H:%M:%S')
         }
-    
-    @staticmethod
-    def toJsonSet(notes):
-        sets = []
-        for note in notes:
-            sets.append(note.toJson())
-        return sets

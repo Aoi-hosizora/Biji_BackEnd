@@ -1,166 +1,206 @@
-from app.util import PassUtil
-from app.config import Config
+from typing import List
 
-from app.module.note.Models.Group import Group
-from app.module.note.Exceptions.NotExistError import NotExistError
-from app.module.note.Exceptions.ExistError import ExistError
+from app.database.DbErrorType import DbErrorType
+from app.database.DbHelper import DbHelper
 
-import datetime
-import pymysql
+from app.model.po.Group import Group, DEF_GROUP
 
 
-class GroupDao(object):
-    tbl_name = "TBL_GROUP"
+class GroupDao(DbHelper):
+    tbl_name = "tbl_group"
 
-    col_username = "USERNAME"
-    col_id = "ID"
-    col_name = "NAME"
-    col_order = "GORDER"  # ORDER preserve word
-    col_color = "COLOR"
+    col_username = "g_user"
+    col_id = "g_id"
+    col_name = "g_name"
+    col_order = "g_order"
+    col_color = "g_color"
 
     def __init__(self):
-        self.db = pymysql.connect(
-            host=Config.MySQL_Host,
-            port=Config.MySQL_Port,
-            user=Config.MySQL_User,
-            passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Db,
-            charset='utf8'
-        )
-        self.cursor = self.db.cursor()
-        self.createTbl()
+        super().__init__()
 
-    def __del__(self):
-        self.db.close()
+    def create_tbl(self) -> bool:
+        """
+        判断是否存在并建表
+        """
+        # noinspection PyBroadException
+        try:
+            self.cursor.execute(f'''
+                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
+                    {self.col_username} VARCHAR(30) NOT NULL,
+                    {self.col_id} INT AUTO_INCREMENT,
+                    {self.col_name} VARCHAR(100) NOT NULL UNIQUE,
+                    {self.col_order} INT NOT NULL,
+                    {self.col_color} VARCHAR(10) NOT NULL,
+                    PRIMARY KEY ({self.col_username}, {self.col_id})
+                )
+            ''')
+        except:
+            self.db.rollback()
+            return False
+        finally:
+            self.db.commit()
+        return True
 
-    def createTbl(self) -> bool:
-        '''
-        判断表是否存在，并且创建表
-        '''
-        self.cursor.execute("SHOW TABLES LIKE '{}'".format(self.tbl_name))
-        if self.cursor.fetchone() == None:
+    def queryAllGroups(self, username: str) -> List[Group]:
+        """
+        查询所有分组
+        """
+        self.processGroups(username)  # 查询前处理
+
+        self.cursor.execute(f'''
+            SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
+            FROM {self.tbl_name}
+            WHERE {self.col_username} = '{username}'
+        ''')
+
+        returns = []
+        results = self.cursor.fetchall()
+        for result in results:
+            # noinspection PyBroadException
             try:
-                self.cursor.execute("""CREATE TABLE {} (
-                    {} VARCHAR(30) NOT NULL,
-                    {} INT NOT NULL,
-                    {} VARCHAR(100) NOT NULL,
-                    {} INT NOT NULL,
-                    {} VARCHAR(10) NOT NULL,
-                    PRIMARY KEY ({}, {}) )""".format(self.tbl_name,
-                                                     self.col_username, self.col_id, self.col_name, self.col_order, self.col_color,
-                                                     self.col_username, self.col_id
-                                                     )
-                                    )
-                self.db.commit()
-            except:
-                self.db.rollback()
-
-    def queryUserAllGroups(self, username: str):
-        '''
-        查询表中用户的所有分组
-        '''
-        self.cursor.execute("SELECT * FROM {} WHERE {} = '{}'".format(self.tbl_name,
-                                                                      self.col_username, username
-                                                                      ))
-        sets = []
-        rets = self.cursor.fetchall()
-        for ret in rets:
-            try:
-                group = Group(ret[1], ret[2], ret[3], ret[4])
-                sets.append(group)
+                returns.append(Group(gid=result[1], name=result[2], order=result[3], color=result[4]))
             except:
                 pass
-        return sets
+        return results
 
-    def queryDefaultGroup(self) -> Group:
+    def queryGroupById(self, username: str, gid: int) -> Group or None:
         """
-        查询默认分组
+        根据 gid 查询分组
         """
-        pass
+        self.processGroups(username)  # 查询前处理
 
-    def queryUserOneGroup(self, username: str, id: int):
-        '''
-        查询表中用户的指定分组
-        '''
-        self.cursor.execute("SELECT * FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,
-                                                                                  self.col_username, username, self.col_id, id
-                                                                                  ))
-        ret = self.cursor.fetchone()
+        self.cursor.execute(f'''
+            SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
+            FROM {self.tbl_name}
+            WHERE {self.col_username} = '{username}' AND {self.col_id} = {gid}
+        ''')
+        result = self.cursor.fetchone()
+        # noinspection PyBroadException
         try:
-            group = Group(ret[1], ret[2], ret[3], ret[4])
-            return group
+            return Group(gid=result[1], name=result[2], order=result[3], color=result[4])
         except:
             return None
 
-    def updateUserGroup(self, username: str, group: Group) -> bool:
-        '''
-        对数据库中用户的指定分组更新
-        '''
-        if self.queryUserOneGroup(username, group.id) == None:
-            raise NotExistError(group.name, isNote=False)
+    def queryGroupByName(self, username: str, name: str) -> Group or None:
+        """
+        根据 name 查询分组
+        """
+        self.processGroups(username)  # 查询前处理
 
+        self.cursor.execute(f'''
+            SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
+            FROM {self.tbl_name}
+            WHERE {self.col_username} = '{username}' AND {self.col_name} = {name}
+        ''')
+        result = self.cursor.fetchone()
+        # noinspection PyBroadException
         try:
-            id = group.id
-            name = group.name
-            order = group.order
-            color = group.color
+            return Group(gid=result[1], name=result[2], order=result[3], color=result[4])
+        except:
+            return None
 
-            self.cursor.execute("""UPDATE {}
-                SET {} = '{}', {} = {}, {} = '{}'
-                WHERE {} = '{}' AND {} = {}""".format(self.tbl_name,
-                                                      self.col_name, name, self.col_order, order, self.col_color, color,
-                                                      self.col_username, username, self.col_id, id
-                                                      )
-                                )
+    def queryDefaultGroup(self, username: str) -> Group:
+        """
+        查询默认分组
+        """
+        return self.queryGroupByName(username=username, name=DEF_GROUP.name)
+
+    def insertGroup(self, username: str, group: Group) -> DbErrorType:
+        """
+        插入新分组
+        :return: SUCCESS | FOUNDED | FAILED
+        """
+        if self.queryGroupById(username, group.id) is not None:
+            return DbErrorType.FOUNDED
+        # noinspection PyBroadException
+        try:
+            self.cursor.execute(f'''
+                INSERT INTO {self.tbl_name} (
+                    {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
+                )
+                VALUES (
+                    '{username}', {group.id}, '{group.name}', {group.order}, '{group.color}'
+                )
+            ''')
             self.db.commit()
-            return True
+
+            if self.queryGroupById(username, group.id) is None:
+                self.db.rollback()
+                return DbErrorType.FAILED
+
+            self.processGroups(username)  # 插入后处理
+            return DbErrorType.SUCCESS
         except:
             self.db.rollback()
-            return False
-
-    def insertUserGroup(self, username: str, group: Group) -> bool:
-        '''
-        往数据库添加用户的新分组
-        '''
-        if not self.queryUserOneGroup(username, group.id) == None:
-            raise ExistError(group.name, isNote=False)
-
-        try:
-            id = group.id
-            name = group.name
-            order = group.order
-            color = group.color
-
-            self.cursor.execute("""INSERT INTO {}
-                ({}, {}, {}, {}, {})
-                VALUES ('{}', {}, '{}', {}, '{}')""".format(self.tbl_name,
-                                                            self.col_username, self.col_id, self.col_name, self.col_order, self.col_color,
-                                                            username, id, name, order, color
-                                                            )
-                                )
+            return DbErrorType.FAILED
+        finally:
             self.db.commit()
-            if self.queryUserOneGroup(username, group.id) == None:
-                return False
-            return True
+
+    def updateGroup(self, username: str, group: Group) -> DbErrorType:
+        """
+        更新分组 除了 gid
+        :return: SUCCESS | NOT_FOUND | FAILED
+        """
+        if self.queryGroupById(username, group.id) is None:
+            return DbErrorType.NOT_FOUND
+        # noinspection PyBroadException
+        try:
+            self.cursor.execute(f'''
+                UPDATE {self.tbl_name}
+                SET {self.col_name} = '{group.name}', {self.col_order} = '{group.order}', {self.col_color} = {group.color}
+            ''')
+
+            newGroup = self.queryGroupById(username, group.id)
+            if newGroup.name != group.name or newGroup.order != group.order or newGroup.color != group.color:
+                self.db.rollback()
+                return DbErrorType.FAILED
+
+            self.processGroups(username)  # 更新后处理
+            return DbErrorType.SUCCESS
         except:
             self.db.rollback()
-            return False
-
-    def deleteUserGroup(self, username: str, group: Group) -> bool:
-        '''
-        删除用户的某个分组
-        '''
-        if self.queryUserOneGroup(username, group.id) == None:
-            raise NotExistError(group.name, isNote=False)
-
-        try:
-            self.cursor.execute("DELETE FROM {} WHERE {} = '{}' AND {} = {}".format(self.tbl_name,
-                                                                                    self.col_username, username, self.col_id, group.id
-                                                                                    ))
+            return DbErrorType.FAILED
+        finally:
             self.db.commit()
-            if self.queryUserOneGroup(username, group.id) == None:
-                return True
-            return False
+
+    def deleteGroup(self, username: str, gid: int) -> DbErrorType:
+        """
+        删除一个分组
+        :return: SUCCESS | NOT_FOUND | FAILED
+        """
+        if self.queryGroupById(username, gid) is None:
+            return DbErrorType.NOT_FOUND
+        # noinspection PyBroadException
+        try:
+            self.cursor.execute(f'''
+                DELETE FROM {self.tbl_name}
+                WHERE {self.col_username} = '{username}' AND {self.col_id} = {gid}
+            ''')
+
+            if self.queryGroupById(username, gid) is not None:
+                self.db.rollback()
+                return DbErrorType.FAILED
+
+            self.processGroups(username)  # 删除后处理
+            return DbErrorType.SUCCESS
         except:
             self.db.rollback()
-            return False
+            return DbErrorType.FAILED
+        finally:
+            self.db.commit()
+
+    def processGroups(self, username):
+        """
+        操作前后 处理顺序和默认分组
+        TODO 调用位置
+        """
+        groups = self.queryAllGroups(username)
+
+        if self.queryDefaultGroup(username) is None:
+            self.insertGroup(username, DEF_GROUP)
+
+        groups = sorted(groups, key=lambda key: key.order)  # 小到大
+        for idx, group in enumerate(groups):
+            if group.order != idx:
+                group.order = idx
+                self.updateGroup(username, group)

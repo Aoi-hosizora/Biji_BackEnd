@@ -3,7 +3,7 @@ from app.model.Message import Message
 from app.util.exception.QueryError import QueryError
 
 from app.module.note.Controllers import NoteCtrl
-from app.module.note.Models.Note import Note
+from app.model.po.Note import Note
 
 from flask import Blueprint, request
 from flask.app import Flask
@@ -49,7 +49,7 @@ def OneNoteRoute():
 
     note = NoteCtrl.getOneNote(username=username, id=id)
     return RespUtil.jsonRet(
-        data=note.toJson(),
+        data=note.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -67,7 +67,7 @@ def UpdateNoteRoute():
 
     NoteCtrl.updateNote(username=username, note=note)
     return RespUtil.jsonRet(
-        data=note.toJson(),
+        data=note.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -85,7 +85,7 @@ def InsertNoteRoute():
 
     NoteCtrl.insertNote(username=username, note=note)
     return RespUtil.jsonRet(
-        data=note.toJson(),
+        data=note.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -103,7 +103,7 @@ def DeleteNoteRoute():
 
     NoteCtrl.deleteNote(username=username, note=note)
     return RespUtil.jsonRet(
-        data=note.toJson(),
+        data=note.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
