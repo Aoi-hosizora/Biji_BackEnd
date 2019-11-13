@@ -1,4 +1,4 @@
-from app.database.GroupDAO import GroupDAO
+from app.database.GroupDAO import GroupDao
 from app.util.exception.BodyRawJsonError import BodyRawJsonError
 from app.module.log.Controllers import LogCtrl
 
@@ -61,14 +61,14 @@ def getAllGroups(username: str) -> [Group]:
     '''
     查询所有分组
     '''
-    groupDao = GroupDAO()
+    groupDao = GroupDao()
     return groupDao.queryUserAllGroups(username)
 
 def getOneGroup(username: str, id: int) -> Group:
     '''
     查询一个分组
     '''
-    groupDao = GroupDAO()
+    groupDao = GroupDao()
     ret = groupDao.queryUserOneGroup(username, id)
     if ret == None:
         raise NotExistError(id, isNote=False)
@@ -78,7 +78,7 @@ def updateGroup(username: str, group: Group) -> bool:
     '''
     更新一个旧分组
     '''
-    groupDao = GroupDAO()
+    groupDao = GroupDao()
     if groupDao.updateUserGroup(username, group):
         LogCtrl.updateNoteLog(username)
         return True
@@ -89,7 +89,7 @@ def insertGroup(username: str, group: Group) -> bool:
     '''
     插入一个新分组
     '''
-    groupDao = GroupDAO()
+    groupDao = GroupDao()
     if groupDao.insertUserGroup(username, group):
         LogCtrl.updateNoteLog(username)
         return True
@@ -100,7 +100,7 @@ def deleteGroup(username: str, group: Group) -> bool:
     '''
     删除一个旧分组
     '''
-    groupDao = GroupDAO()
+    groupDao = GroupDao()
     if groupDao.deleteUserGroup(username, group):
         LogCtrl.updateNoteLog(username)
         return True
@@ -111,7 +111,7 @@ def pushGroup(username: str, groups: [Group]) -> bool:
     '''
     同步分组
     '''
-    groupDao = GroupDAO()
+    groupDao = GroupDao()
     rets = groupDao.queryUserAllGroups(username)
     r = True
     for ret in rets:

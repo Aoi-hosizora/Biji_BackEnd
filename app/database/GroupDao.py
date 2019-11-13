@@ -9,7 +9,7 @@ import datetime
 import pymysql
 
 
-class GroupDAO(object):
+class GroupDao(object):
     tbl_name = "TBL_GROUP"
 
     col_username = "USERNAME"
@@ -71,6 +71,12 @@ class GroupDAO(object):
             except:
                 pass
         return sets
+
+    def queryDefaultGroup(self) -> Group:
+        """
+        查询默认分组
+        """
+        pass
 
     def queryUserOneGroup(self, username: str, id: int):
         '''

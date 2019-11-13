@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class ResultCode(Enum):
+    """
+    Http 状态返回码
+    """
 
     def __init__(self, code, message):
         self.code = code

@@ -1,12 +1,16 @@
+from app.model.BaseModel import BaseModel
 from app.model.ResultCode import ResultCode
 
 
-class Result(object):
+class Result(BaseModel):
+    """
+    统一设置返回格式 状态码 信息 数据内容
+    """
 
     def __init__(self):
         self.code: int = 200
         self.message: str = ''
-        self.data = {}
+        self.data: dict or list = {}
         pass
 
     @staticmethod
@@ -32,6 +36,17 @@ class Result(object):
         self.message = message
         return self
 
-    def setData(self, obj):
+    def setData(self, obj: dict or list):
         self.data = obj
         return self
+
+    def putData(self, name: str, data: dict):
+        self.data[name] = data
+        return self
+
+    def to_json(self) -> dict:
+        return {
+            'code': self.code,
+            'message': self.message,
+            'data': self.data
+        }

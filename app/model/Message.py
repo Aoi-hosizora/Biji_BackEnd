@@ -1,5 +1,8 @@
+from app.model.BaseModel import BaseModel
+
+
 @DeprecationWarning
-class Message(object):
+class Message(BaseModel):
 
     def __init__(self, message: str, detail: str = ""):
         self.message = message

@@ -1,11 +1,14 @@
 from datetime import datetime
 
+from app.module.note.Models import Group
+
+
 class Note(object):
-    def __init__(self, id: int, title: str, content: str, group_id: str, create_time: datetime, update_time: datetime):
-        self.id = int(id)
+    def __init__(self, nid: int, title: str, content: str, group: Group, create_time: datetime, update_time: datetime):
+        self.id = int(nid)
         self.title = title
         self.content = content
-        self.group_id = int(group_id)
+        self.group = group
 
         if isinstance(create_time, datetime):
             self.create_time = create_time
@@ -22,7 +25,7 @@ class Note(object):
             'id': self.id,
             'title': self.title,
             'content': self.content,
-            'group_id': self.group_id,
+            'group': self.group.toJson(),
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
             'update_time': self.update_time.strftime('%Y-%m-%d %H:%M:%S')
         }

@@ -25,29 +25,10 @@
 python3 ./server.py
 ```
 
-### Structure
-```
-.
-├── app
-│   ├── Config        -> Some Config
-│   ├── Modules
-│   │   ├── Auth      -> Auth Module
-│   │   ├── File      -> File Module
-│   │   ├── Log       -> Log Module
-│   │   ├── Note      -> Note Module
-│   │   ├── Schedule  -> Schedule Module
-│   │   └── Star      -> Star Module
-│   └── ...
-├── listen.py         -> Main Program
-└── usr               -> User Directory
-    ├── file          -> User Files
-    └── img           -> Notes Image
-```
-
-### Db Model
+### Database Models
 + MySQL Models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Database/Model.sql)
 
-### API Document
+### API Documents
 + Public doc see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
 + Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
 + Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)

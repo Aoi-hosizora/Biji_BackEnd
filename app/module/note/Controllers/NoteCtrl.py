@@ -1,4 +1,4 @@
-from app.database.NoteDAO import NoteDAO
+from app.database.NoteDAO import NoteDao
 from app.module.log.Controllers import LogCtrl
 
 from app.module.note.Models.Note import Note
@@ -70,15 +70,15 @@ def getAllNotes(username: str) -> [Note]:
     '''
     查询所有笔记
     '''
-    noteDao = NoteDAO()
-    return noteDao.queryUserAllNotes(username)
+    noteDao = NoteDao()
+    return noteDao.queryAllNotes(username)
 
 def getOneNote(username: str, id: int) -> Note:
     '''
     查询一个笔记
     '''
-    noteDao = NoteDAO()
-    ret = noteDao.queryUserOneNote(username, id)
+    noteDao = NoteDao()
+    ret = noteDao.queryNoteById(username, id)
     if ret == None:
         raise NotExistError(id)
     return ret
@@ -87,8 +87,8 @@ def updateNote(username: str, note: Note) -> bool:
     '''
     更新一个旧笔记
     '''
-    noteDao = NoteDAO()
-    if noteDao.updateUserNote(username, note):
+    noteDao = NoteDao()
+    if noteDao.updateNote(username, note):
         LogCtrl.updateNoteLog(username)
         return True
     else:
@@ -98,8 +98,8 @@ def insertNote(username: str, note: Note) -> bool:
     '''
     插入一个新笔记
     '''
-    noteDao = NoteDAO()
-    if noteDao.insertUserNote(username, note):
+    noteDao = NoteDao()
+    if noteDao.insertNote(username, note):
         LogCtrl.updateNoteLog(username)
         return True
     else:
@@ -109,8 +109,8 @@ def deleteNote(username: str, note: Note) -> bool:
     '''
     删除一个旧笔记
     '''
-    noteDao = NoteDAO()
-    if noteDao.deleteUserNote(username, note):
+    noteDao = NoteDao()
+    if noteDao.deleteNote(username, note):
         LogCtrl.updateNoteLog(username)
         return True
     else:
@@ -120,13 +120,13 @@ def pushNote(username: str, notes: [Note]) -> bool:
     '''
     同步笔记
     '''
-    noteDao = NoteDAO()
-    rets = noteDao.queryUserAllNotes(username)
+    noteDao = NoteDao()
+    rets = noteDao.queryAllNotes(username)
     r = False
     for ret in rets:
-        r = noteDao.deleteUserNote(username, ret)
+        r = noteDao.deleteNote(username, ret)
     
     for note in notes:
-        r = noteDao.insertUserNote(username, note)
+        r = noteDao.insertNote(username, note)
     
     return r
