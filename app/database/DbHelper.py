@@ -17,11 +17,9 @@ class DbHelper(object):
             db=Config.MySQL_Db,
             charset='utf8'
         )
-        self.cursor = self.db.cursor()
         self.create_tbl()
 
     def __del__(self):
-        self.cursor.close()
         self.db.close()
 
     def create_tbl(self) -> bool:

@@ -6,10 +6,11 @@ from app.module.log.Models.Log import Log
 import datetime
 import pymysql
 
-class LogDAO(object):
 
+@DeprecationWarning
+class LogDAO(object):
     tbl_name = "TBL_LOG"
-    
+
     col_username = "USERNAME"
     col_module = "MODULE"
     col_time = "TIME"
@@ -49,10 +50,10 @@ class LogDAO(object):
                     {} VARCHAR(10) NOT NULL,
                     {} DATETIME NOT NULL,
                     PRIMARY KEY ({}, {}) )""".format(self.tbl_name,
-                        self.col_username, self.col_module, self.col_time,
-                        self.col_username, self.col_module
-                    )
-                )
+                                                     self.col_username, self.col_module, self.col_time,
+                                                     self.col_username, self.col_module
+                                                     )
+                                    )
                 self.db.commit()
             except:
                 self.db.rollback()
@@ -62,23 +63,23 @@ class LogDAO(object):
         创建 Log 行
         '''
         self.cursor.execute("SELECT * FROM {} WHERE {} = '{}' AND {} = '{}'".format(self.tbl_name,
-            self.col_username, username, self.col_module, module
-        ))
+                                                                                    self.col_username, username, self.col_module, module
+                                                                                    ))
         if self.cursor.fetchone() == None:
             try:
-                self.cursor.execute( """INSERT INTO {}
+                self.cursor.execute("""INSERT INTO {}
                     ({}, {}, {})
                     VALUES ('{}', '{}', '{}')""".format(self.tbl_name,
-                        self.col_username, self.col_module, self.col_time,
-                        username, module, datetime.datetime.now()
-                    )
-                )
+                                                        self.col_username, self.col_module, self.col_time,
+                                                        username, module, datetime.datetime.now()
+                                                        )
+                                    )
                 self.db.commit()
                 return True
             except:
                 self.db.rollback()
                 return False
-    
+
     def createAllLogLine(self, username: str):
         '''
         创建所有 Log 行
@@ -92,26 +93,26 @@ class LogDAO(object):
         '''
         self.createAllLogLine(username)
         self.cursor.execute("SELECT * FROM {} WHERE {} = '{}'".format(self.tbl_name,
-            self.col_username, username
-        ))
+                                                                      self.col_username, username
+                                                                      ))
         sets = []
         rets = self.cursor.fetchall()
-        for ret in rets: 
+        for ret in rets:
             try:
                 log = Log(ret[1], ret[2])
                 sets.append(log)
             except:
                 pass
         return sets
-    
+
     def queryUserOneLog(self, username: str, module: str) -> Log:
         '''
         查询表中用户的指定日志
         '''
         self.createLogLine(username, module)
         self.cursor.execute("SELECT * FROM {} WHERE {} = '{}' AND {} = '{}'".format(self.tbl_name,
-            self.col_username, username, self.col_module, module
-        ))
+                                                                                    self.col_username, username, self.col_module, module
+                                                                                    ))
         ret = self.cursor.fetchone()
         try:
             log = Log(ret[1], ret[2])
@@ -127,10 +128,10 @@ class LogDAO(object):
             self.createLogLine(username, module)
             self.cursor.execute("""UPDATE {} SET {} = '{}'
                 WHERE {} = '{}' AND {} = '{}'""".format(self.tbl_name,
-                    self.col_time, ut,
-                    self.col_username, username, self.col_module, module
-                )
-            )
+                                                        self.col_time, ut,
+                                                        self.col_username, username, self.col_module, module
+                                                        )
+                                )
             self.db.commit()
             return True
         except:

@@ -22,9 +22,10 @@ class GroupDao(DbHelper):
         """
         判断是否存在并建表
         """
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_username} VARCHAR(30) NOT NULL,
                     {self.col_id} INT AUTO_INCREMENT,
@@ -39,6 +40,7 @@ class GroupDao(DbHelper):
             return False
         finally:
             self.db.commit()
+            cursor.close()
         return True
 
     def queryAllGroups(self, username: str) -> List[Group]:
@@ -47,20 +49,23 @@ class GroupDao(DbHelper):
         """
         self.processGroups(username)  # 查询前处理
 
-        self.cursor.execute(f'''
+        cursor = self.db.cursor()
+        cursor.execute(f'''
             SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}'
         ''')
 
         returns = []
-        results = self.cursor.fetchall()
+        results = cursor.fetchall()
         for result in results:
             # noinspection PyBroadException
             try:
                 returns.append(Group(gid=result[1], name=result[2], order=result[3], color=result[4]))
             except:
                 pass
+
+        cursor.close()
         return results
 
     def queryGroupById(self, username: str, gid: int) -> Group or None:
@@ -69,17 +74,20 @@ class GroupDao(DbHelper):
         """
         self.processGroups(username)  # 查询前处理
 
-        self.cursor.execute(f'''
+        cursor = self.db.cursor()
+        cursor.execute(f'''
             SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}' AND {self.col_id} = {gid}
         ''')
-        result = self.cursor.fetchone()
+        result = cursor.fetchone()
         # noinspection PyBroadException
         try:
             return Group(gid=result[1], name=result[2], order=result[3], color=result[4])
         except:
             return None
+        finally:
+            cursor.close()
 
     def queryGroupByName(self, username: str, name: str) -> Group or None:
         """
@@ -87,17 +95,20 @@ class GroupDao(DbHelper):
         """
         self.processGroups(username)  # 查询前处理
 
-        self.cursor.execute(f'''
+        cursor = self.db.cursor()
+        cursor.execute(f'''
             SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}' AND {self.col_name} = {name}
         ''')
-        result = self.cursor.fetchone()
+        result = cursor.fetchone()
         # noinspection PyBroadException
         try:
             return Group(gid=result[1], name=result[2], order=result[3], color=result[4])
         except:
             return None
+        finally:
+            cursor.close()
 
     def queryDefaultGroup(self, username: str) -> Group:
         """
@@ -112,9 +123,11 @@ class GroupDao(DbHelper):
         """
         if self.queryGroupById(username, group.id) is not None:
             return DbErrorType.FOUNDED
+
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
                     {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
                 )
@@ -135,6 +148,7 @@ class GroupDao(DbHelper):
             return DbErrorType.FAILED
         finally:
             self.db.commit()
+            cursor.close()
 
     def updateGroup(self, username: str, group: Group) -> DbErrorType:
         """
@@ -143,9 +157,11 @@ class GroupDao(DbHelper):
         """
         if self.queryGroupById(username, group.id) is None:
             return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 UPDATE {self.tbl_name}
                 SET {self.col_name} = '{group.name}', {self.col_order} = '{group.order}', {self.col_color} = {group.color}
             ''')
@@ -162,6 +178,7 @@ class GroupDao(DbHelper):
             return DbErrorType.FAILED
         finally:
             self.db.commit()
+            cursor.close()
 
     def deleteGroup(self, username: str, gid: int) -> DbErrorType:
         """
@@ -170,9 +187,11 @@ class GroupDao(DbHelper):
         """
         if self.queryGroupById(username, gid) is None:
             return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
                 WHERE {self.col_username} = '{username}' AND {self.col_id} = {gid}
             ''')
@@ -188,6 +207,7 @@ class GroupDao(DbHelper):
             return DbErrorType.FAILED
         finally:
             self.db.commit()
+            cursor.close()
 
     def processGroups(self, username):
         """

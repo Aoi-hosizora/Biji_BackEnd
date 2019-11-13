@@ -1,5 +1,5 @@
 from app.model.BaseModel import BaseModel
-from app.model.ResultCode import ResultCode
+from app.model.vo.ResultCode import ResultCode
 
 
 class Result(BaseModel):

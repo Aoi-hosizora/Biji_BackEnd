@@ -2,7 +2,7 @@ from app.database.StarDAO import StarDAO
 from app.util.exception.BodyRawJsonError import BodyRawJsonError
 from app.module.log.Controllers import LogCtrl
 
-from app.module.star.Models.StarItem import StarItem
+from app.model.po.StarItem import StarItem
 from app.module.star.Exceptions.InsertError import InsertError
 from app.module.star.Exceptions.DeleteError import DeleteError
 
@@ -69,14 +69,14 @@ def getAllStars(username: str) -> [StarItem]:
     查询所有收藏
     '''
     starDao = StarDAO()
-    return starDao.queryUserAllStars(username)
+    return starDao.queryAllStars(username)
 
 def insertStar(username: str, star: StarItem) -> bool:
     '''
     插入一个新收藏
     '''
     starDao = StarDAO()
-    if starDao.insertUserStar(username, star):
+    if starDao.insertStar(username, star):
         LogCtrl.updateStarLog(username)
         return True
     else:
@@ -87,7 +87,7 @@ def deleteStar(username: str, star: StarItem) -> bool:
     删除一个旧收藏
     '''
     starDao = StarDAO()
-    if starDao.deleteUserStar(username, star):
+    if starDao.deleteStar(username, star):
         LogCtrl.updateStarLog(username)
         return True
     else:
@@ -98,12 +98,12 @@ def pushStar(username: str, stars: [StarItem]) -> bool:
     同步收藏
     '''
     starDao = StarDAO()
-    rets = starDao.queryUserAllStars(username)
+    rets = starDao.queryAllStars(username)
     for ret in rets:
-        r = starDao.deleteUserStar(username, ret)
+        r = starDao.deleteStar(username, ret)
     
     for star in stars:
-        r = starDao.insertUserStar(username, star)
+        r = starDao.insertStar(username, star)
     
     return r
     

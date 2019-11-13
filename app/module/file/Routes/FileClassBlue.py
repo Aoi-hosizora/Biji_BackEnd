@@ -3,7 +3,7 @@ import qrcode
 from app.database.ShareCodeDAO import ShareCodeDAO
 
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
+from app.model.dto.Message import Message
 
 from app.module.file.Controllers import FileClassCtrl
 from app.module.file.Models.FileClass import FileClass

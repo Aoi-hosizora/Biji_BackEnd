@@ -1,5 +1,5 @@
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
+from app.model.dto.Message import Message
 
 from app.module.schedule.Controllers import ScheduleCtrl
 from app.module.schedule.Models.Schedule import Schedule

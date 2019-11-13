@@ -11,7 +11,7 @@ class BaseModel(object):
         Must Override
         """
         # return self.__dict__
-        pass # <class 'NoneType'>
+        pass  # <class 'NoneType'>
 
     @staticmethod
     def to_jsons(objs: List) -> List[dict]:

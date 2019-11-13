@@ -1,5 +1,5 @@
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
+from app.model.dto.Message import Message
 from app.util.exception.QueryError import QueryError
 
 from app.module.note.Controllers import NoteCtrl

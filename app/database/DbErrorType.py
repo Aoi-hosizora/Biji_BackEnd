@@ -8,6 +8,6 @@ class DbErrorType(Enum):
     """
 
     SUCCESS = 0
-    NOT_FOUND = 1
-    FOUNDED = 2
-    FAILED = 3
+    NOT_FOUND = 1  # Update & Delete
+    FOUNDED = 2  # Insert
+    FAILED = 3  # Operate Rollback

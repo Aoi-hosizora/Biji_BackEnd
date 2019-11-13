@@ -1,4 +1,4 @@
-from app.model.Message import Message
+from app.model.dto.Message import Message
 
 Success = 200
 NotFound = 404

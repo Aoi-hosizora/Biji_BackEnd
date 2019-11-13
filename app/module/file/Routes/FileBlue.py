@@ -1,7 +1,7 @@
 import json
 
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
+from app.model.dto.Message import Message
 
 from app.module.file.Controllers import FileCtrl, FileClassCtrl
 from app.module.file.Models.File import File
@@ -9,9 +9,6 @@ from app.module.file.Models.FileClass import FileClass
 
 from flask import Blueprint, request, send_file
 from flask.app import Flask
-
-import os
-
 
 blue_File = Blueprint("blue_File", __name__, url_prefix="/file")
 

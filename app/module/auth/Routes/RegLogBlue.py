@@ -1,11 +1,9 @@
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
+from app.model.dto.Message import Message
 from app.util.exception.BodyFormKeyError import BodyFormKeyError
 
 from app.module.auth.Exceptions.RegisterError import RegisterError
-from app.module.auth.Exceptions.LoginError import LoginError
 from app.module.auth.Exceptions.LoginPasswordError import LoginPasswordError
-from app.module.auth.Exceptions.LogoutError import LogoutError
 
 from app.module.auth.Models.RegLogInfo import RegLogInfo
 from app.module.auth.Controllers import PasswordCtrl

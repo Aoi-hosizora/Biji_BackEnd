@@ -24,9 +24,10 @@ class NoteDao(DbHelper):
         """
         判断是否存在并建表
         """
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_username} VARCHAR(30) NOT NULL,
                     {self.col_id} INT AUTO_INCREMENT,
@@ -43,6 +44,7 @@ class NoteDao(DbHelper):
             return False
         finally:
             self.db.commit()
+            cursor.close()
         return True
 
     def queryAllNotes(self, username: str) -> List[Note]:
@@ -57,31 +59,34 @@ class NoteDao(DbHelper):
         :param username:
         :param group_id: 所有分组为 -1
         """
+        cursor = self.db.cursor()
         if group_id == -1:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 SELECT {self.col_username}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
                 FROM {self.tbl_name} 
                 WHERE {self.col_username} = '{username}'
             ''')
         else:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 SELECT {self.col_username}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
                 FROM {self.tbl_name} 
                 WHERE {self.col_username} = '{username}' AND {self.col_group_id} = {group_id}
             ''')
 
         returns = []
-        results = self.cursor.fetchall()
+        results = cursor.fetchall()
         for result in results:
             # noinspection PyBroadException
             try:
                 group_id: int = int(result[4])
                 group = GroupDao().queryGroupById(username, group_id)
                 if group is None:
-                    group = GroupDao().queryDefaultGroup()
+                    group = GroupDao().queryDefaultGroup(username)
                 returns.append(Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6]))
             except:
                 pass
+
+        cursor.close()
         return returns
 
     def queryNoteById(self, username: str, nid: int) -> Note or None:
@@ -89,21 +94,24 @@ class NoteDao(DbHelper):
         根据 nid 查询笔记
         :return: nullable
         """
-        self.cursor.execute(f'''
+        cursor = self.db.cursor()
+        cursor.execute(f'''
             SELECT {self.col_username}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}' AND {self.col_id} = {nid}
         ''')
-        result = self.cursor.fetchone()
+        result = cursor.fetchone()
         # noinspection PyBroadException
         try:
             group_id: int = int(result[4])
             group = GroupDao().queryGroupById(username, group_id)
             if group is None:
-                group = GroupDao().queryDefaultGroup()
+                group = GroupDao().queryDefaultGroup(username)
             return Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6])
         except:
             return None
+        finally:
+            cursor.close()
 
     def insertNote(self, username: str, note: Note) -> DbErrorType:
         """
@@ -112,9 +120,11 @@ class NoteDao(DbHelper):
         """
         if self.queryNoteById(username, note.id) is not None:
             return DbErrorType.FOUNDED
+
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
                     {self.col_username}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
                 )
@@ -134,6 +144,7 @@ class NoteDao(DbHelper):
             return DbErrorType.FAILED
         finally:
             self.db.commit()
+            cursor.close()
 
     def updateNote(self, username: str, note: Note) -> DbErrorType:
         """
@@ -142,9 +153,11 @@ class NoteDao(DbHelper):
         """
         if self.queryNoteById(username, note.id) is None:
             return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 UPDATE {self.tbl_name}
                 SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', {self.col_group_id} = {note.group.id},
                     {self.col_create_time} = '{note.create_time}', {self.col_update_time} = '{note.update_time}'
@@ -162,6 +175,7 @@ class NoteDao(DbHelper):
             return DbErrorType.FAILED
         finally:
             self.db.commit()
+            cursor.close()
 
     def deleteNote(self, username: str, nid: int) -> DbErrorType:
         """
@@ -170,9 +184,11 @@ class NoteDao(DbHelper):
         """
         if self.queryNoteById(username, nid) is None:
             return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            self.cursor.execute(f'''
+            cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
                 WHERE {self.col_username} = '{username}' AND {self.col_id} = {nid}
             ''')
@@ -187,3 +203,4 @@ class NoteDao(DbHelper):
             return DbErrorType.FAILED
         finally:
             self.db.commit()
+            cursor.close()

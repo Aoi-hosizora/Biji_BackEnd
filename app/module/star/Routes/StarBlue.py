@@ -1,12 +1,11 @@
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
+from app.model.dto.Message import Message
 
 from app.module.star.Controllers import StarCtrl
-from app.module.star.Models.StarItem import StarItem
+from app.model.po.StarItem import StarItem
 
 from flask import Blueprint, request
 from flask.app import Flask
-import json
 
 blue_Star = Blueprint("blue_Star", __name__, url_prefix="/star")
 def register_blue_Star(app: Flask):
@@ -42,7 +41,7 @@ def InsertStarRoute():
     
     StarCtrl.insertStar(username=username, star=star)
     return RespUtil.jsonRet(
-        data=star.toJson(),
+        data=star.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -59,7 +58,7 @@ def DeleteStarRoute():
 
     StarCtrl.deleteStar(username=username, star=star)
     return RespUtil.jsonRet(
-        data=star.toJson(),
+        data=star.to_json(),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )

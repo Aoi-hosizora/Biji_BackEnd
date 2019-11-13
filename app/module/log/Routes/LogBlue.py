@@ -1,5 +1,4 @@
 from app.util import ErrorUtil, RespUtil
-from app.model.Message import Message
 
 from app.module.log.Exceptions.LogNotFoundError import LogNotFoundError
 from app.module.log.Models.Log import Log
@@ -7,7 +6,6 @@ from app.module.log.Controllers import LogCtrl
 
 from flask import Blueprint, request
 from flask.app import Flask
-import json
 
 blue_Log = Blueprint("blue_Log", __name__, url_prefix="/log")
 def register_blue_Log(app: Flask):

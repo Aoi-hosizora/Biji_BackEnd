@@ -1,20 +1,16 @@
-class StarItem(object):
+from app.model.BaseModel import BaseModel
+
+
+class StarItem(BaseModel):
     
     def __init__(self, title, url, content):
         self.title = title
         self.url = url
         self.content = content
     
-    def toJson(self):
+    def to_json(self) -> dict:
         return {
             "title": self.title,
             "url": self.url,
             "content": self.content
         }
-
-    @staticmethod
-    def toJsonSet(stars):
-        sets = []
-        for star in stars:
-            sets.append(star.to_json())
-        return sets
