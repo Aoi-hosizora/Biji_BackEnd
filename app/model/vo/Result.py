@@ -1,8 +1,8 @@
-from app.model.BaseModel import BaseModel
+from app.model.JsonModel import JsonModel
 from app.model.vo.ResultCode import ResultCode
 
 
-class Result(BaseModel):
+class Result(JsonModel):
     """
     统一设置返回格式 状态码 信息 数据内容
     """

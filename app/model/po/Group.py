@@ -1,7 +1,7 @@
-from app.model.BaseModel import BaseModel
+from app.model.JsonModel import JsonModel
 
 
-class Group(BaseModel):
+class Group(JsonModel):
 
     def __init__(self, gid: int, name: str, order: int, color: str):
         self.id = int(gid)

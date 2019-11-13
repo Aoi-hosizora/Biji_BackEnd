@@ -1,7 +1,7 @@
-from app.model.BaseModel import BaseModel
+from app.model.JsonModel import JsonModel
 
 
-class StarItem(BaseModel):
+class StarItem(JsonModel):
     
     def __init__(self, title, url, content):
         self.title = title

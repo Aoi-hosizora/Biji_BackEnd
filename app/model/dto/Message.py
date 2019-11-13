@@ -1,8 +1,8 @@
-from app.model.BaseModel import BaseModel
+from app.model.JsonModel import JsonModel
 
 
 @DeprecationWarning
-class Message(BaseModel):
+class Message(JsonModel):
 
     def __init__(self, message: str, detail: str = ""):
         self.message = message

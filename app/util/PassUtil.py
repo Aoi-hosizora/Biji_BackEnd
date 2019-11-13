@@ -1,6 +1,6 @@
 from app.config import Config
-from app.module.auth.Exceptions.LoginError import LoginError
-from app.module.auth.Exceptions.TokenTimeoutError import TokenTimeoutError
+from app.controller.auth.exception.LoginError import LoginError
+from app.controller.auth.exception.TokenTimeoutError import TokenTimeoutError
 
 import time
 from passlib.apps import custom_app_context

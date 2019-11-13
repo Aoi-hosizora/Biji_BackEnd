@@ -2,9 +2,9 @@ from flask import Response, make_response
 import json
 import time
 
-from app.database.TokenDAO import TokenDAO
-from app.module.auth.Exceptions.LoginError import LoginError
-from app.util.exception.AuthNoneError import AuthNoneError
+from app.database.dao.TokenDao import TokenDao
+from app.controller.auth.exception.LoginError import LoginError
+from app.route.exception.AuthNoneError import AuthNoneError
 from app.util import PassUtil
 
 
@@ -45,7 +45,7 @@ def getAuthUser(headers: dict) -> [str, str]:
     # 无 Token 头
     if token is None:
         raise AuthNoneError()
-    tokenDao = TokenDAO()
+    tokenDao = TokenDao()
 
     isExist, isClear = tokenDao.checkToken(token)
 

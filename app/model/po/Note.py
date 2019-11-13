@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from app.model.BaseModel import BaseModel
+from app.model.JsonModel import JsonModel
 from app.model.po import Group
 
 
-class Note(BaseModel):
+class Note(JsonModel):
     def __init__(self, nid: int, title: str, content: str, group: Group, create_time: datetime, update_time: datetime):
         self.id = int(nid)
         self.title = title

@@ -1,9 +1,9 @@
 from app.util import RespUtil, ErrorUtil
 
-from app.util.exception.AuthNoneError import AuthNoneError
-from app.util.exception.BodyFormKeyError import BodyFormKeyError
-from app.util.exception.BodyRawJsonError import BodyRawJsonError
-from app.util.exception.QueryError import QueryError
+from app.route.exception.AuthNoneError import AuthNoneError
+from app.route.exception.BodyFormKeyError import BodyFormKeyError
+from app.route.exception.BodyRawJsonError import BodyRawJsonError
+from app.route.exception.QueryError import QueryError
 
 
 def register_global_error_handler(error: TypeError):
