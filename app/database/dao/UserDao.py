@@ -1,12 +1,12 @@
 from typing import List
 
 from app.database.DbErrorType import DbErrorType
-from app.database.DbHelper import DbHelper
+from app.database.MySQLHelper import MySQLHelper
 from app.model.po.User import User
 from app.util import AuthUtil
 
 
-class UserDao(DbHelper):
+class UserDao(MySQLHelper):
     tbl_name = 'tbl_user'
 
     col_username = 'u_name'

@@ -1,12 +1,12 @@
 from typing import List
 
 from app.database.DbErrorType import DbErrorType
-from app.database.DbHelper import DbHelper
+from app.database.MySQLHelper import MySQLHelper
 
 from app.model.po.Group import Group, DEF_GROUP
 
 
-class GroupDao(DbHelper):
+class GroupDao(MySQLHelper):
     tbl_name = 'tbl_group'
 
     col_username = 'g_user'

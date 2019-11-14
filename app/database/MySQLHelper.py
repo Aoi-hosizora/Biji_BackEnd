@@ -3,11 +3,11 @@ import pymysql
 from app.config import Config
 
 
-class DbHelper(object):
+class MySQLHelper(object):
 
     def __init__(self):
         """
-        统一建立数据库 Cursor
+        统一建立数据库
         """
         self.db = pymysql.connect(
             host=Config.MySQL_Host,

@@ -1,12 +1,12 @@
 from app.database.DbErrorType import DbErrorType
-from app.database.DbHelper import DbHelper
+from app.database.MySQLHelper import MySQLHelper
 from typing import List
 
 from app.database.dao.GroupDao import GroupDao
 from app.model.po.Note import Note
 
 
-class NoteDao(DbHelper):
+class NoteDao(MySQLHelper):
     tbl_name = 'tbl_note'
 
     col_username = 'n_user'

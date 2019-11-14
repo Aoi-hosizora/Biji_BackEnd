@@ -1,14 +1,16 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, g
+from flask_httpauth import HTTPTokenAuth
 
 from app.database.DbErrorType import DbErrorType
 from app.database.dao.UserDao import UserDao
+from app.database.dao.UserTokenDao import UserTokenDao
 from app.model.vo.Result import Result
 from app.model.vo.ResultCode import ResultCode
 from app.route.ParamError import ParamError, ParamType
 from app.util import AuthUtil
 
 
-def apply_blue(blue: Blueprint):
+def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     """
     应用 Blueprint Endpoint 路由映射
     """
@@ -32,7 +34,8 @@ def apply_blue(blue: Blueprint):
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("User Not Found").json_ret()
         else:  # Success
             token = AuthUtil.generate_token(username, ex)
-            # TODO Redis
+            if not UserTokenDao().addToken(username, token):  # Add to redis
+                return Result.error(ResultCode.UNAUTHORIZED).setMessage("Login Failed").json_ret()
             return Result.ok().json_ret(headers={'Authorization': token})
 
     @blue.route("/register", methods=['POST'])
@@ -55,11 +58,13 @@ def apply_blue(blue: Blueprint):
             return Result.ok().putData("username", username).json_ret()
 
     @blue.route("/logout", methods=['POST'])
+    @auth.login_required
     def LogoutRoute():
         """
         注销
         """
-        # TODO Redis
-        # tokenDao = TokenDao()
-        # return tokenDao.removeToken(username)
-        pass
+        count = UserTokenDao().removeToken(g.username)
+        if count == 0:
+            return Result.error(ResultCode.SUCCESS).setMessage("Logout Failed").json_ret()
+        else:
+            return Result.error(ResultCode.SUCCESS).putData("Count", count).json_ret()

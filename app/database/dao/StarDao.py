@@ -1,12 +1,12 @@
 from typing import List
 
 from app.database.DbErrorType import DbErrorType
-from app.database.DbHelper import DbHelper
+from app.database.MySQLHelper import MySQLHelper
 
 from app.model.po.StarItem import StarItem
 
 
-class StarDAO(DbHelper):
+class StarDAO(MySQLHelper):
     tbl_name = 'tbl_star'
 
     col_username = 'sis_user'
