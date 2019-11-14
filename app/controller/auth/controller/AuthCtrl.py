@@ -16,7 +16,7 @@ def Register(username: str, password: str) -> bool:
     @return 是否成功注册
     '''
     userDao = UserDao()
-    if not userDao.queryUser(username) == None:
+    if not userDao.queryUserByName(username) == None:
         raise(UserExistError(username))
     elif len(username) < Config.UserNameMinLength or len(username) >= Config.UserNameMaxLength:
         raise(UsernameFormatError(username))
@@ -37,7 +37,7 @@ def Login(username: str, password: str, expiration: int = 0) -> bool:
         expiration = Config.Def_Expiration
 
     userDao = UserDao()
-    if userDao.queryUser(username) == None:
+    if userDao.queryUserByName(username) == None:
         raise(UserNotExistError(username))
     ok = userDao.checkUserPassword(username, password)
 

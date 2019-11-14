@@ -1,91 +1,131 @@
+from typing import List
+
+from app.database.DbErrorType import DbErrorType
+from app.database.DbHelper import DbHelper
+from app.model.po.User import User
 from app.util import AuthUtil
-from app.config import Config
-
-import pymysql
 
 
-class UserDao(object):
-    tbl_name = "TBL_USER"
-    col_username = "USERNAME"
-    col_password = "PASSWORD"
+class UserDao(DbHelper):
+    tbl_name = 'tbl_user'
+
+    col_username = 'u_name'
+    col_password = 'u_password'
 
     def __init__(self):
-        self.db = pymysql.connect(
-            host=Config.MySQL_Host,
-            port=Config.MySQL_Port,
-            user=Config.MySQL_User,
-            passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Db,
-            charset='utf8'
-        )
-        self.cursor = self.db.cursor()
-        self.createTbl()
+        super().__init__()
 
-    def __del__(self):
-        self.db.close()
-
-    def createTbl(self):
+    def create_tbl(self) -> bool:
         """
-        判断表是否存在，并且创建表
+        判断是否存在并建表
         """
-        self.cursor.execute("SHOW TABLES LIKE '{}'".format(self.tbl_name))
-        if self.cursor.fetchone() is None:
-            try:
-                self.cursor.execute("""CREATE TABLE {} (
-                    {} VARCHAR(30) NOT NULL PRIMARY KEY,
-                    {} VARCHAR(120) NOT NULL
-                )""".format(self.tbl_name, self.col_username, self.col_password))
-                self.db.commit()
-            except:
-                self.db.rollback()
-
-    def queryAllUsers(self):
-        """
-        查询表中所有用户
-        """
-        self.cursor.execute("SELECT * FROM {}".format(self.tbl_name))
-        return self.cursor.fetchall()
-
-    def queryUser(self, username: str):
-        """
-        查询指定用户名的表项
-        """
-        self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}'".format(self.tbl_name, username))
-        return self.cursor.fetchone()
-
-    def insertUser(self, username: str, password: str) -> bool:
-        """
-        加密密码，并且插入到数据库
-        """
-        psd_encrypted = AuthUtil.encrypt_password(password)
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
         try:
-            self.cursor.execute("INSERT INTO {} ({}, {}) VALUES ('{}', '{}')".format(
-                self.tbl_name, self.col_username, self.col_password, username, psd_encrypted
-            ))
-            self.db.commit()
-            return True
+            cursor.execute(f'''
+                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
+                    {self.col_username} VARCHAR(30) PRIMARY KEY,
+                    {self.col_password} VARCHAR(120) NOT NULL)
+            ''')
         except:
             self.db.rollback()
             return False
+        finally:
+            self.db.commit()
+            cursor.close()
+        return True
 
-    def deleteUser(self, username: str) -> bool:
+    def queryAllUsers(self) -> List[User]:
+        """
+        查询所有用户
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.tbl_name}, {self.col_username} FROM {self.tbl_name}
+        ''')
+
+        returns = []
+        results = cursor.fetchall()
+        for result in results:
+            # noinspection PyBroadException
+            try:
+                returns.append(User(username=result[0], encrypted_pass=result[1]))
+            except:
+                pass
+
+        cursor.close()
+        return returns
+
+    def queryUserByName(self, username: str) -> User or None:
+        """
+        根据用户名查询用户
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.col_username}, {self.col_password}
+            FROM {self.tbl_name}
+            WHERE {self.col_username} = '{username}'
+        ''')
+        result = cursor.fetchone()
+        # noinspection PyBroadException
+        try:
+            return User(username=result[0], encrypted_pass=result[1])
+        except:
+            return None
+        finally:
+            cursor.close()
+
+    def insertUser(self, username: str, unencrypted_pass: str) -> DbErrorType:
+        """
+        加密密码并创建新用户
+        :return: SUCCESS | FOUNDED | FAILED
+        """
+        encrypted_pass = AuthUtil.encrypt_password(unencrypted_pass)
+        if self.queryUserByName(username) is not None:
+            return DbErrorType.FOUNDED
+
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
+        try:
+            cursor.execute(f'''
+                INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_password})
+                VALUES ('{username}', '{encrypted_pass}')
+            ''')
+            self.db.commit()
+
+            if self.queryUserByName(username) is None:
+                self.db.rollback()
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
+        except:
+            self.db.rollback()
+            return DbErrorType.FAILED
+        finally:
+            self.db.commit()
+            cursor.close()
+
+    def deleteUser(self, username: str) -> DbErrorType:
         """
         删除用户
+        :return: SUCCESS | NOT_FOUND | FAILED
         """
+        if self.queryUserByName(username) is None:
+            return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
         try:
-            self.cursor.execute("DELETE FROM {} WHERE {} = '{}'".format(self.tbl_name, self.col_username, username))
-            self.db.commit()
-            return True
+            cursor.execute(f'''
+                DELETE FROM {self.tbl_name} WHERE {self.col_username} = '{username}'
+            ''')
+
+            if self.queryUserByName(username) is not None:
+                self.db.rollback()
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
         except:
             self.db.rollback()
-            return False
-
-    def checkUserPassword(self, username: str, password: str) -> bool:
-        """
-        判断密码是否正确
-        """
-        user = self.queryUser(username)
-        if user == None:
-            return False
-        else:
-            return AuthUtil.verify_password(password, user[1])
+            return DbErrorType.FAILED
+        finally:
+            self.db.commit()
+            cursor.close()

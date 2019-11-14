@@ -7,13 +7,13 @@ from app.model.po.Group import Group, DEF_GROUP
 
 
 class GroupDao(DbHelper):
-    tbl_name = "tbl_group"
+    tbl_name = 'tbl_group'
 
-    col_username = "g_user"
-    col_id = "g_id"
-    col_name = "g_name"
-    col_order = "g_order"
-    col_color = "g_color"
+    col_username = 'g_user'
+    col_id = 'g_id'
+    col_name = 'g_name'
+    col_order = 'g_order'
+    col_color = 'g_color'
 
     def __init__(self):
         super().__init__()
@@ -51,7 +51,7 @@ class GroupDao(DbHelper):
 
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
+            SELECT {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}'
         ''')
@@ -76,7 +76,7 @@ class GroupDao(DbHelper):
 
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
+            SELECT {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}' AND {self.col_id} = {gid}
         ''')
@@ -97,7 +97,7 @@ class GroupDao(DbHelper):
 
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_username, self.col_id, self.col_name, self.col_order, self.col_color}
+            SELECT {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}' AND {self.col_name} = {name}
         ''')

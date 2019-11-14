@@ -7,15 +7,15 @@ from app.model.po.Note import Note
 
 
 class NoteDao(DbHelper):
-    tbl_name = "tbl_note"
+    tbl_name = 'tbl_note'
 
-    col_username = "n_user"
-    col_id = "n_id"
-    col_title = "n_title"
-    col_content = "n_content"
-    col_group_id = "n_group_id"
-    col_create_time = "n_create_time"
-    col_update_time = "n_create_time"
+    col_username = 'n_user'
+    col_id = 'n_id'
+    col_title = 'n_title'
+    col_content = 'n_content'
+    col_group_id = 'n_group_id'
+    col_create_time = 'n_create_time'
+    col_update_time = 'n_create_time'
 
     def __init__(self):
         super().__init__()

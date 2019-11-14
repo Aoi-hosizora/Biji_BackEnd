@@ -7,12 +7,12 @@ from app.model.po.StarItem import StarItem
 
 
 class StarDAO(DbHelper):
-    tbl_name = "tbl_star"
+    tbl_name = 'tbl_star'
 
-    col_username = "sis_user"
-    col_title = "sis_title"
-    col_url = "sis_url"
-    col_content = "sis_content"
+    col_username = 'sis_user'
+    col_title = 'sis_title'
+    col_url = 'sis_url'
+    col_content = 'sis_content'
 
     def __init__(self):
         super().__init__()
