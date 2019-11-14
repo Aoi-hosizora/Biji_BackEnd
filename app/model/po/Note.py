@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Optional
 
 from app.model.JsonModel import JsonModel
-from app.model.po import Group
+from app.model.po.Group import Group
 
 
 class Note(JsonModel):
@@ -30,3 +31,17 @@ class Note(JsonModel):
             'create_time': self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
             'update_time': self.update_time.strftime('%Y-%m-%d %H:%M:%S')
         }
+
+    @staticmethod
+    def from_json(jsonDict: dict) -> Optional:
+        try:
+            return Note(
+                nid=jsonDict['id'],
+                title=jsonDict['title'],
+                content=jsonDict['content'],
+                group=Group.from_json(jsonDict['group']),
+                create_time=jsonDict['create_time'],
+                update_time=jsonDict['update_time']
+            )
+        except KeyError:
+            return None

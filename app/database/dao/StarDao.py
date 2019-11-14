@@ -96,12 +96,8 @@ class StarDAO(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} (
-                    {self.col_username}, {self.col_url}, {self.col_title}, {self.col_content}
-                )
-                VALUES (
-                    '{username}', {star.url}, '{star.title}', '{star.content}'
-                )
+                INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_url}, {self.col_title}, {self.col_content})
+                VALUES ('{username}', {star.url}, '{star.title}', '{star.content}')
             ''')
             self.db.commit()
 

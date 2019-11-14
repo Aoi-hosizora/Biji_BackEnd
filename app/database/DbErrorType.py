@@ -11,3 +11,4 @@ class DbErrorType(Enum):
     NOT_FOUND = 1  # Update & Delete
     FOUNDED = 2  # Insert
     FAILED = 3  # Operate Rollback
+    DEFAULT = 4  # Update & Delete Default

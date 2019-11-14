@@ -158,7 +158,7 @@ class NoteDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name}
+                UPDATE {self.tbl_name} WHERE {self.col_id} = {note.id}
                 SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', {self.col_group_id} = {note.group.id},
                     {self.col_create_time} = '{note.create_time}', {self.col_update_time} = '{note.update_time}'
             ''')

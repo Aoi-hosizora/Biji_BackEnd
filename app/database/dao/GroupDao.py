@@ -123,6 +123,7 @@ class GroupDao(MySQLHelper):
         """
         if self.queryGroupById(username, group.id) is not None:
             return DbErrorType.FOUNDED
+        self.processGroups(username)  # 插入前处理
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -141,7 +142,6 @@ class GroupDao(MySQLHelper):
                 self.db.rollback()
                 return DbErrorType.FAILED
 
-            self.processGroups(username)  # 插入后处理
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -153,16 +153,22 @@ class GroupDao(MySQLHelper):
     def updateGroup(self, username: str, group: Group) -> DbErrorType:
         """
         更新分组 除了 gid
-        :return: SUCCESS | NOT_FOUND | FAILED
+        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
         """
         if self.queryGroupById(username, group.id) is None:
             return DbErrorType.NOT_FOUND
+        self.processGroups(username)  # 更新前处理
+
+        # 修改默认分组名
+        defGroup = self.queryDefaultGroup(username)
+        if group.id == defGroup.id and group.name != defGroup:
+            return DbErrorType.DEFAULT
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name}
+                UPDATE {self.tbl_name} WHERE {self.col_id} = {group.id}
                 SET {self.col_name} = '{group.name}', {self.col_order} = '{group.order}', {self.col_color} = {group.color}
             ''')
 
@@ -171,7 +177,6 @@ class GroupDao(MySQLHelper):
                 self.db.rollback()
                 return DbErrorType.FAILED
 
-            self.processGroups(username)  # 更新后处理
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -183,10 +188,14 @@ class GroupDao(MySQLHelper):
     def deleteGroup(self, username: str, gid: int) -> DbErrorType:
         """
         删除一个分组
-        :return: SUCCESS | NOT_FOUND | FAILED
+        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
         """
         if self.queryGroupById(username, gid) is None:
             return DbErrorType.NOT_FOUND
+
+        # 删除默认分组
+        if gid == self.queryDefaultGroup(username).id:
+            return DbErrorType.DEFAULT
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -212,15 +221,68 @@ class GroupDao(MySQLHelper):
     def processGroups(self, username):
         """
         操作前后 处理顺序和默认分组
-        TODO 调用位置
         """
-        groups = self.queryAllGroups(username)
+        # 使用 Raw Json 防止递归
+        def query(name: str) -> bool:
+            cursor = self.db.cursor()
+            cursor.execute(f'''
+                SELECT {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
+                FROM {self.tbl_name}
+                WHERE {self.col_username} = '{username}' AND {self.col_name} = {name}
+            ''')
+            return cursor.rowcount != 0
 
-        if self.queryDefaultGroup(username) is None:
-            self.insertGroup(username, DEF_GROUP)
+        def insert(g: Group):
+            cursor = self.db.cursor()
+            # noinspection PyBroadException
+            try:
+                cursor.execute(f'''
+                    INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color})
+                    VALUES ('{username}', {g.id}, '{g.name}', {g.order}, '{g.color}')
+                ''')
+                self.db.commit()
+            except:
+                self.db.rollback()
+            finally:
+                self.db.commit()
+                cursor.close()
 
-        groups = sorted(groups, key=lambda key: key.order)  # 小到大
+        def queryAll() -> List[Group]:
+            cursor = self.db.cursor()
+            cursor.execute(f'''
+                SELECT {self.col_username}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
+                FROM {self.tbl_name}
+                WHERE {self.col_username} = '{username}'
+            ''')
+            returns = []
+            results = cursor.fetchall()
+            for result in results:
+                # noinspection PyBroadException
+                try:
+                    returns.append(Group(gid=result[1], name=result[2], order=result[3], color=result[4]))
+                except:
+                    pass
+            cursor.close()
+            return results
+
+        def update(g: Group):
+            cursor = self.db.cursor()
+            # noinspection PyBroadException
+            try:
+                cursor.execute(f'''UPDATE {self.tbl_name} SET {self.col_order} = '{g.order}' WHERE {self.col_id} = {g.id}''')
+            except:
+                self.db.rollback()
+            finally:
+                self.db.commit()
+                cursor.close()
+
+        # 插入默认分组
+        if query(DEF_GROUP.name) is None:
+            insert(DEF_GROUP)
+
+        # 处理顺序 小到大
+        groups = sorted(queryAll(), key=lambda key: key.order)
         for idx, group in enumerate(groups):
             if group.order != idx:
                 group.order = idx
-                self.updateGroup(username, group)
+                update(group)
