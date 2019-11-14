@@ -1,4 +1,5 @@
 import json
+from typing import List, Union
 
 from flask import Response
 
@@ -48,7 +49,7 @@ class Result(JsonModel):
         self.message = message
         return self
 
-    def setData(self, obj: dict or list):
+    def setData(self, obj: Union[dict, List[dict]]):
         """
         直接设置对象或列表
         """

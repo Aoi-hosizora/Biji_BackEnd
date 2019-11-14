@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from app.database.DbErrorType import DbErrorType
 from app.database.MySQLHelper import MySQLHelper
@@ -65,7 +65,7 @@ class StarDAO(MySQLHelper):
         cursor.close()
         return returns
 
-    def queryStarByUrl(self, username: str, url: str) -> StarItem or None:
+    def queryStarByUrl(self, username: str, url: str) -> Optional[StarItem]:
         """
         根据 url 查询收藏
         """

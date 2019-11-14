@@ -12,7 +12,7 @@ from app.util import AuthUtil
 
 def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     """
-    应用 Blueprint Endpoint 路由映射
+    应用 Blueprint Endpoint 路由映射 `/auth`
     """
 
     @blue.route("/login", methods=['POST'])

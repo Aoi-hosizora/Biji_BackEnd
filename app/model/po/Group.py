@@ -1,3 +1,5 @@
+from typing import Optional
+
 from app.model.JsonModel import JsonModel
 
 
@@ -16,6 +18,18 @@ class Group(JsonModel):
             'order': self.order,
             'color': self.color
         }
+
+    @staticmethod
+    def from_json(jsonDict: dict) -> Optional:
+        try:
+            return Group(
+                gid=jsonDict['id'],
+                name=jsonDict['name'],
+                order=jsonDict['order'],
+                color=jsonDict['color']
+            )
+        except KeyError:
+            return None
 
 
 Group.DEF_GROUP = Group(1, "默认分组", 0, '#F0F0F0')

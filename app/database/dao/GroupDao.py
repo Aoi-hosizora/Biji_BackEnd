@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from app.database.DbErrorType import DbErrorType
 from app.database.MySQLHelper import MySQLHelper
@@ -68,7 +68,7 @@ class GroupDao(MySQLHelper):
         cursor.close()
         return results
 
-    def queryGroupById(self, username: str, gid: int) -> Group or None:
+    def queryGroupById(self, username: str, gid: int) -> Optional[Group]:
         """
         根据 gid 查询分组
         """
@@ -89,7 +89,7 @@ class GroupDao(MySQLHelper):
         finally:
             cursor.close()
 
-    def queryGroupByName(self, username: str, name: str) -> Group or None:
+    def queryGroupByName(self, username: str, name: str) -> Optional[Group]:
         """
         根据 name 查询分组
         """

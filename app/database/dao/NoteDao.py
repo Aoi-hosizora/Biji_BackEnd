@@ -1,6 +1,6 @@
 from app.database.DbErrorType import DbErrorType
 from app.database.MySQLHelper import MySQLHelper
-from typing import List
+from typing import List, Optional
 
 from app.database.dao.GroupDao import GroupDao
 from app.model.po.Note import Note
@@ -89,7 +89,7 @@ class NoteDao(MySQLHelper):
         cursor.close()
         return returns
 
-    def queryNoteById(self, username: str, nid: int) -> Note or None:
+    def queryNoteById(self, username: str, nid: int) -> Optional[Note]:
         """
         根据 nid 查询笔记
         :return: nullable

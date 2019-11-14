@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from app.database.DbErrorType import DbErrorType
 from app.database.MySQLHelper import MySQLHelper
@@ -56,7 +56,7 @@ class UserDao(MySQLHelper):
         cursor.close()
         return returns
 
-    def queryUserByName(self, username: str) -> User or None:
+    def queryUserByName(self, username: str) -> Optional[User]:
         """
         根据用户名查询用户
         """

@@ -6,11 +6,9 @@ def register_note_module_blue(app: Flask):
     注册 Note 模块的蓝图
     """
     from app.controller.note.NoteBlue import register_blue_Note
-    from app.controller.note.GroupBlue import register_blue_Group
     from app.controller.note.ImgBlue import register_blue_Img
 
     register_blue_Note(app)
-    register_blue_Group(app)
     register_blue_Img(app)
 
 
