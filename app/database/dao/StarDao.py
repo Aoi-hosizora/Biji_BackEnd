@@ -6,7 +6,7 @@ from app.database.MySQLHelper import MySQLHelper
 from app.model.po.StarItem import StarItem
 
 
-class StarDAO(MySQLHelper):
+class StarDao(MySQLHelper):
     tbl_name = 'tbl_star'
 
     col_username = 'sis_user'
@@ -126,7 +126,7 @@ class StarDAO(MySQLHelper):
         try:
             cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
-                WHERE {self.col_username} = '{username}' AND {self.col_url} = {url}
+                WHERE {self.col_username} = '{username}' AND {self.col_url} = '{url}'
             ''')
 
             if self.queryStarByUrl(username, url) is not None:

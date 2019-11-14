@@ -5,20 +5,9 @@ def register_note_module_blue(app: Flask):
     """
     注册 Note 模块的蓝图
     """
-    from app.controller.note.NoteBlue import register_blue_Note
     from app.controller.note.ImgBlue import register_blue_Img
 
-    register_blue_Note(app)
     register_blue_Img(app)
-
-
-def register_star_module_blue(app: Flask):
-    """
-    注册 Star 模块的蓝图
-    """
-    from app.controller.star.StarBlue import register_blue_Star
-
-    register_blue_Star(app)
 
 
 def register_schedule_module_blue(app: Flask):
@@ -51,14 +40,6 @@ def forward_note_error(error: TypeError):
     """
     from app.controller.note.ErrorHandler import register_note_error_handler
     return register_note_error_handler(error)
-
-
-def forward_star_error(error: TypeError):
-    """
-    转发 Star 模块的错误
-    """
-    from app.controller.star.ErrorHandler import register_star_error_handler
-    return register_star_error_handler(error)
 
 
 def forward_schedule_error(error: TypeError):

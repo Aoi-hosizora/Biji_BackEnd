@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 
 class JsonModel(object):
@@ -12,6 +12,13 @@ class JsonModel(object):
         """
         # return self.__dict__
         pass  # <class 'NoneType'>
+
+    @staticmethod
+    def from_json(jsonDict: dict) -> Optional:
+        """
+        Must Override for DTO
+        """
+        pass
 
     @staticmethod
     def to_jsons(objs: List) -> List[dict]:

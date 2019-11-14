@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from app.controller import AuthCtrl, GroupCtrl, NoteCtrl
+from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl
 from app.middleware import AuthMw
 
 from flask.app import Flask
@@ -28,8 +28,10 @@ def register_modules_blue(app: Flask):
     NoteCtrl.apply_blue(blue_Note, auth)
     app.register_blueprint(blue_Note)
 
-    # controller.register_auth_module_blue(app)
-    # controller.register_note_module_blue(app)
-    # controller.register_star_module_blue(app)
+    # Star Blue
+    blue_Star = Blueprint("blue_Star", __name__, url_prefix="/star")
+    StarCtrl.apply_blue(blue_Star, auth)
+    app.register_blueprint(blue_Star)
+
     # controller.register_schedule_module_blue(app)
     # controller.register_file_module_blue(app)
