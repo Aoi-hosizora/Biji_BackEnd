@@ -10,6 +10,7 @@ from app.route.exception.BodyRawJsonError import BodyRawJsonError
 
 import json
 
+
 def getNoteFromReqData(reqdata: str) -> Note:
     '''
     从 Req 的 headers 中获取 Note
@@ -21,9 +22,10 @@ def getNoteFromReqData(reqdata: str) -> Note:
     except:
         # 解析错误
         raise BodyRawJsonError()
-    
+
     return checkJson(postjson)
-    
+
+
 def getNotesFromReqData(reqdata: str) -> [Note]:
     '''
     从 Req 的 headers 中获取 Note[]
@@ -32,29 +34,30 @@ def getNotesFromReqData(reqdata: str) -> [Note]:
     '''
     try:
         postjsons = json.loads(reqdata)
-        
+
         ret = []
         for postjson in postjsons:
             ret.append(checkJson(json.loads(postjson)))
-    
+
     except:
         # 解析错误
         raise BodyRawJsonError()
-    
+
     return ret
 
+
 def checkJson(postjson) -> Note:
-    '''
+    """
     检查 Json 并转化
-    '''
+    """
     keys = ['id', 'title', 'content', 'group_id', 'create_time', 'update_time']
     nonePostKeys = [
         key for key in keys
-        if key not in postjson or postjson[key] == None
+        if key not in postjson or postjson[key] is None
     ]
     if not len(nonePostKeys) == 0:
         # 缺少参数
-        raise(BodyRawJsonError(nonePostKeys))
+        raise (BodyRawJsonError(nonePostKeys))
 
     if not len(postjson) == len(keys):
         # 参数过多
@@ -66,12 +69,14 @@ def checkJson(postjson) -> Note:
         # 内容错误
         raise BodyRawJsonError()
 
+
 def getAllNotes(username: str) -> [Note]:
-    '''
+    """
     查询所有笔记
-    '''
+    """
     noteDao = NoteDao()
     return noteDao.queryAllNotes(username)
+
 
 def getOneNote(username: str, id: int) -> Note:
     '''
@@ -82,6 +87,7 @@ def getOneNote(username: str, id: int) -> Note:
     if ret == None:
         raise NotExistError(id)
     return ret
+
 
 def updateNote(username: str, note: Note) -> bool:
     '''
@@ -94,6 +100,7 @@ def updateNote(username: str, note: Note) -> bool:
     else:
         raise UpdateError(note.id)
 
+
 def insertNote(username: str, note: Note) -> bool:
     '''
     插入一个新笔记
@@ -104,6 +111,7 @@ def insertNote(username: str, note: Note) -> bool:
         return True
     else:
         raise InsertError(note.title)
+
 
 def deleteNote(username: str, note: Note) -> bool:
     '''
@@ -116,6 +124,7 @@ def deleteNote(username: str, note: Note) -> bool:
     else:
         raise DeleteError(note.title)
 
+
 def pushNote(username: str, notes: [Note]) -> bool:
     '''
     同步笔记
@@ -125,8 +134,8 @@ def pushNote(username: str, notes: [Note]) -> bool:
     r = False
     for ret in rets:
         r = noteDao.deleteNote(username, ret)
-    
+
     for note in notes:
         r = noteDao.insertNote(username, note)
-    
+
     return r

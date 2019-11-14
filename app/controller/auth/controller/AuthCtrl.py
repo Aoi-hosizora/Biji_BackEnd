@@ -7,7 +7,7 @@ from app.controller.auth.exception.UsernameFormatError import UsernameFormatErro
 from app.controller.auth.exception.PasswordFormatError import PasswordFormatError
 
 from app.config import Config
-from app.util import PassUtil
+from app.util import AuthUtil
 
 def Register(username: str, password: str) -> bool:
     '''
@@ -43,7 +43,7 @@ def Login(username: str, password: str, expiration: int = 0) -> bool:
 
     if ok:
         # 更新 Redis Token
-        token = PassUtil.generate_token(username, expiration)
+        token = AuthUtil.generate_token(username, expiration)
         tokenDao = TokenDao()
         tokenDao.removeToken(username=username)
         if tokenDao.addToken(username=username, token=token):

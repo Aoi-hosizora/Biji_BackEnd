@@ -26,13 +26,11 @@ python3 ./server.py
 ```
 
 ### Database Models
-+ MySQL Models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Database/Model.sql)
++ MySQL database Models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Database/Model.sql)
 
-### API Documents
-+ Public doc see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
-+ Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
-+ Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
-+ Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
-+ File doc see [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
-+ Schedule doc see [Schedule](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
-+ Log doc see [Log](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Log/Schedule/readme.md)
+### Dependency Libraries
++ [pymysql](https://github.com/PyMySQL/PyMySQL)
++ [itsdangerous](https://pythonhosted.org/itsdangerous/)
++ [passlib](https://passlib.readthedocs.io/en/stable/)
++ [werkzeug](https://palletsprojects.com/p/werkzeug/)
++ [flask-httpauth](https://flask-httpauth.readthedocs.io/en/latest/)

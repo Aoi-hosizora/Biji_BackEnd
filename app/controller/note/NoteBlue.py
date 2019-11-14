@@ -1,7 +1,7 @@
 from app.util import ErrorUtil, RespUtil
 from app.route.exception.QueryError import QueryError
 
-from app.controller.note.Controllers import NoteCtrl
+from app.controller.note.controller import NoteCtrl
 from app.model.po.Note import Note
 
 from flask import Blueprint, request
@@ -16,6 +16,9 @@ def register_blue_Note(app: Flask):
     """
     app.register_blueprint(blue_Note)
 
+
+################################################################################################
+################################################################################################
 
 @blue_Note.route("/all", methods=['GET'])
 def AllNoteRoute():

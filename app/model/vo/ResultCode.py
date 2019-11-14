@@ -14,3 +14,8 @@ class ResultCode(Enum):
     SUCCESS = 200, 'Success'
     NOT_FOUND = 404, 'Not Found'
     INTERNAL_SERVER_ERROR = 500, 'Internal Server Error'
+
+    UNAUTHORIZED = 401, 'Unauthorized'
+    FORBIDDEN = 403, 'Forbidden'
+    METHOD_NOT_ALLOWED = 405, 'Method Not Allowed'
+    NOT_ACCEPTABLE = 406, 'Not Acceptable'

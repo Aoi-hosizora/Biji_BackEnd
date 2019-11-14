@@ -1,4 +1,4 @@
-from app.util import PassUtil
+from app.util import AuthUtil
 from app.config import Config
 
 import pymysql
@@ -57,7 +57,7 @@ class UserDao(object):
         """
         加密密码，并且插入到数据库
         """
-        psd_encrypted = PassUtil.hash_password(password)
+        psd_encrypted = AuthUtil.encrypt_password(password)
         try:
             self.cursor.execute("INSERT INTO {} ({}, {}) VALUES ('{}', '{}')".format(
                 self.tbl_name, self.col_username, self.col_password, username, psd_encrypted
@@ -88,4 +88,4 @@ class UserDao(object):
         if user == None:
             return False
         else:
-            return PassUtil.verify_password(password, user[1])
+            return AuthUtil.verify_password(password, user[1])

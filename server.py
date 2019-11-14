@@ -1,7 +1,7 @@
 from app.route.BluesHandler import register_modules_blue
 from app.route.ErrorHandler import register_error_forward
 
-from app.middleware.CorsMw import setupCors
+from app.middleware.CorsMw import setup_cors
 from app.config import Config
 
 from flask import Flask, app
@@ -16,7 +16,7 @@ def setup(flask_app: app.Flask):
     配置中间件 全局设置 蓝图 错误转发
     """
     # middleware
-    setupCors(app=flask_app)
+    setup_cors(app=flask_app)
 
     # config
     flask_app.config['JSON_AS_ASCII'] = False
