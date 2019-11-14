@@ -1,6 +1,6 @@
 import json
 
-from flask import Response, make_response
+from flask import Response
 
 from app.model.JsonModel import JsonModel
 from app.model.vo.ResultCode import ResultCode
@@ -69,11 +69,11 @@ class Result(JsonModel):
             'data': self.data
         }
 
-    def json_ret(self, code: int, headers: dict = None) -> Response:
+    def json_ret(self, code: int = 200, headers=None) -> Response:
         """
         Flask 自定义数据返回
         """
-        if not headers:
+        if headers is None:
             headers = {}
 
         resp = Response(

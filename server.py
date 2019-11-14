@@ -1,5 +1,5 @@
-from app.route.BluesHandler import register_modules_blue
-from app.route.ErrorHandler import register_error_forward
+from app.route.RouteBlue import register_modules_blue
+from app.route.ErrorForward import setup_error_forward
 
 from app.middleware.CorsMw import setup_cors
 from app.config import Config
@@ -28,7 +28,7 @@ def setup(flask_app: app.Flask):
     register_modules_blue(app=flask_app)
 
     # Error Forward
-    register_error_forward(app=flask_app)
+    setup_error_forward(app=flask_app)
 
 
 # nginx + uwsgi + flask + blueprint
