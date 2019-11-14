@@ -75,6 +75,20 @@ class UserDao(DbHelper):
         finally:
             cursor.close()
 
+    def checkUserPassword(self, username: str, unencrypted_pass: str) -> DbErrorType:
+        """
+        检查用户密码正确
+        :return: SUCCESS | NOT_FOUND | FAILED (密码不一致)
+        """
+        user = self.queryUserByName(username)
+        if user is None:
+            return DbErrorType.NOT_FOUND
+
+        if AuthUtil.verify_password(password=unencrypted_pass, encrypted_password=user.encrypted_pass):
+            return DbErrorType.SUCCESS
+        else:
+            return DbErrorType.FAILED
+
     def insertUser(self, username: str, unencrypted_pass: str) -> DbErrorType:
         """
         加密密码并创建新用户

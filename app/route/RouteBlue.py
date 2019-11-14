@@ -1,4 +1,6 @@
-from app import controller
+from flask import Blueprint
+
+from app.controller import AuthCtrl
 
 from flask.app import Flask
 
@@ -7,8 +9,13 @@ def register_modules_blue(app: Flask):
     """
     向 FlaskApp 注册每个模块的蓝图
     """
-    controller.register_auth_module_blue(app)
-    controller.register_note_module_blue(app)
-    controller.register_star_module_blue(app)
-    controller.register_schedule_module_blue(app)
-    controller.register_file_module_blue(app)
+
+    blue_Auth = Blueprint("blue_Auth", __name__, url_prefix="/auth")
+    AuthCtrl.apply_blue(blue_Auth)
+    app.register_blueprint(blue_Auth)
+
+    # controller.register_auth_module_blue(app)
+    # controller.register_note_module_blue(app)
+    # controller.register_star_module_blue(app)
+    # controller.register_schedule_module_blue(app)
+    # controller.register_file_module_blue(app)

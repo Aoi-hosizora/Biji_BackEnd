@@ -69,7 +69,7 @@ class Result(JsonModel):
             'data': self.data
         }
 
-    def json_ret(self, code: int = 200, headers=None) -> Response:
+    def json_ret(self, headers=None) -> Response:
         """
         Flask 自定义数据返回
         """
@@ -80,7 +80,7 @@ class Result(JsonModel):
             response=json.dumps(obj=self.to_json(), indent=4, ensure_ascii=False).encode("utf-8"),
             mimetype='application/json'
         )
-        resp.status_code = code
+        resp.status_code = self.code
         resp.headers['Access-Control-Allow-Origin'] = '*'
         for k, v in headers.items():
             resp.headers[k] = v
