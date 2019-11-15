@@ -4,8 +4,8 @@ from app.util import ErrorUtil, RespUtil
 from app.model.dto.Message import Message
 
 from app.controller.file.controller import FileClassCtrl, FileCtrl
-from app.model.po.File import File
-from app.model.po.FileClass import FileClass
+from app.model.po.Document import Document
+from app.model.po.DocumentClass import DocumentClass
 
 from flask import Blueprint, request, send_file
 from flask.app import Flask
@@ -27,7 +27,7 @@ def AllFileRoute():
     else:
         files = FileCtrl.getAllFiles(username=username, foldername=foldername)
     return RespUtil.jsonRet(
-        data=File.toJsonSet(files),
+        data=Document.toJsonSet(files),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
@@ -64,7 +64,7 @@ def UploadFileRoute():
         return ''
     if file != None:
         filename, filepath = FileCtrl.saveFile(file=file, username=username)
-        file = File(username, id, foldername, filename, filepath)
+        file = Document(username, id, foldername, filename, filepath)
         FileCtrl.insertFile(username=username, file=file)
         return RespUtil.jsonRet(
             data=Message(
@@ -94,7 +94,7 @@ def DeleteFileRoute():
     foldername = form['foldername']
     filename = form['filename']
 
-    FileCtrl.deleteFile(username, File(username, id, foldername, filename, ''))
+    FileCtrl.deleteFile(username, Document(username, id, foldername, filename, ''))
     return RespUtil.jsonRet(
         data=Message(
             message="File delete success",
@@ -153,7 +153,7 @@ def GetSharedFiles():
 
     if FileCtrl.checkShareCode(usernameShared + foldernameShared, shareCodeJson):
         
-        fileClass = FileClassCtrl.getOneFileClass(usernameShared, FileClass(0, foldernameShared))
+        fileClass = FileClassCtrl.getOneFileClass(usernameShared, DocumentClass(0, foldernameShared))
         files = FileCtrl.getAllFiles(usernameShared, foldernameShared)
         for file in files:
             file.username = username

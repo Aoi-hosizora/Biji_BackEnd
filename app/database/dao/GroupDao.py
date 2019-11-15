@@ -136,8 +136,6 @@ class GroupDao(MySQLHelper):
                     {uid}, {group.id}, '{group.name}', {group.order}, '{group.color}'
                 )
             ''')
-            self.db.commit()
-
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
@@ -215,6 +213,8 @@ class GroupDao(MySQLHelper):
             self.db.commit()
             cursor.close()
 
+    ####################################################################################
+
     def processGroups(self, uid: int):
         """
         操作前后 处理顺序和默认分组
@@ -224,8 +224,7 @@ class GroupDao(MySQLHelper):
         def query(name: str) -> bool:
             cursor = self.db.cursor()
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-                FROM {self.tbl_name}
+                SELECT * FROM {self.tbl_name}
                 WHERE {self.col_user} = {uid} AND {self.col_name} = {name}
             ''')
             return cursor.rowcount != 0
@@ -238,7 +237,6 @@ class GroupDao(MySQLHelper):
                     INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color})
                     VALUES ({uid}, {g.id}, '{g.name}', {g.order}, '{g.color}')
                 ''')
-                self.db.commit()
             except:
                 self.db.rollback()
             finally:

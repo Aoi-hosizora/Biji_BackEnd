@@ -1,15 +1,15 @@
-from app.database.dao.FileClassDao import FileClassDao
+from app.database.dao.DocumentClassDao import DocumentClassDao
 from app.route.exception.BodyRawJsonError import BodyRawJsonError
 from app.module.log.Controllers import LogCtrl
 
-from app.model.po.FileClass import FileClass
+from app.model.po.DocumentClass import DocumentClass
 from app.controller.file.exception.UpdateError import UpdateError
 from app.controller.file.exception.InsertError import InsertError
 from app.controller.file.exception.DeleteError import DeleteError
 
 import json
 
-def getFileClassFromReqData(reqdata: str) -> FileClass:
+def getFileClassFromReqData(reqdata: str) -> DocumentClass:
 
     try:
         postjson = json.loads(reqdata)
@@ -18,7 +18,7 @@ def getFileClassFromReqData(reqdata: str) -> FileClass:
 
     return checkJson(postjson)
 
-def getFileClassesFromReqData(reqdata: str) -> [FileClass]:
+def getFileClassesFromReqData(reqdata: str) -> [DocumentClass]:
 
     try:
         postjsons = json.loads(reqdata)
@@ -32,7 +32,7 @@ def getFileClassesFromReqData(reqdata: str) -> [FileClass]:
 
     return ret
 
-def checkJson(postjson) -> FileClass:
+def checkJson(postjson) -> DocumentClass:
     '''
     检查 Json 并转换
     '''
@@ -44,67 +44,67 @@ def checkJson(postjson) -> FileClass:
     if not len(nonePostKeys) == 0:
         raise(BodyRawJsonError(nonePostKeys))
     try:
-        return FileClass(*[postjson[key] for key in keys])
+        return DocumentClass(*[postjson[key] for key in keys])
     except:
         raise BodyRawJsonError()
 
-def getAllFileClasses(username: str) -> [FileClass]:
+def getAllFileClasses(username: str) -> [DocumentClass]:
     '''
     查询所有文件分类
     '''
-    fileClassDao = FileClassDao()
-    return fileClassDao.queryUserAllFileClasses(username)
+    fileClassDao = DocumentClassDao()
+    return fileClassDao.queryAllDocumentClasses(username)
 
-def getOneFileClass(username: str, fileClass: FileClass) -> FileClass:
+def getOneFileClass(username: str, fileClass: DocumentClass) -> DocumentClass:
     '''
     查询一个文件分类
     '''
-    fileClassDao = FileClassDao()
-    ret = fileClassDao.queryUserOneFileClass(username, fileClass)
+    fileClassDao = DocumentClassDao()
+    ret = fileClassDao.queryDefaultDocumentClass(username, fileClass)
     return ret
 
-def updateFileClass(username: str, fileClass: FileClass) -> bool:
+def updateFileClass(username: str, fileClass: DocumentClass) -> bool:
     '''
     更新一个旧分类
     '''
-    fileClassDao = FileClassDao()
-    if fileClassDao.updateUserFileClass(username, fileClass):
+    fileClassDao = DocumentClassDao()
+    if fileClassDao.updateDocumentClass(username, fileClass):
         LogCtrl.updateFileClassLog(username)
         return True
     else:
         raise UpdateError(fileClass.name)
         
-def insertFileClass(username: str, fileClass: FileClass) -> bool:
+def insertFileClass(username: str, fileClass: DocumentClass) -> bool:
     '''
     插入一个新分类
     '''
-    fileClassDao = FileClassDao()
-    if fileClassDao.insertUserFileClass(username, fileClass):
+    fileClassDao = DocumentClassDao()
+    if fileClassDao.insertDocumentClass(username, fileClass):
         LogCtrl.updateFileClassLog(username)
         return True
     else:
         raise InsertError(fileClass.name, False)
 
-def deleteFileClass(username: str, fileClass: FileClass) -> bool:
+def deleteFileClass(username: str, fileClass: DocumentClass) -> bool:
     '''
     删除一个旧分类
     '''
-    fileClassDao = FileClassDao()
-    if fileClassDao.deleteUserFileClass(username, fileClass):
+    fileClassDao = DocumentClassDao()
+    if fileClassDao.deleteDocumentClass(username, fileClass):
         LogCtrl.updateFileClassLog(username)
         return True
     else:
         raise DeleteError(fileClass.name, False)
     
-def pushFileClass(username: str, fileClasses: [FileClass]) -> bool:
+def pushFileClass(username: str, fileClasses: [DocumentClass]) -> bool:
     '''
     同步分类
     '''
-    fileClassDao = FileClassDao()
+    fileClassDao = DocumentClassDao()
     r = True
 
     for fileClass in fileClasses:
-        if fileClassDao.queryUserOneFileClass(username, fileClass) is None: 
+        if fileClassDao.queryDefaultDocumentClass(username, fileClass) is None:
             r = insertFileClass(username, fileClass)
     
     return r

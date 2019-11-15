@@ -8,7 +8,7 @@ class JsonModel(object):
 
     def to_json(self) -> dict:
         """
-        Must Override
+        Must Override for DTO
         """
         # return self.__dict__
         pass  # <class 'NoneType'>

@@ -1,8 +1,8 @@
-from app.database.dao.FileDao import FileDao
+from app.database.dao.DocumentDao import DocumentDao
 from app.database.dao.ShareCodeDao import ShareCodeDao
 from app.module.log.Controllers import LogCtrl
 
-from app.model.po.File import File
+from app.model.po.Document import Document
 from app.controller.file.exception.FileNotExistError import FileNotExistError
 from app.controller.file.exception.InsertError import InsertError
 from app.controller.file.exception.DeleteError import DeleteError
@@ -14,47 +14,47 @@ import os
 from app.route.exception.BodyRawJsonError import BodyRawJsonError
 
 
-def getAllFiles(username: str, foldername: str) -> [File]:
+def getAllFiles(username: str, foldername: str) -> [Document]:
     '''
     查询所有文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     return fileDao.queryFiles(username, foldername)
 
-def getAllFilesByUsername(username: str) -> [File]:
+def getAllFilesByUsername(username: str) -> [Document]:
     '''
     查询所有文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     return fileDao.queryFilesByUsername(username)
 
-def getOneFile(username: str, foldername: str, filename: str, id: int) -> File:
+def getOneFile(username: str, foldername: str, filename: str, id: int) -> Document:
     '''
     查询一个文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     ret = fileDao.queryOneFile(username, foldername, filename, id)
     if ret == None:
         raise FileNotExistError(filename)
     return ret
 
 
-def insertFile(username: str, file: File) -> bool:
+def insertFile(username: str, file: Document) -> bool:
     '''
     插入一个文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     if fileDao.insertFile(file):
         LogCtrl.updateFileLog(username)
         return True
     else:
         raise InsertError(file.filename)
 
-def deleteFile(username: str, file: File) -> bool:
+def deleteFile(username: str, file: Document) -> bool:
     '''
     删除一个文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     if fileDao.deleteFile(file):
         LogCtrl.updateFileLog(username)
         return True
@@ -65,14 +65,14 @@ def deleteFileByClass(username: str, fileClassName: str) -> bool:
     '''
     删除一类文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     if fileDao.deleteFileByClass(username, fileClassName):
         LogCtrl.updateFileLog(username)
         return True
     else:
         raise DeleteError(fileClassName, False)
 
-def getDocumentsFromReqData(username: str, reqdata: str) -> [File]:
+def getDocumentsFromReqData(username: str, reqdata: str) -> [Document]:
 
     try:
         postjsons = json.loads(reqdata)
@@ -87,7 +87,7 @@ def getDocumentsFromReqData(username: str, reqdata: str) -> [File]:
 
     return ret
 
-def checkJson(username: str, postjson) -> File:
+def checkJson(username: str, postjson) -> Document:
     '''
     检查 Json 并转化
     '''
@@ -105,7 +105,7 @@ def checkJson(username: str, postjson) -> File:
         raise BodyRawJsonError()
 
     try:
-        return File(username, postjson['id'], postjson['foldername'], postjson['filename'], '')
+        return Document(username, postjson['id'], postjson['foldername'], postjson['filename'], '')
     except:
         # 内容错误
         raise BodyRawJsonError()
@@ -143,11 +143,11 @@ def getFile(username: str, filename: str):
         return f
 
 
-def pushFile(username: str, files: [File]) -> bool:
+def pushFile(username: str, files: [Document]) -> bool:
     '''
     同步文件
     '''
-    fileDao = FileDao()
+    fileDao = DocumentDao()
     r = False
 
     for file in files:

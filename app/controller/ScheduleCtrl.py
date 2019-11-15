@@ -31,8 +31,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         更新/新建 课程表
         """
         schedule_data = request.get_data(as_text=True)
-        return_data: str = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
-        if return_data == '':
+        ret = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
+        if ret == DbErrorType.FAILED:
             return Result.error(ResultCode.NOT_FOUND).setMessage('Update Schedule Failed').json_ret()
         else:
             return Result.ok().json_ret()

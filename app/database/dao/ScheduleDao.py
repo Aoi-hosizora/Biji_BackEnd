@@ -51,6 +51,7 @@ class ScheduleDao(MySQLHelper):
     def updateSchedule(self, uid: int, data: str) -> DbErrorType:
         """
         更新课程表
+        :return: SUCCESS | FAILED
         """
         db_data = self.querySchedule(uid)
         if db_data == data:  # Not Modify

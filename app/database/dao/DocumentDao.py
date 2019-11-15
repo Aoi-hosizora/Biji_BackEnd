@@ -1,14 +1,14 @@
 from app.config import Config
 from app.controller.file.exception.FileClassNotExistError import FileClassNotExistError
 
-from app.model.po.File import File
+from app.model.po.Document import Document
 from app.controller.file.exception.FileExistError import ExistError
 from app.controller.file.exception.FileNotExistError import FileNotExistError
 
 import pymysql
 
 
-class FileDao(object):
+class DocumentDao(object):
     tbl_name = "TBL_FILE"
     col_username = "USERNAME"
     col_id = "ID"
@@ -62,7 +62,7 @@ class FileDao(object):
         rets = self.cursor.fetchall()
         set = []
         for ret in rets:
-            set.append(File(ret[0], ret[1], ret[2], ret[3], ret[4]))
+            set.append(Document(ret[0], ret[1], ret[2], ret[3], ret[4]))
         return set
 
     def queryFiles(self, username: str, foldername: str):
@@ -74,7 +74,7 @@ class FileDao(object):
         rets = self.cursor.fetchall()
         set = []
         for ret in rets:
-            set.append(File(ret[0], ret[1], ret[2], ret[3], ret[4]))
+            set.append(Document(ret[0], ret[1], ret[2], ret[3], ret[4]))
         return set
 
     def queryFilesByUsername(self, username: str):
@@ -86,7 +86,7 @@ class FileDao(object):
         rets = self.cursor.fetchall()
         set = []
         for ret in rets:
-            set.append(File(ret[0], ret[1], ret[2], ret[3], ret[4]))
+            set.append(Document(ret[0], ret[1], ret[2], ret[3], ret[4]))
         return set
 
     def queryOneFile(self, username: str, foldername: str, filename: str, id: int):
@@ -98,11 +98,11 @@ class FileDao(object):
         ret = self.cursor.fetchone()
 
         try:
-            return File(ret[0], ret[1], ret[2], ret[3], ret[4])
+            return Document(ret[0], ret[1], ret[2], ret[3], ret[4])
         except:
             return None
 
-    def insertFile(self, file: File) -> bool:
+    def insertFile(self, file: Document) -> bool:
         '''
         插入到数据库
         '''
@@ -129,7 +129,7 @@ class FileDao(object):
             self.db.rollback()
             return False
 
-    def deleteFile(self, file: File) -> bool:
+    def deleteFile(self, file: Document) -> bool:
         '''
         删除文件
         '''

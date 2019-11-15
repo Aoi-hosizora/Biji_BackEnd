@@ -6,7 +6,7 @@ from app.util import ErrorUtil, RespUtil
 from app.model.dto.Message import Message
 
 from app.controller.file.controller import FileClassCtrl
-from app.model.po.FileClass import FileClass
+from app.model.po.DocumentClass import DocumentClass
 
 from flask import Blueprint, request, send_file
 from flask.app import Flask
@@ -29,7 +29,7 @@ def AllFileClassRoute():
     username, newToken = RespUtil.getAuthUser(request.headers)
     fileClasses = FileClassCtrl.getAllFileClasses(username=username)
     return RespUtil.jsonRet(
-        data=FileClass.toJsonSet(fileClasses),
+        data=DocumentClass.toJsonSet(fileClasses),
         code=ErrorUtil.Success,
         headers={'Authorization': newToken} if newToken != "" else {}
     )
