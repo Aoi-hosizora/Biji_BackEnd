@@ -69,6 +69,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Existed").json_ret()
         elif ret == DbErrorType.FAILED:
             return Result.error().setMessage("Group Insert Failed").json_ret()
+        elif ret == DbErrorType.DUPLICATE:
+            return Result.error().setMessage("Group Name Duplicate").json_ret()
         else:  # Success
             return Result.ok().setData(group.to_json()).json_ret()
 
@@ -85,6 +87,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif ret == DbErrorType.FAILED:
             return Result.error().setMessage("Group Update Failed").json_ret()
+        elif ret == DbErrorType.DUPLICATE:
+            return Result.error().setMessage("Group Name Duplicate").json_ret()
         elif ret == DbErrorType.DEFAULT:
             return Result.error().setMessage("Could Not Update Default Group").json_ret()
         else:  # Success

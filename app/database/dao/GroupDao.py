@@ -116,13 +116,18 @@ class GroupDao(MySQLHelper):
         """
         return self.queryGroupByName(uid, DEF_GROUP.name)
 
+    #######################################################################################################################
+
     def insertGroup(self, uid: int, group: Group) -> DbErrorType:
         """
         插入新分组
-        :return: SUCCESS | FOUNDED | FAILED
+        :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
-        if self.queryGroupById(uid, group.id) is not None:
+        if self.queryGroupById(uid, group.id) is not None:  # 已存在
             return DbErrorType.FOUNDED
+        if self.queryGroupByName(uid, group.name) is not None:  # 名字重复
+            return DbErrorType.DUPLICATE
+
         self.processGroups(uid)  # 插入前处理
 
         cursor = self.db.cursor()
@@ -150,10 +155,12 @@ class GroupDao(MySQLHelper):
     def updateGroup(self, uid: int, group: Group) -> DbErrorType:
         """
         更新分组 (name, order, color)
-        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
+        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
         """
-        if self.queryGroupById(uid, group.id) is None:
+        if self.queryGroupById(uid, group.id) is None:  # 不存在
             return DbErrorType.NOT_FOUND
+        if self.queryGroupByName(uid, group.name) is not None:  # 名字重复
+            return DbErrorType.DUPLICATE
         self.processGroups(uid)  # 更新前处理
 
         # 修改默认分组名

@@ -110,13 +110,17 @@ class DocumentClassDao(MySQLHelper):
         """
         return self.queryDocumentClassByName(uid, DEF_DOC_CLASS.name)
 
+    #######################################################################################################################
+
     def insertDocumentClass(self, uid: int, docClass: DocumentClass) -> DbErrorType:
         """
         插入新分组
-        :return: SUCCESS | FOUNDED | FAILED
+        :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
-        if self.queryDocumentClassById(uid, docClass.id) is not None:
+        if self.queryDocumentClassById(uid, docClass.id) is not None:  # 已存在
             return DbErrorType.FOUNDED
+        if self.queryDocumentClassByName(uid, docClass.name) is not None:  # 重复
+            return DbErrorType.DUPLICATE
         self.processDocumentClass(uid)  # 插入前处理
 
         cursor = self.db.cursor()
@@ -140,10 +144,12 @@ class DocumentClassDao(MySQLHelper):
     def updateDocumentClass(self, uid: int, docClass: DocumentClass) -> DbErrorType:
         """
         更新分组 (name)
-        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
+        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
         """
-        if self.queryDocumentClassById(uid, docClass.id) is None:
+        if self.queryDocumentClassById(uid, docClass.id) is None:  # 不存在
             return DbErrorType.NOT_FOUND
+        if self.queryDocumentClassByName(uid, docClass.name) is not None:  # 重复
+            return DbErrorType.DUPLICATE
         self.processDocumentClass(uid)  # 更新前处理
 
         # 修改默认分组名

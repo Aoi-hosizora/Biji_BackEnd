@@ -39,6 +39,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Existed").json_ret()
         elif ret == DbErrorType.FAILED:
             return Result.error().setMessage("StatItem Insert Failed").json_ret()
+        elif ret == DbErrorType.DUPLICATE:
+            return Result.error().setMessage("StatItem Url Duplicate").json_ret()
         else:  # Success
             return Result.ok().setData(star.to_json()).json_ret()
 

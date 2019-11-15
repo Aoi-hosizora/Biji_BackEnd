@@ -48,6 +48,8 @@ class ScheduleDao(MySQLHelper):
         finally:
             cursor.close()
 
+    #######################################################################################################################
+
     def updateSchedule(self, uid: int, data: str) -> DbErrorType:
         """
         更新课程表

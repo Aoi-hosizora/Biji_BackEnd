@@ -6,10 +6,10 @@ from app.model.JsonModel import JsonModel
 class StarItem(JsonModel):
 
     def __init__(self, sid: int, title, url, content):
-        self.id = sid
-        self.title = title
-        self.url = url
-        self.content = content
+        self.id: int = sid
+        self.title: str = title
+        self.url: str = url
+        self.content: str = content
 
     def to_json(self) -> dict:
         return {

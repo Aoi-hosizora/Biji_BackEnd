@@ -12,3 +12,4 @@ class DbErrorType(Enum):
     FOUNDED = 2  # Insert
     FAILED = 3  # Operate Rollback
     DEFAULT = 4  # Update & Delete Default
+    DUPLICATE = 5  # Unique 重复

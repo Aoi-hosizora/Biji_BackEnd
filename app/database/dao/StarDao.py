@@ -85,13 +85,36 @@ class StarDao(MySQLHelper):
         finally:
             cursor.close()
 
+    def queryStarByUrl(self, uid: int, url: str) -> Optional[StarItem]:
+        """
+        根据 uid 查询收藏
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
+            FROM {self.tbl_name} 
+            WHERE {self.col_user} = {uid} and {self.col_url} = '{url}'
+        ''')
+        result = cursor.fetchone()
+        # noinspection PyBroadException
+        try:
+            return StarItem(sid=result[1], url=result[2], title=result[3], content=result[4])
+        except:
+            return None
+        finally:
+            cursor.close()
+
+    #######################################################################################################################
+
     def insertStar(self, uid: int, star: StarItem) -> DbErrorType:
         """
         插入新收藏
-        :return: SUCCESS | FOUNDED | FAILED
+        :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
-        if self.queryStarById(uid, star.id) is not None:
+        if self.queryStarById(uid, star.id) is not None:  # 已存在
             return DbErrorType.FOUNDED
+        if self.queryStarByUrl(uid, star.url) is not None:  # url 重复
+            return DbErrorType.DUPLICATE
 
         cursor = self.db.cursor()
         # noinspection PyBroadException

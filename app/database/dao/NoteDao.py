@@ -113,12 +113,14 @@ class NoteDao(MySQLHelper):
         finally:
             cursor.close()
 
+    #######################################################################################################################
+
     def insertNote(self, uid: int, note: Note) -> DbErrorType:
         """
         插入新笔记
         :return: SUCCESS | FOUNDED | FAILED
         """
-        if self.queryNoteById(uid, note.id) is not None:
+        if self.queryNoteById(uid, note.id) is not None:  # 已存在
             return DbErrorType.FOUNDED
 
         cursor = self.db.cursor()
