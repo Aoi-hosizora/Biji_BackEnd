@@ -128,16 +128,11 @@ class NoteDao(MySQLHelper):
                 INSERT INTO {self.tbl_name} (
                     {self.col_user}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
                 )
-                VALUES (
-                    {uid}, {note.id}, '{note.title}', '{note.content}', {note.group.id}, '{note.create_time}', '{note.update_time}'
-                )
+                VALUES ({uid}, {note.id}, '{note.title}', '{note.content}', {note.group.id}, '{note.create_time}', '{note.update_time}')
             ''')
-            self.db.commit()
-
-            if self.queryNoteById(uid, note.id) is None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -163,13 +158,9 @@ class NoteDao(MySQLHelper):
                 SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', {self.col_group_id} = {note.group.id},
                     {self.col_create_time} = '{note.create_time}', {self.col_update_time} = '{note.update_time}'
             ''')
-
-            newNote = self.queryNoteById(uid, note.id)
-            if newNote.title != note.title or newNote.content != note.content or newNote.group.id != note.group.id \
-                    or newNote.create_time != note.create_time or newNote.update_time != note.update_time:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -193,11 +184,9 @@ class NoteDao(MySQLHelper):
                 DELETE FROM {self.tbl_name}
                 WHERE {self.col_user} = {uid} AND {self.col_id} = {nid}
             ''')
-
-            if self.queryNoteById(uid, nid) is not None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()

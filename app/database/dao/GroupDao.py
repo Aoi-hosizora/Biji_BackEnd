@@ -138,10 +138,9 @@ class GroupDao(MySQLHelper):
             ''')
             self.db.commit()
 
-            if self.queryGroupById(uid, group.id) is None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -173,11 +172,9 @@ class GroupDao(MySQLHelper):
                 SET {self.col_name} = '{group.name}', {self.col_order} = '{group.order}', {self.col_color} = {group.color}
             ''')
 
-            newGroup = self.queryGroupById(uid, group.id)
-            if newGroup.name != group.name or newGroup.order != group.order or newGroup.color != group.color:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -205,8 +202,7 @@ class GroupDao(MySQLHelper):
                 DELETE FROM {self.tbl_name}
                 WHERE {self.col_user} = {uid} AND {self.col_id} = {gid}
             ''')
-
-            if self.queryGroupById(uid, gid) is not None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
 

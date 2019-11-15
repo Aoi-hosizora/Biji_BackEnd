@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from app.database.DbErrorType import DbErrorType
 from app.database.MySQLHelper import MySQLHelper
@@ -7,6 +7,11 @@ from app.util import AuthUtil
 
 
 class UserDao(MySQLHelper):
+    """
+    !!!!!!
+    uid username hash_pass 存储
+    没有 PO，直接在 DAO 加密和验证
+    """
     tbl_name = 'tbl_user'
 
     col_id = 'u_id'
@@ -38,26 +43,26 @@ class UserDao(MySQLHelper):
             cursor.close()
         return True
 
-    def queryAllUsers(self) -> List[User]:
-        """
-        查询所有用户
-        """
-        cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_id}, {self.col_username}, {self.col_password} FROM {self.tbl_name}
-        ''')
-
-        returns = []
-        results = cursor.fetchall()
-        for result in results:
-            # noinspection PyBroadException
-            try:
-                returns.append(User(uid=result[0], username=result[1], encrypted_pass=result[2]))
-            except:
-                pass
-
-        cursor.close()
-        return returns
+    # def queryAllUsers(self) -> List[User]:
+    #     """
+    #     查询所有用户
+    #     """
+    #     cursor = self.db.cursor()
+    #     cursor.execute(f'''
+    #         SELECT {self.col_id}, {self.col_username}, {self.col_password} FROM {self.tbl_name}
+    #     ''')
+    #
+    #     returns = []
+    #     results = cursor.fetchall()
+    #     for result in results:
+    #         # noinspection PyBroadException
+    #         try:
+    #             returns.append(User(uid=result[0], username=result[1], encrypted_pass=result[2]))
+    #         except:
+    #             pass
+    #
+    #     cursor.close()
+    #     return returns
 
     def queryUserById(self, uid: int) -> Optional[User]:
         """
@@ -111,6 +116,8 @@ class UserDao(MySQLHelper):
         else:
             return DbErrorType.FAILED, None
 
+    #########################################################################################################################
+
     def insertUser(self, username: str, unencrypted_pass: str) -> DbErrorType:
         """
         加密密码并创建新用户
@@ -127,9 +134,7 @@ class UserDao(MySQLHelper):
                 INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_password})
                 VALUES ('{username}', '{encrypted_pass}')
             ''')
-            self.db.commit()
-
-            if self.queryUserByName(username) is None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
             return DbErrorType.SUCCESS
@@ -140,28 +145,25 @@ class UserDao(MySQLHelper):
             self.db.commit()
             cursor.close()
 
-    def deleteUser(self, username: str) -> DbErrorType:
-        """
-        删除用户
-        :return: SUCCESS | NOT_FOUND | FAILED
-        """
-        if self.queryUserByName(username) is None:
-            return DbErrorType.NOT_FOUND
-
-        cursor = self.db.cursor()
-        # noinspection PyBroadException
-        try:
-            cursor.execute(f'''
-                DELETE FROM {self.tbl_name} WHERE {self.col_username} = '{username}'
-            ''')
-
-            if self.queryUserByName(username) is not None:
-                self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
-        except:
-            self.db.rollback()
-            return DbErrorType.FAILED
-        finally:
-            self.db.commit()
-            cursor.close()
+    # def deleteUser(self, username: str) -> DbErrorType:
+    #     """
+    #     删除用户
+    #     :return: SUCCESS | NOT_FOUND | FAILED
+    #     """
+    #     if self.queryUserByName(username) is None:
+    #         return DbErrorType.NOT_FOUND
+    #
+    #     cursor = self.db.cursor()
+    #     # noinspection PyBroadException
+    #     try:
+    #         cursor.execute(f'''DELETE FROM {self.tbl_name} WHERE {self.col_username} = '{username}' ''')
+    #         if cursor.rowcount == 0:
+    #             self.db.rollback()
+    #             return DbErrorType.FAILED
+    #         return DbErrorType.SUCCESS
+    #     except:
+    #         self.db.rollback()
+    #         return DbErrorType.FAILED
+    #     finally:
+    #         self.db.commit()
+    #         cursor.close()

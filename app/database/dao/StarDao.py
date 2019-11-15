@@ -104,12 +104,9 @@ class StarDao(MySQLHelper):
                     {uid}, {star.id}, '{star.url}', '{star.title}', '{star.content}'
                 )
             ''')
-            self.db.commit()
-
-            if self.queryStarById(uid, star.id) is None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()
@@ -133,11 +130,9 @@ class StarDao(MySQLHelper):
                 DELETE FROM {self.tbl_name}
                 WHERE {self.col_user} = {uid} AND {self.col_id} = {sid}
             ''')
-
-            if self.queryStarById(uid, sid) is not None:
+            if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-
             return DbErrorType.SUCCESS
         except:
             self.db.rollback()

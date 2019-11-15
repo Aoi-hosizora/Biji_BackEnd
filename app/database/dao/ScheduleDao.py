@@ -1,122 +1,99 @@
-from app.config import Config
-
-from app.model.po.Schedule import Schedule
-from app.controller.schedule.exception.ExistError import ExistError
-from app.controller.schedule.exception.ScheduleNotExistError import ScheduleNotExistError
-
-import pymysql
+from app.database.DbErrorType import DbErrorType
+from app.database.MySQLHelper import MySQLHelper
 
 
-class ScheduleDao(object):
-    tbl_name = "TBL_SCHEDULE"
-    col_username = "USERNAME"
-    col_schedulejson = "SCHEDULEJSON"
+class ScheduleDao(MySQLHelper):
+    tbl_name = "tbl_schedule"
+
+    col_user = "sc_user"
+    col_json = "sc_json"
 
     def __init__(self):
-        self.db = pymysql.connect(
-            host=Config.MySQL_Host,
-            port=Config.MySQL_Port,
-            user=Config.MySQL_User,
-            passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Db,
-            charset='utf8'
-        )
-        self.cursor = self.db.cursor()
-        self.result = self.createTbl()
+        super().__init__()
 
-    def __del__(self):
-        self.db.close()
+    def create_tbl(self) -> bool:
+        """
+        判断是否存在并建表
+        """
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
+        try:
+            cursor.execute(f'''
+                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
+                    {self.col_user} INT NOT NULL PRIMARY KEY,
+                    {self.col_json} TEXT DEFAULT ('')
+                )
+            ''')
+        except:
+            self.db.rollback()
+            return False
+        finally:
+            self.db.commit()
+            cursor.close()
 
-    def createTbl(self):
-        '''
-        判断表是否存在，并且创建表
-        '''
-        self.cursor.execute("SHOW TABLES LIKE '{}'".format(self.tbl_name))
-        if self.cursor.fetchone() == None:
-            try:
-                self.cursor.execute("""CREATE TABLE {} (
-                    {} VARCHAR(30) NOT NULL PRIMARY KEY,
-                    {} VARCHAR(5000) NOT NULL
-                ) CHARACTER SET = utf8;
-                """.format(self.tbl_name, self.col_username, self.col_schedulejson))
-                self.db.commit()
-            except Exception as e:
+        return True
+
+    def querySchedule(self, uid: int) -> str:
+        """
+        用户课程表
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''SELECT {self.col_user}, {self.col_json} FROM {self.tbl_name} WHERE {self.col_user} = {uid}''')
+        result = cursor.fetchone()
+        # noinspection PyBroadException
+        try:
+            return result[1]
+        except:
+            return ''
+        finally:
+            cursor.close()
+
+    def updateSchedule(self, uid: int, data: str) -> DbErrorType:
+        """
+        更新课程表
+        """
+        db_data = self.querySchedule(uid)
+        if db_data == data:  # Not Modify
+            return DbErrorType.SUCCESS
+
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
+        try:
+            if db_data == '':  # New
+                cursor.execute(f'''INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_json}) VALUES ({uid}, {data})''')
+            else:
+                cursor.execute(f'''UPDATE {self.tbl_name} WHERE {self.col_user} = {uid} SET {self.col_json} = {data}''')
+
+            if cursor.rowcount == 0:
                 self.db.rollback()
-                return str(e)
-
-
-    def querySchedule(self, username: str):
-        '''
-        查询指定用户名的表项
-        '''
-        self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}'"
-                            .format(self.tbl_name, username))
-        ret = self.cursor.fetchone()
-        try:
-            return Schedule(ret[0], ret[1])
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
         except:
-            return None
-
-
-    def insertSchedule(self, schedule: Schedule) -> bool:
-        '''
-        插入到数据库
-        '''
-        username = schedule.username
-        schedulejson = schedule.schedulejson
-
-        print('insertSchedule: ', schedulejson)
-
-        if self.querySchedule(username) != None:
-            raise ExistError(username)
-
-        try:
-            self.cursor.execute("INSERT INTO {} ({}, {}) VALUES ('{}', '{}')".format(
-                self.tbl_name, self.col_username, self.col_schedulejson,
-                username, schedulejson))
-            self.db.commit()
-            if self.querySchedule(username) == None:
-                return False
-            return True
-        except Exception as e:
-            print(str(e))
             self.db.rollback()
-            return False
+            return DbErrorType.FAILED
+        finally:
+            self.db.commit()
+            cursor.close()
 
-    def deleteSchedule(self, schedule: Schedule) -> bool:
-        '''
+    def deleteSchedule(self, uid: int) -> DbErrorType:
+        """
         删除课表
-        '''
-        username = schedule.username
-        schedulejson = schedule.schedulejson
+        :return: SUCCESS | NOT_FOUND | FAILED
+        """
+        if self.querySchedule(uid) == '':
+            return DbErrorType.NOT_FOUND
 
-        if self.querySchedule(username) == None:
-            raise ScheduleNotExistError(username)
-
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
         try:
-            self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}'".format(self.tbl_name, username))
-            self.db.commit()
-            if self.querySchedule(username) != None:
-                return False
-            return True
+            cursor.execute(f'''DELETE FROM {self.tbl_name} WHERE {self.col_user} = {uid}''')
+            if cursor.rowcount == 0:
+                self.db.rollback()
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
         except:
             self.db.rollback()
-            return False
-
-    def updateSchedule(self, schedule: Schedule) -> bool:
-        '''
-        对数据库中用户的课表更新
-        '''
-        username = schedule.username
-        if self.querySchedule(username) == None:
-            raise ScheduleNotExistError(username)
-
-        try:
-            self.cursor.execute("UPDATE {} SET {} = '{}' WHERE {} = '{}'"
-                                .format(self.tbl_name, self.col_schedulejson, schedule.schedulejson,
-                                        self.col_username, username))
+            return DbErrorType.FAILED
+        finally:
             self.db.commit()
-            return True
-        except:
-            self.db.rollback()
-            return False
+            cursor.close()

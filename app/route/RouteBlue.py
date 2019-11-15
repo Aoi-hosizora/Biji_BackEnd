@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl
+from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl, ScheduleCtrl
 from app.middleware import AuthMw
 
 from flask.app import Flask
@@ -32,6 +32,11 @@ def setup_route_blue(app: Flask):
     blue_Star = Blueprint("blue_Star", __name__, url_prefix="/star")
     StarCtrl.apply_blue(blue_Star, auth)
     app.register_blueprint(blue_Star)
+
+    # Schedule Blue
+    blue_Schedule = Blueprint("blue_Schedule", __name__, url_prefix="/schedule")
+    ScheduleCtrl.apply_blue(blue_Schedule, auth)
+    app.register_blueprint(blue_Schedule)
 
     # controller.register_schedule_module_blue(app)
     # controller.register_file_module_blue(app)

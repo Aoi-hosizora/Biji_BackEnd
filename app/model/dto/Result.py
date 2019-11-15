@@ -18,7 +18,7 @@ class Result(JsonModel):
 
         self.code = code
         self.message = message
-        self.data = data
+        self.data = data  # 默认 字典，可为: 字典 / 列表 / 字符串
         pass
 
     @staticmethod
@@ -49,9 +49,9 @@ class Result(JsonModel):
         self.message = message
         return self
 
-    def setData(self, obj: Union[dict, List[dict]]):
+    def setData(self, obj: Union[dict, List[dict], str]):
         """
-        直接设置对象或列表
+        直接设置 字典 列表 字符串
         """
         self.data = obj
         return self
