@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl, ScheduleCtrl, DocumentCtrl, DocumentClassCtrl
+from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl, ScheduleCtrl, DocumentCtrl, DocumentClassCtrl, RawCtrl
 from app.middleware import AuthMw
 
 from flask.app import Flask
@@ -48,4 +48,6 @@ def setup_route_blue(app: Flask):
     app.register_blueprint(blue_Document)
 
     # Raw
-    # TODO
+    blue_Raw = Blueprint("blue_Raw", __name__, url_prefix="/raw")
+    RawCtrl.apply_blue(blue_Raw, auth)
+    app.register_blueprint(blue_Raw)

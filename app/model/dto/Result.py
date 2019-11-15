@@ -16,50 +16,37 @@ class Result(JsonModel):
         if data is None:
             data = {}
 
-        self.code = code
-        self.message = message
-        self.data = data  # 默认 字典，可为: 字典 / 列表 / 字符串
-        pass
+        self.code: int = code
+        self.message: str = message
+        self.data: Union[dict, list, str] = data  # 默认 字典，可为: 字典 / 列表 / 字符串
 
     @staticmethod
     def ok():
-        """
-        成功相应处理
-        """
+        """ 成功相应处理 """
         return Result(code=ResultCode.SUCCESS.code, message=ResultCode.SUCCESS.message)
 
     @staticmethod
     def error(err: ResultCode = ResultCode.INTERNAL_SERVER_ERROR):
-        """
-        错误相应处理
-        """
+        """ 错误相应处理 """
         return Result(code=err.code, message=err.message)
 
     def setCode(self, code: int):
-        """
-        链式设置响应状态码
-        """
+        """ 链式设置响应状态码 """
         self.code = code
         return self
 
     def setMessage(self, message: str):
-        """
-        链式设置响应信息
-        """
+        """ 链式设置响应信息 """
         self.message = message
         return self
 
-    def setData(self, obj: Union[dict, List[dict], str]):
-        """
-        直接设置 字典 列表 字符串
-        """
+    def setData(self, obj: Union[dict, List, str]):
+        """ 直接设置 字典 列表 字符串 """
         self.data = obj
         return self
 
     def putData(self, name: str, data: Union[dict, str, int, float, list]):
-        """
-        添加进字典
-        """
+        """ 添加进字典 """
         self.data[name] = data
         return self
 
@@ -71,9 +58,7 @@ class Result(JsonModel):
         }
 
     def json_ret(self, headers=None) -> Response:
-        """
-        Flask 自定义数据返回
-        """
+        """ 自定义数据返回 Response """
         if headers is None:
             headers = {}
 
