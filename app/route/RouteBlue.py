@@ -47,4 +47,5 @@ def setup_route_blue(app: Flask):
     DocumentCtrl.apply_blue(blue_Document, auth)
     app.register_blueprint(blue_Document)
 
-    # controller.register_schedule_module_blue(app)
+    # Raw
+    # TODO

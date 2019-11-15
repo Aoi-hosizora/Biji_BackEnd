@@ -15,9 +15,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['GET'])
     def GetRoute():
-        """
-        获得 课程表
-        """
+        """ 获得 课程表 """
         schedule_data: str = ScheduleDao().querySchedule(uid=g.user)
         if schedule_data == '':
             return Result.error(ResultCode.NOT_FOUND).setMessage('Get Schedule Null').json_ret()
@@ -27,9 +25,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():
-        """
-        更新/新建 课程表
-        """
+        """ 更新/新建 课程表 """
         schedule_data = request.get_data(as_text=True)
         ret = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
         if ret == DbErrorType.FAILED:
@@ -40,9 +36,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['DELETE'])
     def DeleteRoute():
-        """
-        删除 课程表
-        """
+        """ 删除 课程表 """
         ret = ScheduleDao().deleteSchedule(uid=g.user)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage('Delete Schedule Not Found').json_ret()

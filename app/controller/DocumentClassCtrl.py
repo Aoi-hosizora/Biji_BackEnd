@@ -18,18 +18,14 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['GET'])
     def GetAllRoute():
-        """
-        所有文件分组
-        """
+        """ 所有文件分组 """
         docClasses = DocumentClassDao().queryAllDocumentClasses(uid=g.user)
         return Result.ok().setData(DocumentClass.to_jsons(docClasses)).json_ret()
 
     @auth.login_required
     @blue.route('/<int:cid>', methods=['GET'])
     def GetRoute(cid: int):
-        """
-        id 获取文件分组
-        """
+        """ id 获取文件分组 """
         docClass = DocumentClassDao().queryDocumentClassById(uid=g.user, cid=cid)
         if not docClass:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
@@ -38,9 +34,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/default", methods=['GET'])
     def GetDefaultRoute():
-        """
-        默认分组
-        """
+        """ 默认分组 """
         return Result.ok().setData(
             DocumentClassDao().queryDefaultDocumentClass(uid=g.user).to_json()
         ).json_ret()
@@ -48,9 +42,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['POST'])
     def InsertRoute():
-        """
-        新建文件分组
-        """
+        """ 新建文件分组 """
         rawJson = json.loads(request.get_data(as_text=True))
         docClass = DocumentClass.from_json(rawJson)
         ret = DocumentClassDao().insertDocumentClass(uid=g.user, docClass=docClass)
@@ -66,9 +58,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():
-        """
-        更新文件分组
-        """
+        """ 更新文件分组 """
         rawJson = json.loads(request.get_data(as_text=True))
         docClass = DocumentClass.from_json(rawJson)
         ret = DocumentClassDao().updateDocumentClass(uid=g.user, docClass=docClass)
@@ -86,9 +76,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/<int:cid>', methods=['DELETE'])
     def DeleteRoute(cid: int):
-        """
-        删除文件分组
-        """
+        """ 删除文件分组 """
         ret = DocumentClassDao().deleteDocumentClass(uid=g.user, cid=cid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()

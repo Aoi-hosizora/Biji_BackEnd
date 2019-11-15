@@ -18,18 +18,14 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/", methods=['GET'])
     def GetAllRoute():
-        """
-        所有分组
-        """
+        """ 所有分组 """
         groups = GroupDao().queryAllGroups(uid=g.user)
         return Result.ok().setData(Group.to_jsons(groups)).json_ret()
 
     @auth.login_required
     @blue.route("/<int:gid>", methods=['GET'])
     def GetByIdRoute(gid: int):
-        """
-        gid 查询分组
-        """
+        """ gid 查询分组 """
         group = GroupDao().queryGroupById(uid=g.user, gid=gid)
         if not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
@@ -38,9 +34,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/<string:name>", methods=['GET'])
     def GetByNameRoute(name: str):
-        """
-        name 查询分组
-        """
+        """ name 查询分组 """
         group = GroupDao().queryGroupByName(uid=g.user, name=name)
         if not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
@@ -49,9 +43,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/default", methods=['GET'])
     def GetDefaultRoute():
-        """
-        默认分组
-        """
+        """ 默认分组 """
         return Result.ok().setData(
             GroupDao().queryDefaultGroup(uid=g.user).to_json()
         ).json_ret()
@@ -59,9 +51,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/", methods=['POST'])
     def InsertRoute():
-        """
-        插入
-        """
+        """ 插入 """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
         ret = GroupDao().insertGroup(uid=g.user, group=group)
@@ -77,9 +67,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/", methods=['PUT'])
     def UpdateRoute():
-        """
-        更新
-        """
+        """ 更新 """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
         ret = GroupDao().updateGroup(uid=g.user, group=group)
@@ -97,9 +85,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/<int:gid>", methods=['DELETE'])
     def DeleteRoute(gid: int):
-        """
-        删除
-        """
+        """ 删除 """
         ret = GroupDao().deleteGroup(uid=g.user, gid=gid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()

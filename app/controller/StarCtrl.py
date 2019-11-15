@@ -20,18 +20,14 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/", methods=['GET'])
     def GetAllRoute():
-        """
-        所有分组
-        """
+        """ 所有分组 """
         stars = StarDao().queryAllStars(uid=g.user)
         return Result.ok().setData(StarItem.to_jsons(stars)).json_ret()
 
     @auth.login_required
     @blue.route("/", methods=['POST'])
     def InsertRoute():
-        """
-        插入
-        """
+        """ 插入 """
         rawJson = json.loads(request.get_data(as_text=True))
         star = StarItem.from_json(rawJson)
         ret = StarDao().insertStar(uid=g.user, star=star)
@@ -47,9 +43,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/<int:sid>", methods=['DELETE'])
     def DeleteRoute(sid: int):
-        """
-        删除
-        """
+        """ 删除 """
         ret = StarDao().deleteStar(uid=g.user, sid=sid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
@@ -61,9 +55,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route("/delete/", methods=['DELETE'])
     def DeletesRoute():
-        """
-        删除所有
-        """
+        """ 删除多个 """
         rawJson: List[int] = json.loads(request.get_data(as_text=True))
         if not isinstance(rawJson, list):
             raise ParamError(ParamType.RAW)

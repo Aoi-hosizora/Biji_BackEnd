@@ -17,9 +17,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     @blue.route("/login", methods=['POST'])
     def LoginRoute():
-        """
-        登录
-        """
+        """ 登录 """
         try:
             username = request.form['username']
             password = request.form['password']
@@ -41,9 +39,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     @blue.route("/register", methods=['POST'])
     def RegisterRoute():
-        """
-        注册
-        """
+        """ 注册 """
         try:
             username = request.form['username']
             password = request.form['password']
@@ -61,9 +57,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route("/logout", methods=['POST'])
     @auth.login_required
     def LogoutRoute():
-        """
-        注销
-        """
+        """ 注销 """
         count = UserTokenDao().removeToken(g.user)
         if count == 0:
             return Result.error(ResultCode.SUCCESS).setMessage("Logout Failed").json_ret()
