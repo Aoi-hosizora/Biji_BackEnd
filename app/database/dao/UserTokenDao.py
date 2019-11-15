@@ -9,14 +9,14 @@ class UserTokenDao(RedisHelper):
     def __init__(self):
         super().__init__()
 
-    def addToken(self, username: str, token: str) -> bool:
+    def addToken(self, uid: int, token: str) -> bool:
         """
         添加 Token 不删除原有 Token (允许同时多登录)
         :return: 是否创建成功
         """
         count = self.db.zadd(self.ssn_name, {
             json.dumps({
-                'username': username,
+                'uid': uid,
                 'token': token
             })
         })
@@ -31,7 +31,7 @@ class UserTokenDao(RedisHelper):
                 return True
         return False
 
-    def removeToken(self, username: str) -> int:
+    def removeToken(self, uid: int) -> int:
         """
         移除用户所有 Token
         :return: 移除的 Token 数
@@ -39,7 +39,7 @@ class UserTokenDao(RedisHelper):
         allJson = self.db.zscan(self.ssn_name)[1]
         remList = [
             jsonStr[0] for jsonStr in allJson
-            if json.loads(jsonStr[0])['username'] == username
+            if json.loads(jsonStr[0])['uid'] == uid
         ]
         count = 0
         for rem in remList:

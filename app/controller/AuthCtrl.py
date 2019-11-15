@@ -4,8 +4,8 @@ from flask_httpauth import HTTPTokenAuth
 from app.database.DbErrorType import DbErrorType
 from app.database.dao.UserDao import UserDao
 from app.database.dao.UserTokenDao import UserTokenDao
-from app.model.vo.Result import Result
-from app.model.vo.ResultCode import ResultCode
+from app.model.dto.Result import Result
+from app.model.dto.ResultCode import ResultCode
 from app.route.ParamError import ParamError, ParamType
 from app.util import AuthUtil
 
@@ -27,16 +27,17 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
 
-        ret = UserDao().checkUserPassword(username, password)
+        ret, user = UserDao().checkUserPassword(username, password)
         if ret == DbErrorType.FAILED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("Password Error").json_ret()
         elif ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("User Not Found").json_ret()
         else:  # Success
-            token = AuthUtil.generate_token(username, ex)
-            if not UserTokenDao().addToken(username, token):  # Add to redis
+            token = AuthUtil.generate_token(user.id, ex)
+            if not UserTokenDao().addToken(user.id, token):  # Add to redis
                 return Result.error(ResultCode.UNAUTHORIZED).setMessage("Login Failed").json_ret()
-            return Result.ok().json_ret(headers={'Authorization': token})
+            # TODO Authorization Header
+            return Result.ok().setData(user.to_json()).json_ret(headers={'Authorization': token})
 
     @blue.route("/register", methods=['POST'])
     def RegisterRoute():
@@ -63,8 +64,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         注销
         """
-        count = UserTokenDao().removeToken(g.username)
+        count = UserTokenDao().removeToken(g.user)
         if count == 0:
             return Result.error(ResultCode.SUCCESS).setMessage("Logout Failed").json_ret()
         else:
-            return Result.error(ResultCode.SUCCESS).putData("Count", count).json_ret()
+            return Result.error(ResultCode.SUCCESS).putData("count", count).json_ret()

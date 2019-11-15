@@ -9,6 +9,7 @@ from app.util import AuthUtil
 class UserDao(MySQLHelper):
     tbl_name = 'tbl_user'
 
+    col_id = 'u_id'
     col_username = 'u_name'
     col_password = 'u_password'
 
@@ -24,8 +25,10 @@ class UserDao(MySQLHelper):
         try:
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_username} VARCHAR(30) PRIMARY KEY,
-                    {self.col_password} VARCHAR(120) NOT NULL)
+                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {self.col_username} VARCHAR(30) UNIQUE,
+                    {self.col_password} VARCHAR(120) NOT NULL
+                )
             ''')
         except:
             self.db.rollback()
@@ -41,7 +44,7 @@ class UserDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.tbl_name}, {self.col_username} FROM {self.tbl_name}
+            SELECT {self.col_id}, {self.col_username}, {self.col_password} FROM {self.tbl_name}
         ''')
 
         returns = []
@@ -49,12 +52,31 @@ class UserDao(MySQLHelper):
         for result in results:
             # noinspection PyBroadException
             try:
-                returns.append(User(username=result[0], encrypted_pass=result[1]))
+                returns.append(User(uid=result[0], username=result[1], encrypted_pass=result[2]))
             except:
                 pass
 
         cursor.close()
         return returns
+
+    def queryUserById(self, uid: int) -> Optional[User]:
+        """
+        根据 uid 查询用户
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.col_id}, {self.col_username}, {self.col_password} 
+            FROM {self.tbl_name}
+            WHERE {self.col_id} = '{uid}'
+        ''')
+        result = cursor.fetchone()
+        # noinspection PyBroadException
+        try:
+            return User(uid=result[0], username=result[1], encrypted_pass=result[2])
+        except:
+            return None
+        finally:
+            cursor.close()
 
     def queryUserByName(self, username: str) -> Optional[User]:
         """
@@ -62,32 +84,32 @@ class UserDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_username}, {self.col_password}
+            SELECT {self.col_id}, {self.col_username}, {self.col_password}
             FROM {self.tbl_name}
             WHERE {self.col_username} = '{username}'
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
-            return User(username=result[0], encrypted_pass=result[1])
+            return User(uid=result[0], username=result[1], encrypted_pass=result[2])
         except:
             return None
         finally:
             cursor.close()
 
-    def checkUserPassword(self, username: str, unencrypted_pass: str) -> DbErrorType:
+    def checkUserPassword(self, username: str, unencrypted_pass: str) -> (DbErrorType, User):
         """
         检查用户密码正确
-        :return: SUCCESS | NOT_FOUND | FAILED (密码不一致)
+        :return: SUCCESS | NOT_FOUND | FAILED (密码不一致) & User
         """
         user = self.queryUserByName(username)
         if user is None:
-            return DbErrorType.NOT_FOUND
+            return DbErrorType.NOT_FOUND, None
 
         if AuthUtil.verify_password(password=unencrypted_pass, encrypted_password=user.encrypted_pass):
-            return DbErrorType.SUCCESS
+            return DbErrorType.SUCCESS, user
         else:
-            return DbErrorType.FAILED
+            return DbErrorType.FAILED, None
 
     def insertUser(self, username: str, unencrypted_pass: str) -> DbErrorType:
         """

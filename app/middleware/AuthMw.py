@@ -6,8 +6,8 @@ from app.config import Config
 from app.database.DbErrorType import DbErrorType
 from app.database.dao.UserDao import UserDao
 from app.database.dao.UserTokenDao import UserTokenDao
-from app.model.vo.Result import Result
-from app.model.vo.ResultCode import ResultCode
+from app.model.dto.Result import Result
+from app.model.dto.ResultCode import ResultCode
 
 
 def setup_auth() -> HTTPTokenAuth:
@@ -18,24 +18,27 @@ def setup_auth() -> HTTPTokenAuth:
 
     @auth.verify_token
     def verify_token(token: str) -> bool:
+        """
+        验证 token 内的 ex 与 uid
+        """
         if not token:
             return False
         try:
             data = Serializer(Config.SecretKey).loads(token)
-            username: str = data['username']
+            uid: int = data['uid']
         except SignatureExpired as ex:  # 过期
             raise ex
         except BadSignature as ex:  # 错误
             raise ex
 
-        if not username.strip(' \t'):  # 空
+        if not isinstance(uid, int) and uid > 0:  # 格式错误
             return False
-        if UserDao().queryUserByName(username) == DbErrorType.NOT_FOUND:  # 无用户
+        if UserDao().queryUserById(uid) == DbErrorType.NOT_FOUND:  # 无用户
             return False
         if not UserTokenDao().checkToken(token):  # 无登陆
             return False
-        
-        g.username = username
+
+        g.uid = uid
         return True
 
     @auth.error_handler

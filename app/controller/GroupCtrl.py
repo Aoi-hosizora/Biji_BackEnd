@@ -6,8 +6,8 @@ from flask_httpauth import HTTPTokenAuth
 from app.database.DbErrorType import DbErrorType
 from app.database.dao.GroupDao import GroupDao
 from app.model.po.Group import Group
-from app.model.vo.Result import Result
-from app.model.vo.ResultCode import ResultCode
+from app.model.dto.Result import Result
+from app.model.dto.ResultCode import ResultCode
 
 
 def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
@@ -21,7 +21,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         所有分组
         """
-        groups = GroupDao().queryAllGroups(g.username)
+        groups = GroupDao().queryAllGroups(uid=g.user)
         return Result.ok().setData(Group.to_jsons(groups)).json_ret()
 
     @auth.login_required
@@ -30,7 +30,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         gid 查询分组
         """
-        group = GroupDao().queryGroupById(g.username, gid)
+        group = GroupDao().queryGroupById(uid=g.user, gid=gid)
         if not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         return Result.ok().setData(group.to_json()).json_ret()
@@ -41,7 +41,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         name 查询分组
         """
-        group = GroupDao().queryGroupByName(g.username, name)
+        group = GroupDao().queryGroupByName(uid=g.user, name=name)
         if not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         return Result.ok().setData(group.to_json()).json_ret()
@@ -52,7 +52,9 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         默认分组
         """
-        return Result.ok().setData(GroupDao().queryDefaultGroup(g.username).to_json()).json_ret()
+        return Result.ok().setData(
+            GroupDao().queryDefaultGroup(uid=g.user).to_json()
+        ).json_ret()
 
     @auth.login_required
     @blue.route("/", methods=['POST'])
@@ -62,7 +64,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
-        ret = GroupDao().insertGroup(g.username, group)
+        ret = GroupDao().insertGroup(uid=g.user, group=group)
         if ret == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Existed").json_ret()
         elif ret == DbErrorType.FAILED:
@@ -78,7 +80,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
-        ret = GroupDao().updateGroup(g.username, group)
+        ret = GroupDao().updateGroup(uid=g.user, group=group)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif ret == DbErrorType.FAILED:
@@ -96,7 +98,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
-        ret = GroupDao().deleteGroup(g.username, gid)
+        ret = GroupDao().deleteGroup(uid=g.user, gid=gid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif ret == DbErrorType.FAILED:

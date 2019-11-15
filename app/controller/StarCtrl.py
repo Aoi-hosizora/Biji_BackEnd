@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 from flask import Blueprint, request, g
 from flask_httpauth import HTTPTokenAuth
@@ -6,8 +7,8 @@ from flask_httpauth import HTTPTokenAuth
 from app.database.DbErrorType import DbErrorType
 from app.database.dao.StarDao import StarDao
 from app.model.po.StarItem import StarItem
-from app.model.vo.Result import Result
-from app.model.vo.ResultCode import ResultCode
+from app.model.dto.Result import Result
+from app.model.dto.ResultCode import ResultCode
 from app.route.ParamError import ParamError, ParamType
 
 
@@ -22,7 +23,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         所有分组
         """
-        stars = StarDao().queryAllStars(g.username)
+        stars = StarDao().queryAllStars(uid=g.user)
         return Result.ok().setData(StarItem.to_jsons(stars)).json_ret()
 
     @auth.login_required
@@ -33,7 +34,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         rawJson = json.loads(request.get_data(as_text=True))
         star = StarItem.from_json(rawJson)
-        ret = StarDao().insertStar(g.username, star)
+        ret = StarDao().insertStar(uid=g.user, star=star)
         if ret == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Existed").json_ret()
         elif ret == DbErrorType.FAILED:
@@ -49,7 +50,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         rawJson = json.loads(request.get_data(as_text=True))
         star = StarItem.from_json(rawJson)
-        ret = StarDao().deleteStar(g.username, sid)
+        ret = StarDao().deleteStar(uid=g.user, sid=sid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
         elif ret == DbErrorType.FAILED:
@@ -63,14 +64,14 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         删除所有
         """
-        rawJson = json.loads(request.get_data(as_text=True))
+        rawJson: List[int] = json.loads(request.get_data(as_text=True))
         if not isinstance(rawJson, list):
             raise ParamError(ParamType.RAW)
         for item in rawJson:
             if not isinstance(item, int):
                 raise ParamError(ParamType.RAW)
 
-        ret = StarDao().deleteStars(g.ussername, rawJson)
+        ret = StarDao().deleteStars(uid=g.ussername, ids=rawJson)
         if ret == -1:
             return Result().error().json_ret()
         else:

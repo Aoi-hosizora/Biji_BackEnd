@@ -32,4 +32,4 @@ class Group(JsonModel):
             return None
 
 
-Group.DEF_GROUP = Group(1, "默认分组", 0, '#F0F0F0')
+DEF_GROUP = Group(1, "默认分组", 0, '#F0F0F0')

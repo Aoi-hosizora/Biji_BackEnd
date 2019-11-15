@@ -4,7 +4,7 @@ from typing import List, Union
 from flask import Response
 
 from app.model.JsonModel import JsonModel
-from app.model.vo.ResultCode import ResultCode
+from app.model.dto.ResultCode import ResultCode
 
 
 class Result(JsonModel):

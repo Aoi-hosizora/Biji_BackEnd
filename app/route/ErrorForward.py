@@ -1,7 +1,7 @@
 from flask.app import Flask
 
-from app.model.vo.ResultCode import ResultCode
-from app.model.vo.Result import Result
+from app.model.dto.ResultCode import ResultCode
+from app.model.dto.Result import Result
 from itsdangerous import SignatureExpired, BadSignature
 
 from app.route.ParamError import ParamError, ParamType

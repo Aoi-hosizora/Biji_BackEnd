@@ -17,10 +17,10 @@ def verify_password(password, encrypted_password) -> bool:
     return custom_app_context.verify(password, encrypted_password)
 
 
-def generate_token(username, expiration) -> str:
+def generate_token(uid: int, expiration) -> str:
     """
-    生成 token(去除b')，有效期 expiration
+    生成 token(去除b')，有效期 expiration & uid
     """
     return Serializer(Config.SecretKey, expires_in=expiration).dumps({
-        'username': username
+        'uid': uid
     }).__str__()[2:]
