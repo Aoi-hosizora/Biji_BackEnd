@@ -50,15 +50,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         删除
         """
-        rawJson = json.loads(request.get_data(as_text=True))
-        star = StarItem.from_json(rawJson)
         ret = StarDao().deleteStar(uid=g.user, sid=sid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
         elif ret == DbErrorType.FAILED:
             return Result.error().setMessage("StarItem Delete Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(star.to_json()).json_ret()
+            return Result.ok().json_ret()
 
     @auth.login_required
     @blue.route("/delete/", methods=['DELETE'])

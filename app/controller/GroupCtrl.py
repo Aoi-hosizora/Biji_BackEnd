@@ -100,8 +100,6 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         删除
         """
-        rawJson = json.loads(request.get_data(as_text=True))
-        group = Group.from_json(rawJson)
         ret = GroupDao().deleteGroup(uid=g.user, gid=gid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
@@ -110,4 +108,4 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         elif ret == DbErrorType.DEFAULT:
             return Result.error().setMessage("Could Not Delete Default Group").json_ret()
         else:  # Success
-            return Result.ok().setData(group.to_json()).json_ret()
+            return Result.ok().json_ret()

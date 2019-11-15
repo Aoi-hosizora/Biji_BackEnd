@@ -82,12 +82,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         删除
         """
-        rawJson = json.loads(request.get_data(as_text=True))
-        note = Note.from_json(rawJson)
         ret = NoteDao().deleteNote(uid=g.user, nid=nid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif ret == DbErrorType.FAILED:
             return Result.error().setMessage("Group Delete Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(note.to_json()).json_ret()
+            return Result.ok().json_ret()

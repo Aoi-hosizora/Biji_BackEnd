@@ -93,7 +93,7 @@ class DocumentClassDao(MySQLHelper):
         cursor.execute(f'''
             SELECT {self.col_user}, {self.col_id}, {self.col_name}
             FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_name} = {name}
+            WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -182,7 +182,7 @@ class DocumentClassDao(MySQLHelper):
         删除一个分组
         :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
         """
-        if self.queryDocumentClassById(uid, cid) is None:
+        if self.queryDocumentClassById(uid, cid) is None:  # 不存在
             return DbErrorType.NOT_FOUND
 
         # 删除默认分组
@@ -215,7 +215,6 @@ class DocumentClassDao(MySQLHelper):
         """
         操作前后 处理默认分组
         """
-
         # 使用 Raw Json 防止递归
         def query(name: str) -> bool:
             cursor = self.db.cursor()

@@ -15,10 +15,8 @@ def register_file_module_blue(app: Flask):
     注册 File 模块的蓝图
     """
     from app.controller.file.FileBlue import register_blue_File
-    from app.controller.file.FileClassBlue import register_blue_FileClass
 
     register_blue_File(app)
-    register_blue_FileClass(app)
 
 
 #################################################################################################################################################################################################
