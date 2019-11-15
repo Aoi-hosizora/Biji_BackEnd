@@ -24,6 +24,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         stars = StarDao().queryAllStars(uid=g.user)
         return Result.ok().setData(StarItem.to_jsons(stars)).json_ret()
 
+    #######################################################################################################################
+
     @auth.login_required
     @blue.route("/", methods=['POST'])
     def InsertRoute():

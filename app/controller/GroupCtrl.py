@@ -48,6 +48,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             GroupDao().queryDefaultGroup(uid=g.user).to_json()
         ).json_ret()
 
+    #######################################################################################################################
+
     @auth.login_required
     @blue.route("/", methods=['POST'])
     def InsertRoute():

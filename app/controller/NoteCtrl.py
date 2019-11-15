@@ -38,6 +38,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Note Not Found").json_ret()
         return Result.ok().setData(note.to_json()).json_ret()
 
+    #######################################################################################################################
+
     @auth.login_required
     @blue.route("/", methods=['POST'])
     def InsertRoute():

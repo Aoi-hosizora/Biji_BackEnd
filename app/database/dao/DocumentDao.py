@@ -14,6 +14,7 @@ class DocumentDao(MySQLHelper):
     col_id = "d_id"
     col_filename = "d_filename"
     col_class_id = "d_class_id"
+    col_filepath = "d_filepath"
 
     def __init__(self):
         super().__init__()
@@ -31,6 +32,7 @@ class DocumentDao(MySQLHelper):
                     {self.col_id} INT AUTO_INCREMENT,
                     {self.col_filename} VARCHAR(200) NOT NULL,
                     {self.col_class_id} INT NOT NULL,
+                    {self.col_filepath} VARCHAR(50) NOT NULL,
                     PRIMARY KEY ({self.col_user}, {self.col_id})
                 )
             ''')
@@ -57,13 +59,13 @@ class DocumentDao(MySQLHelper):
         cursor = self.db.cursor()
         if cid == -1:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
                 FROM {self.tbl_name} 
                 WHERE {self.col_user} = {uid}
             ''')
         else:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
                 FROM {self.tbl_name} 
                 WHERE {self.col_user} = {uid} AND {self.col_class_id} = {cid}
             ''')
@@ -77,7 +79,7 @@ class DocumentDao(MySQLHelper):
                 docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
                 if docClass is None:
                     docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
-                returns.append(Document(did=result[1], filename=result[2], docClass=docClass))
+                returns.append(Document(did=result[1], filename=result[2], docClass=docClass, filepath=result[4]))
             except:
                 pass
         cursor.close()
@@ -89,7 +91,7 @@ class DocumentDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
             FROM {self.tbl_name}
             WHERE {self.col_user} = {uid} AND {self.col_id} = {did}
         ''')
@@ -100,7 +102,7 @@ class DocumentDao(MySQLHelper):
             docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
             if docClass is None:
                 docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
-            return Document(did=result[1], filename=result[2], docClass=docClass)
+            return Document(did=result[1], filename=result[2], docClass=docClass, filepath=result[4])
         except:
             return None
         finally:
@@ -121,9 +123,9 @@ class DocumentDao(MySQLHelper):
         try:
             cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+                    {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
                 )
-                VALUES ({uid}, {document.id}, '{document.filename}', {document.docClass.id}) 
+                VALUES ({uid}, {document.id}, '{document.filename}', {document.docClass.id}, '{document.filepath}') 
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
@@ -138,7 +140,7 @@ class DocumentDao(MySQLHelper):
 
     def updateDocument(self, uid: int, document: Document) -> DbErrorType:
         """
-        更新文档 (docClass)
+        更新文档 (docClass, filename)
         :return: SUCCESS | NOT_FOUND | FAILED
         """
         if self.queryDocumentById(uid, document.id) is None:
@@ -148,9 +150,8 @@ class DocumentDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name} 
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {document.id}
-                SET {self.col_class_id} = {document.docClass.id}
+                UPDATE {self.tbl_name} WHERE {self.col_user} = {uid} AND {self.col_id} = {document.id}
+                SET {self.col_class_id} = {document.docClass.id}, {self.col_filename} = '{document.filename}'
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()

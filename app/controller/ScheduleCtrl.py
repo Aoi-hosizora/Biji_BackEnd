@@ -22,6 +22,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:
             return Result.ok().setData(schedule_data).json_ret()
 
+    #######################################################################################################################
+
     @auth.login_required
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():

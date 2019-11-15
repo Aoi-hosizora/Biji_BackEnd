@@ -31,10 +31,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             raise ParamError(ParamType.FORM)
 
         filename: str = secure_filename(upload_image.filename)  # 旧文件名
-        if not TypeUtil.isImg(filename):  # 非图片
+        if not TypeUtil.is_image(filename):  # 非图片
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
 
-        ext = TypeUtil.getExt(filename)  # 后缀名
+        ext = TypeUtil.get_ext(filename)  # 后缀名
         filename: str = f'{TypeUtil.create_uuid()}.{ext}'  # 新文件名
 
         if upload_type == 'note':  # 笔记图片
@@ -42,13 +42,12 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             if not os.path.exists(filepath):
                 os.makedirs(filepath)
             filepath = os.path.join(filepath, filename)  # 最终文件路径名
-            upload_image.save(filepath)  # ./usr/img/1111/2019080919590813.jpg
+            upload_image.save(filepath)  # ./usr/img/1111/201911160411418089.jpg
 
             if not os.path.exists(filepath):  # 保存失败
                 return Result.error().setMessage('Image Save Failed').json_ret()
             else:  # 保存成功，返回路径
-                return Result.ok().putData('filename', {filename})  # 2019080919590813.jpg
-
+                return Result.ok().putData('filename', {filename})  # 201911160411418089.jpg
         else:  # 其他格式
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Not Support Request Upload Type').json_ret()
 
@@ -96,7 +95,29 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/blob', methods=['POST'])
     def UploadFileRoute():
         """ 上传文件 """
-        pass
+        try:
+            upload_file = request.files.get('file')
+            if not upload_file:
+                raise ParamError(ParamType.FORM)
+        except:
+            raise ParamError(ParamType.FORM)
+
+        filename: str = secure_filename(upload_file.filename)  # 旧文件名
+        if not TypeUtil.is_document(filename):  # 非文档
+            return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
+
+        ext = TypeUtil.get_ext(filename)  # 后缀名
+        filename: str = f'{TypeUtil.create_uuid()}.{ext}'  # 新文件名
+        filepath = f'./usr/blob/{g.user}/'
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+        filepath = os.path.join(filepath, filename)  # 最终文件路径名
+        upload_file.save(filepath)  # ./usr/blob/1111/201911160411418089.doc
+
+        if not os.path.exists(filepath):  # 保存失败
+            return Result.error().setMessage('Document Save Failed').json_ret()
+        else:  # 保存成功，返回路径
+            return Result.ok().putData('filename', {filename})  # 201911160411418089.doc
 
     @auth.login_required
     @blue.route('/blob', methods=['GET'])

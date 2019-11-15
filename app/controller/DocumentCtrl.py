@@ -38,11 +38,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
         return Result.ok().setData(document.to_json()).json_ret()
 
+    #######################################################################################################################
+
     @auth.login_required
     @blue.route('/', methods=['POST'])
     def InsertRoute():
         """ 插入文件 """
-        # TODO 文件操作
+        # TODO 文件操作 Raw??
         rawJson = json.loads(request.get_data(as_text=True))
         document = Document.from_json(rawJson)
         ret = DocumentDao().insertDocument(uid=g.user, document=document)
@@ -57,6 +59,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():
         """ 更新文件 """
+        # 文件名 文件类别
         # TODO 文件操作
         rawJson = json.loads(request.get_data(as_text=True))
         document = Document.from_json(rawJson)
