@@ -28,12 +28,12 @@ def setup_route_blue(app: Flask):
     NoteCtrl.apply_blue(blue_Note, auth)
     app.register_blueprint(blue_Note)
 
-    # Star Blue
+    # Star Blue (1)
     blue_Star = Blueprint("blue_Star", __name__, url_prefix="/star")
     StarCtrl.apply_blue(blue_Star, auth)
     app.register_blueprint(blue_Star)
 
-    # Schedule Blue
+    # Schedule Blue (1)
     blue_Schedule = Blueprint("blue_Schedule", __name__, url_prefix="/schedule")
     ScheduleCtrl.apply_blue(blue_Schedule, auth)
     app.register_blueprint(blue_Schedule)

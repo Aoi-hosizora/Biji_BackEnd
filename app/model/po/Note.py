@@ -6,6 +6,7 @@ from app.model.po.Group import Group
 
 
 class Note(JsonModel):
+
     def __init__(self, nid: int, title: str, content: str, group: Group, create_time: datetime, update_time: datetime):
         self.id = int(nid)
         self.title = title

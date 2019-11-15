@@ -1,173 +1,190 @@
-from app.config import Config
-from app.controller.file.exception.FileClassNotExistError import FileClassNotExistError
+from typing import List, Optional
+
+from app.database.DbErrorType import DbErrorType
+from app.database.MySQLHelper import MySQLHelper
+from app.database.dao.DocumentClassDao import DocumentClassDao
 
 from app.model.po.Document import Document
-from app.controller.file.exception.FileExistError import ExistError
-from app.controller.file.exception.FileNotExistError import FileNotExistError
-
-import pymysql
 
 
-class DocumentDao(object):
-    tbl_name = "TBL_FILE"
-    col_username = "USERNAME"
-    col_id = "ID"
-    col_foldername = "FOLDERNAME"
-    col_filename = "FILENAME"
-    col_filepath = "FILEPATH"
+class DocumentDao(MySQLHelper):
+    tbl_name = "tbl_document"
+
+    col_user = "d_user"
+    col_id = "d_id"
+    col_filename = "d_filename"
+    col_class_id = "d_class_id"
 
     def __init__(self):
-        self.db = pymysql.connect(
-            host=Config.MySQL_Host,
-            port=Config.MySQL_Port,
-            user=Config.MySQL_User,
-            passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Db,
-            charset='utf8'
-        )
-        self.cursor = self.db.cursor()
-        self.createTbl()
+        super().__init__()
 
-    def __del__(self):
-        self.db.close()
-
-    def createTbl(self) -> bool:
-        '''
-        判断表是否存在，并且创建表
-        '''
-        self.cursor.execute("SHOW TABLES LIKE '{}'".format(self.tbl_name))
-        if self.cursor.fetchone() == None:
-            try:
-                self.cursor.execute("""CREATE TABLE {} (
-                    {} VARCHAR(30) NOT NULL,
-                    {} INT NOT NULL,
-                    {} VARCHAR(200) NOT NULL,
-                    {} VARCHAR(200) NOT NULL,
-                    {} VARCHAR(2000) NOT NULL,
-                    PRIMARY KEY ( {}, {}, {}, {} )
-                ) CHARACTER SET = utf8;
-                """.format(self.tbl_name, self.col_username, self.col_id, self.col_foldername,
-                            self.col_filename, self.col_filepath,
-                            self.col_username, self.col_id,
-                            self.col_foldername, self.col_filename))
-                self.db.commit()
-            except:
-                self.db.rollback()
-
-    def queryAllFiles(self):
-        '''
-        查询表中所有文件
-        '''
-        self.cursor.execute("SELECT * FROM {}".format(self.tbl_name))
-        rets = self.cursor.fetchall()
-        set = []
-        for ret in rets:
-            set.append(Document(ret[0], ret[1], ret[2], ret[3], ret[4]))
-        return set
-
-    def queryFiles(self, username: str, foldername: str):
-        '''
-        查询指定用户名和文件夹的表项
-        '''
-        self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}' AND FOLDERNAME='{}'"
-                            .format(self.tbl_name, username, foldername))
-        rets = self.cursor.fetchall()
-        set = []
-        for ret in rets:
-            set.append(Document(ret[0], ret[1], ret[2], ret[3], ret[4]))
-        return set
-
-    def queryFilesByUsername(self, username: str):
-        '''
-        查询指定用户名的表项
-        '''
-        self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}'"
-                            .format(self.tbl_name, username))
-        rets = self.cursor.fetchall()
-        set = []
-        for ret in rets:
-            set.append(Document(ret[0], ret[1], ret[2], ret[3], ret[4]))
-        return set
-
-    def queryOneFile(self, username: str, foldername: str, filename: str, id: int):
-        '''
-        查询指定文件
-        '''
-        self.cursor.execute("SELECT * FROM {} WHERE USERNAME='{}' AND FOLDERNAME='{}'"
-                            "AND FILENAME='{}' AND ID={}".format(self.tbl_name, username, foldername, filename, id))
-        ret = self.cursor.fetchone()
-
+    def create_tbl(self) -> bool:
+        """
+        判断表是否存在并且建表
+        """
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
         try:
-            return Document(ret[0], ret[1], ret[2], ret[3], ret[4])
+            cursor.execute(f'''
+                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
+                    {self.col_user} INT NOT NULL,
+                    {self.col_id} INT AUTO_INCREMENT,
+                    {self.col_filename} VARCHAR(200) NOT NULL,
+                    {self.col_class_id} INT NOT NULL,
+                    PRIMARY KEY ({self.col_user}, {self.col_id})
+                )
+            ''')
+        except:
+            self.db.rollback()
+            return False
+        finally:
+            self.db.commit()
+            cursor.close()
+        return True
+
+    def queryAllDocuments(self, uid: int) -> List[Document]:
+        """
+        查询所有文件
+        """
+        return self.queryDocumentsByClassId(uid, -1)
+
+    def queryDocumentsByClassId(self, uid: int, cid: int) -> List[Document]:
+        """
+        根据分组查询文件
+        :param uid: 用户id
+        :param cid: 所有分组为 -1
+        """
+        cursor = self.db.cursor()
+        if cid == -1:
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+                FROM {self.tbl_name} 
+                WHERE {self.col_user} = {uid}
+            ''')
+        else:
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+                FROM {self.tbl_name} 
+                WHERE {self.col_user} = {uid} AND {self.col_class_id} = {cid}
+            ''')
+
+        returns = []
+        results = cursor.fetchall()
+        for result in results:
+            # noinspection PyBroadException
+            try:
+                class_id: int = int(result[3])
+                docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
+                if docClass is None:
+                    docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
+                returns.append(Document(did=result[1], filename=result[2], docClass=docClass))
+            except:
+                pass
+        cursor.close()
+        return returns
+
+    def queryDocumentById(self, uid: int, did: int) -> Optional[Document]:
+        """
+        根据 id 查询文件
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+            FROM {self.tbl_name}
+            WHERE {self.col_user} = {uid} AND {self.col_id} = {did}
+        ''')
+        result = cursor.fetchone()
+        # noinspection PyBroadException
+        try:
+            class_id: int = int(result[3])
+            docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
+            if docClass is None:
+                docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
+            return Document(did=result[1], filename=result[2], docClass=docClass)
         except:
             return None
+        finally:
+            cursor.close()
 
-    def insertFile(self, file: Document) -> bool:
-        '''
-        插入到数据库
-        '''
-        username = file.username
-        id = file.id
-        foldername = file.foldername
-        filename = file.filename
-        filepath = file.filepath
+    #######################################################################################################################
 
-        if self.queryOneFile(username, foldername, filename, id) != None:
-            raise ExistError(foldername, filename)
+    def insertDocument(self, uid: int, document: Document) -> DbErrorType:
+        """
+        插入新文档
+        :return: SUCCESS | FOUNDED | FAILED
+        """
+        if self.queryDocumentById(uid, document.id) is not None:  # 已存在
+            return DbErrorType.FOUNDED
 
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
         try:
-            self.cursor.execute("INSERT INTO {} ({}, {}, {}, {}, {}) VALUES ('{}', '{}', '{}', '{}', {})".format(
-                self.tbl_name, self.col_username, self.col_foldername, self.col_filename, self.col_filepath, self.col_id,
-                username, foldername, filename, filepath, id
-            ))
-            self.db.commit()
-            if self.queryOneFile(username, foldername, filename, id) == None:
-                return False
-            return True
-        except Exception as ex:
-            print(ex)
-            self.db.rollback()
-            return False
-
-    def deleteFile(self, file: Document) -> bool:
-        '''
-        删除文件
-        '''
-        username = file.username
-        id = file.id
-        foldername = file.foldername
-        filename = file.filename
-
-        if self.queryOneFile(username, foldername, filename, id) == None:
-            raise FileNotExistError(filename)
-
-        try:
-            self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}' AND FOLDERNAME='{}'"
-                                "AND FILENAME='{}' AND ID={}".format(self.tbl_name, username, foldername, filename, id))
-            self.db.commit()
-            if self.queryOneFile(username, foldername, filename, id) != None:
-                return False
-            return True
+            cursor.execute(f'''
+                INSERT INTO {self.tbl_name} (
+                    {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}
+                )
+                VALUES ({uid}, {document.id}, '{document.filename}', {document.docClass.id}) 
+            ''')
+            if cursor.rowcount == 0:
+                self.db.rollback()
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
         except:
             self.db.rollback()
-            return False
-
-    def deleteFileByClass(self, username: str, fileClassName: str) -> bool:
-        '''
-        删除文件
-        '''
-
-        if len(self.queryFiles(username, fileClassName)) == 0:
-            raise FileClassNotExistError(fileClassName)
-
-        try:
-            self.cursor.execute("DELETE FROM {} WHERE USERNAME = '{}' AND FOLDERNAME='{}'"
-                                .format(self.tbl_name, username, fileClassName))
+            return DbErrorType.FAILED
+        finally:
             self.db.commit()
-            if len(self.queryFiles(username, fileClassName)) != 0:
-                return False
-            return True
-        except Exception as e:
-            print(str(e))
+            cursor.close()
+
+    def updateDocument(self, uid: int, document: Document) -> DbErrorType:
+        """
+        更新文档 (docClass)
+        :return: SUCCESS | NOT_FOUND | FAILED
+        """
+        if self.queryDocumentById(uid, document.id) is None:
+            return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
+        try:
+            cursor.execute(f'''
+                UPDATE {self.tbl_name} 
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {document.id}
+                SET {self.col_class_id} = {document.docClass.id}
+            ''')
+            if cursor.rowcount == 0:
+                self.db.rollback()
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
+        except:
             self.db.rollback()
-            return False
+            return DbErrorType.FAILED
+        finally:
+            self.db.commit()
+            cursor.close()
+
+    def deleteDocument(self, uid: int, did: int) -> DbErrorType:
+        """
+        删除一项文件
+        :return: SUCCESS | NOT_FOUND | FAILED
+        """
+        if self.queryDocumentById(uid, did) is None:  # 不存在
+            return DbErrorType.NOT_FOUND
+
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
+        try:
+            cursor.execute(f'''
+                DELETE FROM {self.tbl_name}
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {did}
+            ''')
+            if cursor.rowcount == 0:
+                self.db.rollback()
+                return DbErrorType.FAILED
+            return DbErrorType.SUCCESS
+        except:
+            self.db.rollback()
+            return DbErrorType.FAILED
+        finally:
+            self.db.commit()
+            cursor.close()
