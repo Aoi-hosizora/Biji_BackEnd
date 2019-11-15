@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from app.database.DbErrorType import DbErrorType
 from app.database.MySQLHelper import MySQLHelper
-
 from app.model.po.StarItem import StarItem
 
 
@@ -10,6 +9,7 @@ class StarDao(MySQLHelper):
     tbl_name = 'tbl_star'
 
     col_username = 'sis_user'
+    col_id = "sis_id"
     col_title = 'sis_title'
     col_url = 'sis_url'
     col_content = 'sis_content'
@@ -27,10 +27,11 @@ class StarDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_username} VARCHAR(30) NOT NULL,
-                    {self.col_url} VARCHAR(200) NOT NULL UNIQUE,
+                    {self.col_id} INT AUTO_INCREMENT,
                     {self.col_title} VARCHAR(100) NOT NULL,
+                    {self.col_url} VARCHAR(200) NOT NULL UNIQUE,
                     {self.col_content} VARCHAR(300) NOT NULL,
-                    PRIMARY KEY ({self.col_username}, {self.col_url})
+                    PRIMARY KEY ({self.col_username}, {self.col_id})
                 )
             ''')
         except:
@@ -48,7 +49,7 @@ class StarDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_username}, {self.col_url}, {self.col_title}, {self.col_content}
+            SELECT {self.col_username}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
             FROM {self.tbl_name} 
             WHERE {self.col_username} = '{username}'
         ''')
@@ -58,27 +59,27 @@ class StarDao(MySQLHelper):
         for result in results:
             # noinspection PyBroadException
             try:
-                returns.append(StarItem(url=result[1], title=result[2], content=result[3]))
+                returns.append(StarItem(sid=result[1], url=result[2], title=result[3], content=result[4]))
             except:
                 pass
 
         cursor.close()
         return returns
 
-    def queryStarByUrl(self, username: str, url: str) -> Optional[StarItem]:
+    def queryStarById(self, username: str, sid: int) -> Optional[StarItem]:
         """
-        根据 url 查询收藏
+        根据 sid 查询收藏
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_username}, {self.col_url}, {self.col_title}, {self.col_content}
+            SELECT {self.col_username}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
             FROM {self.tbl_name} 
-            WHERE {self.col_username} = '{username}' and {self.col_url} = '{url}'
+            WHERE {self.col_username} = '{username}' and {self.col_id} = '{sid}'
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
-            return StarItem(url=result[1], title=result[2], content=result[3])
+            return StarItem(sid=result[1], url=result[2], title=result[3], content=result[4])
         except:
             return None
         finally:
@@ -89,19 +90,19 @@ class StarDao(MySQLHelper):
         插入新收藏
         :return: SUCCESS | FOUNDED | FAILED
         """
-        if self.queryStarByUrl(username, star.url) is not None:
+        if self.queryStarById(username, star.id) is not None:
             return DbErrorType.FOUNDED
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_url}, {self.col_title}, {self.col_content})
-                VALUES ('{username}', {star.url}, '{star.title}', '{star.content}')
+                INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content})
+                VALUES ('{username}', {star.id}, '{star.url}', '{star.title}', '{star.content}')
             ''')
             self.db.commit()
 
-            if self.queryStarByUrl(username, star.url) is None:
+            if self.queryStarById(username, star.id) is None:
                 self.db.rollback()
                 return DbErrorType.FAILED
 
@@ -113,12 +114,12 @@ class StarDao(MySQLHelper):
             self.db.commit()
             cursor.close()
 
-    def deleteStar(self, username: str, url: str) -> DbErrorType:
+    def deleteStar(self, username: str, sid: int) -> DbErrorType:
         """
         删除一个分组
         :return: SUCCESS | NOT_FOUND | FAILED
         """
-        if self.queryStarByUrl(username, url) is None:
+        if self.queryStarById(username, sid) is None:
             return DbErrorType.NOT_FOUND
 
         cursor = self.db.cursor()
@@ -126,10 +127,10 @@ class StarDao(MySQLHelper):
         try:
             cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
-                WHERE {self.col_username} = '{username}' AND {self.col_url} = '{url}'
+                WHERE {self.col_username} = '{username}' AND {self.col_id} = '{sid}'
             ''')
 
-            if self.queryStarByUrl(username, url) is not None:
+            if self.queryStarById(username, sid) is not None:
                 self.db.rollback()
                 return DbErrorType.FAILED
 
@@ -141,7 +142,7 @@ class StarDao(MySQLHelper):
             self.db.commit()
             cursor.close()
 
-    def deleteStars(self, username: str, url: List[str]) -> int:
+    def deleteStars(self, username: str, ids: List[int]) -> int:
         """
         删除多个分组
         :return: 更新的数目 -1 for error
@@ -151,7 +152,7 @@ class StarDao(MySQLHelper):
         try:
             cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
-                WHERE {self.col_username} = '{username}' AND {self.col_url} IN ({'"' + '","'.join(url) + '"'})
+                WHERE {self.col_username} = '{username}' AND {self.col_url} IN ({', '.join([str(sid) for sid in ids])})
             ''')
             return cursor.rowcount
         except:

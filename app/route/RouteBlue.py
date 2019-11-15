@@ -8,7 +8,7 @@ from flask.app import Flask
 
 # https://github.com/Aoi-hosizora/Biji_Baibuti/blob/master/app/src/main/java/com/baibuti/biji/model/dao/ServerApi.java
 
-def register_modules_blue(app: Flask):
+def setup_route_blue(app: Flask):
     """
     向 FlaskApp 注册每个模块的蓝图
     """
@@ -19,7 +19,7 @@ def register_modules_blue(app: Flask):
     AuthCtrl.apply_blue(blue_Auth, auth)
     app.register_blueprint(blue_Auth)
 
-    # Note Blue (3)
+    # Note Blue (2)
     blue_Group = Blueprint("blue_Group", __name__, url_prefix="/group")
     GroupCtrl.apply_blue(blue_Group, auth)
     app.register_blueprint(blue_Group)

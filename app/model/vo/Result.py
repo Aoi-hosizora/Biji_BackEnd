@@ -56,7 +56,7 @@ class Result(JsonModel):
         self.data = obj
         return self
 
-    def putData(self, name: str, data: dict):
+    def putData(self, name: str, data: Union[dict, str, int, float, list]):
         """
         添加进字典
         """

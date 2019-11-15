@@ -5,11 +5,10 @@ from flask_httpauth import HTTPTokenAuth
 
 from app.database.DbErrorType import DbErrorType
 from app.database.dao.StarDao import StarDao
-from app.database.dao.GroupDao import GroupDao
-from app.model.po.Group import Group
 from app.model.po.StarItem import StarItem
 from app.model.vo.Result import Result
 from app.model.vo.ResultCode import ResultCode
+from app.route.ParamError import ParamError, ParamType
 
 
 def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
@@ -34,7 +33,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """
         rawJson = json.loads(request.get_data(as_text=True))
         star = StarItem.from_json(rawJson)
-        ret = StarDao.insertStar(g.username, star)
+        ret = StarDao().insertStar(g.username, star)
         if ret == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Existed").json_ret()
         elif ret == DbErrorType.FAILED:
@@ -43,14 +42,14 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.ok().setData(star.to_json()).json_ret()
 
     @auth.login_required
-    @blue.route("/<string:url>", methods=['DELETE'])
-    def DeleteRoute(url: str):
+    @blue.route("/<int:sid>", methods=['DELETE'])
+    def DeleteRoute(sid: int):
         """
         删除
         """
         rawJson = json.loads(request.get_data(as_text=True))
-        star = Group.from_json(rawJson)
-        ret = StarDao().deleteStar(g.username, url)
+        star = StarItem.from_json(rawJson)
+        ret = StarDao().deleteStar(g.username, sid)
         if ret == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
         elif ret == DbErrorType.FAILED:
@@ -59,10 +58,20 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.ok().setData(star.to_json()).json_ret()
 
     @auth.login_required
-    @blue.route("/deletes/<string:url>", methods=['DELETE'])
-    def DeletesRoute(url: str):
+    @blue.route("/delete/", methods=['DELETE'])
+    def DeletesRoute():
         """
         删除所有
         """
-        # TODO
-        pass
+        rawJson = json.loads(request.get_data(as_text=True))
+        if not isinstance(rawJson, list):
+            raise ParamError(ParamType.RAW)
+        for item in rawJson:
+            if not isinstance(item, int):
+                raise ParamError(ParamType.RAW)
+
+        ret = StarDao().deleteStars(g.ussername, rawJson)
+        if ret == -1:
+            return Result().error().json_ret()
+        else:
+            return Result().ok().putData("count", ret).json_ret()

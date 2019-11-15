@@ -1,4 +1,4 @@
-from app.route.RouteBlue import register_modules_blue
+from app.route.RouteBlue import setup_route_blue
 from app.route.ErrorForward import setup_error_forward
 
 from app.middleware.CorsMw import setup_cors
@@ -25,7 +25,7 @@ def setup(flask_app: app.Flask):
     Config.SecretKey = flask_app.config['SECRET_KEY']
 
     # Module Blues
-    register_modules_blue(app=flask_app)
+    setup_route_blue(app=flask_app)
 
     # Error Forward
     setup_error_forward(app=flask_app)
