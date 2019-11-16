@@ -9,6 +9,8 @@
 
 ## URI
 
++ `/document`
+
 |Method|Uri|Description|
 |--|--|--|
 |`GET`|`/document/`|获取所有文档 <sup>[4]</sup>|
@@ -17,8 +19,14 @@
 |`POST`|`/document/`|新建文档 <sup>[1] [4]</sup>|
 |`PUT`|`/document/`|更新文档 <sup>[1] [4]</sup>|
 |`DELETE`|`/document/:did`|删除编号为 did 的文档 <sup>[2] [4]</sup>|
+
++ `/docclass`
+
+|Method|Uri|Description|
+|--|--|--|
 |`GET`|`/docclass/`|获取所有文档分组 <sup>[4]</sup>|
 |`GET`|`/docclass/:cid`|获取编号为 cid 的文档分组 <sup>[2] [4]</sup>|
+|`GET`|`/docclass/?name`|获取分组名为 name 的文档分组 <sup>[2] [4]</sup>|
 |`GET`|`/docclass/default`|获取默认文档分组 <sup>[4]</sup>|
 |`POST`|`/docclass/`|新建文档分组 <sup>[1] [4]</sup>|
 |`PUT`|`/docclass/`|更新文档分组 <sup>[1] [4]</sup>|
@@ -28,22 +36,17 @@
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#request-route-param)
 + [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#request-query-param)
 + [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#request-header)
-+ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#response-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#response-body)
 
 ---
 
-## Request Header
-
-+ Routes needed authorization
-
-|Key|Is Required|Description|
-|--|--|--|
-|`Authorization`|Required|User login token (Start with `Bearer`)|
-
 ## Request Query Param
+
++ `GET /docclass/?name`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
+|`name`|`string`|Required|文档分组名||
 
 ## Request Route Param
 
@@ -69,33 +72,31 @@
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`file`|`file`|Required|上传的文档文件||
-|`filename`|`string`|Required|文档原始文件名||
-|`docClass`|`int`|Required|文档归档编号||
+|`filename`|`string`|Required|文档原始文件名|后缀名 `.xxx` 不要超过 `10` 个字符|
+|`doc_class_id`|`int`|Required|文档分组编号||
 
-+ `PUT /document/` (Raw-Json)
++ `PUT /document/` (Form-data)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`id`|`int`|Required|文档编号||
-|`filename`|`string`|Required|文档原始文件名||
-|`docClass`|`object`|Required|文档归档分组|见 `GET /document/class`|
+|`filename`|`string`|Required|文档原始文件名|后缀名 `.xxx` 不要超过 `10` 个字符|
+|`doc_class_id`|`int`|Required|文档分组编号||
 
-<!-- |`server_filename`|`string`|Required|文档 uuid 名|`PUT` 占位| -->
-
-+ `POST /docclass/` (Raw-Json)
-+ `PUT /docclass/` (Raw-Json)
++ `POST /docclass/` (Form-data)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|文档分组编号|`POST` 占位|
-|`name`|`string`|Required|文档分组名||
+|`name`|`string`|Required|文档分组名|长度要求在`[1, 30]`|
+
++ `PUT /docclass/` (Form-data)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`id`|`int`|Required|文档分组编号||
+|`name`|`string`|Required|文档分组名|长度要求在`[1, 30]`|
 
 ---
-
-## Response Header
-
-|Field|Type|Description|Remark|
-|--|--|--|--|
 
 ## Response Body
 
@@ -104,13 +105,14 @@
 + `GET /document/:did` (Json)
 + `POST /document/` (Json)
 + `PUT /document/` (Json)
++ `DELETE /document/:did` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
 |`id`|`int`|文档编号||
 |`filename`|`int`|文档原始文件名||
 |`docClass`|`object`|文档编号|见 `GET /docclass/`|
-|`server_filename`|`string`|文档 uuid 文件名||
+|`uuid`|`string`|文档 uuid 文件名||
 
 Example:
 
@@ -124,9 +126,11 @@ Example:
 
 + `GET /docclass/`
 + `GET /docclass/:cid`
++ `GET /docclass?name`
 + `GET /docclass/default`
 + `POST /docclass/`
 + `PUT /docclass/`
++ `DELETE /docclass/:cid`
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
@@ -153,15 +157,15 @@ Example:
 |--|--|--|
 |404|`Document Not Found`||
 |400|`Upload File Type Error`||
-|500|`Document Existed`||
-|500|`Document Insert Failed`||
-|500|`Document Update Failed`||
-|500|`Document Delete Failed`||
+|601|`Document Existed`||
+|600|`Document Insert Failed`||
+|600|`Document Update Failed`||
+|600|`Document Delete Failed`||
 |404|`Document Class Not Found`||
-|500|`Document Class Existed`||
-|500|`Document Class Name Duplicate`||
-|500|`Document Class Insert Failed`||
-|500|`Could Not Update Default Document Class`||
-|500|`Document Class Update Failed`||
-|500|`Could Not Delete Default Document Class`||
-|500|`Document Class Delete Failed`||
+|601|`Document Class Existed`||
+|600|`Document Class Insert Failed`||
+|600|`Document Class Update Failed`||
+|600|`Document Class Delete Failed`||
+|602|`Document Class Name Duplicate`||
+|602|`Could Not Update Default Document Class`||
+|602|`Could Not Delete Default Document Class`||

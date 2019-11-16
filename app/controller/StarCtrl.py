@@ -63,16 +63,17 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.ok().setData(new_star.to_json()).json_ret()
 
     @auth.login_required
-    @blue.route("/<int:uid>", methods=['DELETE'])
-    def DeleteRoute(uid: int):
+    @blue.route("/<int:sid>", methods=['DELETE'])
+    def DeleteRoute(sid: int):
         """ 删除 """
-        count = StarDao().deleteStars(uid=g.user, ids=[uid])
-        if count == 0:
+        starItem: StarItem = StarDao().queryStarByIdOrUrl(uid=g.user, sid_url=sid)
+        count = StarDao().deleteStars(uid=g.user, ids=[sid])
+        if count == 0 or not starItem:
             return Result().error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
         elif count == -1:
             return Result().error(ResultCode.DATABASE_FAILED).setMessage("StarItem Delete Failed").json_ret()
         else:
-            return Result().ok().putData("count", count).json_ret()
+            return Result().ok().setData(starItem.to_json()).json_ret()
 
     @auth.login_required
     @blue.route("/", methods=['DELETE'])

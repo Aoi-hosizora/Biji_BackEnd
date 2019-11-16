@@ -18,17 +18,9 @@
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#request-route-param)
 + [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#request-query-param)
 + [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#request-header)
-+ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#response-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#response-body)
 
 ---
-
-## Request Header
-
-+ Routes needed authorization
-
-|Key|Is Required|Description|
-|--|--|--|
-|`Authorization`|Required|User login token (Start with `Bearer`)|
 
 ## Request Query Param
 

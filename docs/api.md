@@ -15,6 +15,14 @@
 |`2019/08/02`|Complete project structure & global error msg|
 |`2019/11/16`|Reconstruct the project|
 
+## Common Request Header
+
++ Routes needed authorization
+
+|Key|Is Required|Description|
+|--|--|--|
+|`Authorization`|Required|User login token (Start with `Bearer`)|
+
 ## Common Response Body Format
 
 |Field|Type|Description|
@@ -35,11 +43,17 @@
 
 ## Common Status Code
 
-+ Continue...
++ See [ResultCode.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/model/dto/ResultCode.py) and [ErrorForward.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/route/ErrorForward.py)
+
+|Code|Message|Description|
+|--|--|--|
+|600|`Database Failed`|CRUD in database but failed|
+|601|`Has Existed`|Insert an existed item into database|
+|602|`Data Duplicate Or Default`|Insert duplicate or update/delete the default item in the database|
 
 ## Common Error Message
 
-+ Continue...
++ See [ErrorForward.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/route/ErrorForward.py)
 
 |Code|Message|Description|
 |--|--|--|
@@ -49,5 +63,6 @@
 |400|`Request Route Param Error`||
 |400|`Request Form Data Param Error`||
 |400|`Request Raw Json Param Error`||
+|400|`Format Error`||
 |401|`Token Expired`||
 |401|`Token Bad Signature`||

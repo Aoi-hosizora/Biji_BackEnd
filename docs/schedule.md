@@ -19,42 +19,19 @@
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-route-param)
 + [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-query-param)
 + [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-header)
-+ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#response-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#response-body)
 
 ---
-
-## Request Header
-
-+ Routes needed authorization
-
-|Key|Is Required|Description|
-|--|--|--|
-|`Authorization`|Required|User login token (Start with `Bearer`)|
-
-## Request Query Param
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
-
-## Request Route Param
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
 
 ## Request Body
 
-+ `PUT /schedule/` (Raw-Json)
++ `PUT /schedule/` (Data-Form)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`data`|`string`|Required|用户课表指定格式 Json 字符串|直接置于外层 Json 的 `data`|
+|`schedule`|`string`|Required|用户课表 Json 字符串||
 
 ---
-
-## Response Header
-
-|Field|Type|Description|Remark|
-|--|--|--|--|
 
 ## Response Body
 
@@ -62,7 +39,21 @@
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`data`|`string`|用户课表 Json|直接置于外层 Json 的 `data`|
+|`schedule`|`string`|用户课表 Json 字符串||
+
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "schedule": "{...}"
+    }
+}
+```
+
++ `DELETE /schedule` (Json)
 
 Example:
 
@@ -83,5 +74,5 @@ Example:
 |Code|Message|Description|
 |--|--|--|
 |404|`Schedule Not Found`||
-|500|`Update Schedule Failed`||
-|500|`Delete Schedule Failed`||
+|600|`Update Schedule Failed`||
+|600|`Delete Schedule Failed`||

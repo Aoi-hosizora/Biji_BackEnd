@@ -12,6 +12,8 @@
 
 ## URI
 
++ `/note`
+
 |Method|Uri|Description|
 |--|--|--|
 |`GET`|`/note/`|获取所有的笔记 <sup>[4]</sup>|
@@ -20,9 +22,15 @@
 |`POST`|`/note/`|新建笔记 <sup>[1] [4]</sup>|
 |`PUT`|`/note/`|更新笔记 <sup>[1] [4]</sup>|
 |`DELETE`|`/note/:nid`|删除笔记 <sup>[2] [4]</sup>|
+|`DELETE`|`/note/`|删除多个笔记 <sup>[1] [4]</sup>|
+
++ `/group`
+
+|Method|Uri|Description|
+|--|--|--|
 |`GET`|`/group/`|获取所有笔记分组 <sup>[4]</sup>|
 |`GET`|`/group/:gid`|获取编号为 gid 的笔记分组 <sup>[2] [4]</sup>|
-|`GET`|`/group/:name`|获取标题为 name 的笔记分组 <sup>[2] [4]</sup>|
+|`GET`|`/group/?name`|获取标题为 name 的笔记分组 <sup>[3] [4]</sup>|
 |`GET`|`/group/default`|获取默认笔记分组 <sup>[4]</sup>|
 |`POST`|`/group/`|新建笔记分组 <sup>[1] [4]</sup>|
 |`PUT`|`/group/`|更新笔记分组 <sup>[1] [4]</sup>|
@@ -32,22 +40,17 @@
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-route-param)
 + [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-query-param)
 + [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-header)
-+ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#response-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#response-body)
 
 ---
 
-## Request Header
-
-+ Routes needed authorization
-
-|Key|Is Required|Description|
-|--|--|--|
-|`Authorization`|Required|User login token (Start with `Bearer`)|
-
 ## Request Query Param
+
++ `GET /group/?name`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
+|`name`|`string`|Required|笔记分组名||
 
 ## Request Route Param
 
@@ -66,42 +69,42 @@
 |--|--|--|--|--|
 |`gid`|`int`|Required|笔记分组编号||
 
-+ `GET /group/:name`
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
-|`name`|`string`|Required|笔记分组标题|不能为 `default`|
-
 ## Request Body
 
-+ `POST /note/` (Raw-Json)
-+ `PUT /note/` (Raw-Json)
++ `POST /note/` (Data-Form)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|笔记编号|`POST` 占位|
-|`title`|`string`|Required|笔记标题||
+|`title`|`string`|Required|笔记标题|长度要求在`[1, 50]`|
 |`content`|`string`|Required|笔记内容||
-|`group`|`object`|Required|笔记分组|只会用到 `group.id`|
-|`create_time`|`datetime`|Required|笔记创建时间||
-|`update_time`|`datetime`|Required|笔记更新时间||
+|`group_id`|`int`|Required|笔记分组||
 
-+ `POST /group/` (Raw-Json)
-+ `PUT /group/` (Raw-Json)
++ `PUT /note/` (Data-Form)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|笔记分组编号|`POST` 占位|
-|`name`|`string`|Required|笔记分组标题||
-|`order`|`int`|Required|笔记分组顺序 (0 开始)|`POST` 占位|
-|`color`|`string`|Required|笔记分组颜色||
+|`id`|`int`|Required|笔记编号||
+|`title`|`string`|Required|笔记标题|长度要求在`[1, 50]`|
+|`content`|`string`|Required|笔记内容||
+|`group_id`|`int`|Required|笔记分组||
+
++ `POST /group/` (Data-Form)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`name`|`string`|Required|分组标题|长度要求在`[1, 30]`|
+|`color`|`string`|Not Required|分组颜色|默认为 `#F0F0F0`|
+
++ `PUT /group/` (Data-Form)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`id`|`int`|Required|分组编号||
+|`name`|`string`|Required|分组标题|长度要求在`[1, 30]`|
+|`order`|`int`|Required|分组顺序|从0开始|
+|`color`|`string`|Not Required|分组颜色|默认为 `#F0F0F0`|
 
 ---
-
-## Response Header
-
-|Field|Type|Description|Remark|
-|--|--|--|--|
 
 ## Response Body
 
@@ -110,6 +113,7 @@
 + `GET /note/:nid` (Json)
 + `POST /note/` (Json)
 + `PUT /note/` (Json)
++ `DELETE /note/:nid` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
@@ -130,18 +134,37 @@ Example:
 }
 ```
 
++ `DELETE /note/` (Json)
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`count`|`int`|多删除的笔记数量||
+
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "count": 3
+    }
+}
+```
+
 + `GET /group/` (Array)
 + `GET /group/:gid` (Json)
-+ `GET /group/:name` (Json)
++ `GET /group/?name` (Json)
 + `GET /group/default` (Json)
-+ `POST /group` (Json)
-+ `PUT /group` (Json)
++ `POST /group/` (Json)
++ `PUT /group/` (Json)
++ `DELETE /group/:gid` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
 |`id`|`int`|笔记分组编号||
 |`name`|`string`|笔记分组标题||
-|`order`|`int`|笔记分组顺序 (0 开始)||
+|`order`|`int`|笔记分组顺序|从0开始|
 |`color`|`string`|笔记分组颜色||
 
 Example:
@@ -163,15 +186,15 @@ Example:
 |Code|Message|Description|
 |--|--|--|
 |404|`Note Not Found`||
-|500|`Note Existed`||
-|500|`Note Insert Failed`||
-|500|`Note Update Failed`||
-|500|`Note Delete Failed`||
+|601|`Note Existed`||
+|600|`Note Insert Failed`||
+|600|`Note Update Failed`||
+|600|`Note Delete Failed`||
 |404|`Group Not Found`||
-|500|`Group Existed`||
-|500|`Group Name Duplicate`||
-|500|`Group Insert Failed`||
-|500|`Could Not Update Default Group`||
-|500|`Group Update Failed`||
-|500|`Could Not Delete Default Group`||
-|500|`Group Delete Failed`||
+|601|`Group Existed`||
+|600|`Group Insert Failed`||
+|600|`Group Update Failed`||
+|600|`Group Delete Failed`||
+|602|`Group Name Duplicate`||
+|602|`Could Not Update Default Group`||
+|602|`Could Not Delete Default Group`||

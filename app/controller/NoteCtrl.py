@@ -88,16 +88,17 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.ok().setData(new_note.to_json()).json_ret()
 
     @auth.login_required
-    @blue.route("/<int:uid>", methods=['DELETE'])
-    def DeleteRoute(uid: int):
+    @blue.route("/<int:nid>", methods=['DELETE'])
+    def DeleteRoute(nid: int):
         """ 删除 """
-        count = NoteDao().deleteNotes(uid=g.user, ids=[uid])
-        if count == 0:
+        note: Note = NoteDao().queryNoteById(uid=g.user, nid=nid)
+        count = NoteDao().deleteNotes(uid=g.user, ids=[nid])
+        if count == 0 or not note:
             return Result().error(ResultCode.NOT_FOUND).setMessage("Note Not Found").json_ret()
         elif count == -1:
             return Result().error(ResultCode.DATABASE_FAILED).setMessage("Note Delete Failed").json_ret()
         else:
-            return Result().ok().putData("count", count).json_ret()
+            return Result().ok().setData(note.to_json()).json_ret()
 
     @auth.login_required
     @blue.route("/", methods=['DELETE'])

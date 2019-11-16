@@ -21,7 +21,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if schedule_data == '':
             return Result.error(ResultCode.NOT_FOUND).setMessage('Schedule Not Found').json_ret()
         else:
-            return Result.ok().setData(schedule_data).json_ret()
+            return Result.ok().putData("schedule", schedule_data).json_ret()
 
     #######################################################################################################################
 
@@ -34,7 +34,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             raise ParamError(ParamType.FORM)
         status = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
         if status == DbStatusType.FAILED:
-            return Result.error().setMessage('Update Schedule Failed').json_ret()
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage('Update Schedule Failed').json_ret()
         else:
             return Result.ok().json_ret()
 
@@ -46,6 +46,6 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage('Schedule Not Found').json_ret()
         elif status == DbStatusType.FAILED:
-            return Result.error().setMessage('Delete Schedule Failed').json_ret()
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage('Delete Schedule Failed').json_ret()
         else:
             return Result.ok().json_ret()

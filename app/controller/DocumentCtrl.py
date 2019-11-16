@@ -49,7 +49,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         try:
             upload_file = request.files.get('file')
             req_filename = request.form['filename']
-            req_docClass = int(request.form['docClass_id'])
+            req_docClass = int(request.form['doc_class_id'])
             if not (upload_file and req_filename and req_docClass):
                 raise ParamError(ParamType.FORM)
         except:
@@ -82,18 +82,18 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         try:
             req_id = int(request.form['id'])
             req_filename = request.form['filename']
-            req_docClass = int(request.form['docClass_id'])
+            req_docClass = int(request.form['doc_class_id'])
         except:
             raise ParamError(ParamType.FORM)
         req_doc = Document(did=req_id, filename=req_filename, docClass=req_docClass)
 
-        status, new_doc = DocumentDao().updateDocument(uid=g.user, document=req_doc)
+        status, new_document = DocumentDao().updateDocument(uid=g.user, document=req_doc)
         if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Update Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(new_doc.to_json()).json_ret()
+            return Result.ok().setData(new_document.to_json()).json_ret()
 
     @auth.login_required
     @blue.route('/<int:did>', methods=['DELETE'])
@@ -109,7 +109,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             server_filepath = f'./usr/image/{g.user}/'
             server_filename = document.uuid
             os.remove(server_filepath + server_filename)
-            return Result.ok().json_ret()
+            return Result.ok().setData(document.to_json()).json_ret()
 
 
 """

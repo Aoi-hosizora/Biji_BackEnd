@@ -107,12 +107,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route("/<int:gid>", methods=['DELETE'])
     def DeleteRoute(gid: int):
         """ 删除 """
+        group: Group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=int(gid))
         status = GroupDao().deleteGroup(uid=g.user, gid=gid)
-        if status == DbStatusType.NOT_FOUND:
+        if status == DbStatusType.NOT_FOUND or not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif status == DbStatusType.DEFAULT:
             return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Could Not Delete Default Group").json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Delete Failed").json_ret()
         else:  # Success
-            return Result.ok().json_ret()
+            return Result.ok().setData(group.to_json()).json_ret()

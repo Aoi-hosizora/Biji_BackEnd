@@ -22,22 +22,9 @@
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md#request-route-param)
 + [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md#request-query-param)
 + [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md#request-header)
-+ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md#response-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md#response-body)
 
 ---
-
-## Request Header
-
-+ Routes needed authorization
-
-|Key|Is Required|Description|
-|--|--|--|
-|`Authorization`|Required|User login token (Start with `Bearer`)|
-
-## Request Query Param
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
 
 ## Request Route Param
 
@@ -50,33 +37,28 @@
 
 ## Request Body
 
-+ `POST /star/` (Raw-Json)
++ `POST /star/` (Data-Form)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|收藏项编号|`POST` 占位|
-|`title`|`string`|Required|收藏项标题||
+|`title`|`string`|Required|收藏项标题|长度超过`[1, 100]`自动截断|
 |`url`|`string`|Required|收藏项链接||
-|`content`|`string`|Required|收藏项内容||
+|`content`|`string`|Required|收藏项内容|长度超过`[1, 200]`自动截断|
 
-+ `DELETE /star/` (Raw-Json)
++ `DELETE /star/` (Data-Form)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`data`|`int[]`|Required|删除的所有收藏编号|直接置于外层 Json 的 `data`|
+|`id`|`int[]`|Required|删除的所有收藏编号||
 
 ---
-
-## Response Header
-
-|Field|Type|Description|Remark|
-|--|--|--|--|
 
 ## Response Body
 
 + `GET /star/` (Array)
 + `GET /star/:sid` (Json)
 + `POST /star/` (Json)
++ `DELETE /star/:sid` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
@@ -107,7 +89,9 @@ Example:
 {
     "code": 200,
     "message": "Success",
-    "data": {}
+    "data": {
+        "count": 3
+    }
 }
 ```
 
@@ -120,7 +104,7 @@ Example:
 |Code|Message|Description|
 |--|--|--|
 |404|`StarItem Not Found`||
-|500|`StarItem Existed`||
-|500|`StarItem Url Duplicate`||
-|500|`StarItem Insert Failed`||
-|500|`StarItem Delete Failed`||
+|601|`StarItem Existed`||
+|600|`StarItem Insert Failed`||
+|600|`StarItem Delete Failed`||
+|602|`StarItem Url Duplicate`||

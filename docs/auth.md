@@ -14,35 +14,17 @@
 
 |Method|Uri|Description|
 |--|--|--|
-|`POST`|`/auth/login`|Login <sup>[1]</sup>|
-|`POST`|`/auth/register`|Register <sup>[1]</sup>|
-|`POST`|`/auth/logout`|Logout <sup>[4]</sup>|
+|`POST`|`/auth/login`|登录 <sup>[1]</sup>|
+|`POST`|`/auth/register`|注册 <sup>[1]</sup>|
+|`POST`|`/auth/logout`|注销 <sup>[4]</sup>|
 
 + [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-body)
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-route-param)
 + [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-query-param)
 + [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-header)
-+ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#response-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#response-body)
 
 ---
-
-## Request Header
-
-+ Routes needed authorization
-
-|Key|Is Required|Description|
-|--|--|--|
-|`Authorization`|Required|User login token (Start with `Bearer`)|
-
-## Request Query Param
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
-
-## Request Route Param
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
 
 ## Request Body
 
@@ -50,16 +32,16 @@
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`username`|`string`|Required|User's username||
-|`password`|`string`|Required|User's password||
-|`expiration`|`int`|Not required|Login expiration(second)|Default for `1 days`|
+|`username`|`string`|Required|用户名||
+|`password`|`string`|Required|密码||
+|`expiration`|`int`|Not required|登陆有效期(单位秒)|默认为一天|
 
 + `POST /auth/register` (Form-data)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`username`|`string`|Required|User's username||
-|`password`|`string`|Required|User's password||
+|`username`|`string`|Required|用户名|长度要求在`[5, 30]`|
+|`password`|`string`|Required|密码|长度要求在`[8, 20]`|
 
 ---
 
@@ -69,7 +51,7 @@
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`Authorization`|`string`|User login token|Default expired time is `1 days`|
+|`Authorization`|`string`|用户登陆令牌|默认有效期是一天|
 
 ## Response Body
 
@@ -78,8 +60,8 @@
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`id`|`int`|User id||
-|`username`|`string`|User name||
+|`id`|`int`|用户 id||
+|`username`|`string`|用户名||
 
 Example:
 ```json
@@ -97,7 +79,7 @@ Example:
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`count`|`int`|Logout deleted token count||
+|`count`|`int`|当前注销操作删除的令牌数||
 
 Example:
 ```json
@@ -124,4 +106,4 @@ Example:
 |401|`Login Failed`||
 |401|`Register Failed`||
 |401|`User Existed`||
-|500|`Logout Failed`||
+|600|`Logout Failed`||
