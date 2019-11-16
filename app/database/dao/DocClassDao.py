@@ -26,9 +26,8 @@ class DocClassDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
-                    {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_name} VARCHAR({Config.FMT_DOCCLASS_NAME_MAX}) NOT NULL UNIQUE,
-                    PRIMARY KEY ({self.col_user}, {self.col_id})
+                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {self.col_name} VARCHAR({Config.FMT_DOCCLASS_NAME_MAX}) NOT NULL UNIQUE
                 )
             ''')
         except:
@@ -119,11 +118,7 @@ class DocClassDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_docClass_id = int(cursor.fetchone()[0])
-            new_docClass = self.queryDocClassByIdOrName(uid, new_docClass_id)
-            return DbStatusType.SUCCESS, new_docClass
+            return DbStatusType.SUCCESS, self.queryDocClassByIdOrName(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -157,11 +152,7 @@ class DocClassDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_docclass_id = int(cursor.fetchone()[0])
-            new_docclass = self.queryDocClassByIdOrName(uid, new_docclass_id)
-            return DbStatusType.SUCCESS, new_docclass
+            return DbStatusType.SUCCESS, self.queryDocClassByIdOrName(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -212,7 +203,7 @@ class DocClassDao(MySQLHelper):
             cursor = self.db.cursor()
             cursor.execute(f'''
                 SELECT * FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_name} = {name}
+                WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
             ''')
             return cursor.rowcount != 0
 

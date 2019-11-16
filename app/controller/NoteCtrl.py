@@ -17,22 +17,22 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/note`
     """
 
-    @auth.login_required
     @blue.route("/", methods=['GET'])
+    @auth.login_required
     def GetAllRoute():
         """ 所有笔记 """
         notes = NoteDao().queryAllNotes(uid=g.user)
         return Result.ok().setData(Note.to_jsons(notes)).json_ret()
 
-    @auth.login_required
     @blue.route("/group/<int:gid>", methods=['GET'])
+    @auth.login_required
     def GetByGidRoute(gid: int):
         """ gid 查询笔记 """
         notes = NoteDao().queryAllNotesByGroupId(uid=g.user, gid=gid)
         return Result.ok().setData(Note.to_jsons(notes)).json_ret()
 
-    @auth.login_required
     @blue.route("/<int:nid>", methods=['GET'])
+    @auth.login_required
     def GetByIdRoute(nid: int):
         """ nid 查询笔记 """
         note = NoteDao().queryNoteById(uid=g.user, nid=nid)
@@ -42,8 +42,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     #######################################################################################################################
 
-    @auth.login_required
     @blue.route("/", methods=['POST'])
+    @auth.login_required
     def InsertRoute():
         """ 插入 """
         try:
@@ -64,8 +64,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_note.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/", methods=['PUT'])
+    @auth.login_required
     def UpdateRoute():
         """ 更新 """
         try:
@@ -87,8 +87,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_note.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/<int:nid>", methods=['DELETE'])
+    @auth.login_required
     def DeleteRoute(nid: int):
         """ 删除 """
         note: Note = NoteDao().queryNoteById(uid=g.user, nid=nid)
@@ -100,8 +100,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:
             return Result().ok().setData(note.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/", methods=['DELETE'])
+    @auth.login_required
     def DeletesRoute():
         """ 删除多个 """
         req_ids: List = request.form.getlist('id')

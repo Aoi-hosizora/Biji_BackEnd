@@ -1,5 +1,6 @@
 # Biji_BackEnd
 + Back-End for [Biji_Baibuti](https://github.com/Aoi-hosizora/Biji_Baibuti) (SCUT Baibuti Project)
++ Use `uwsgi` + `nginx` + `Flask` + `Blueprint`
 
 ### Environment
 + `Flask` 1.0.2
@@ -8,21 +9,18 @@
 + `Redis` for linux
 
 ### Modules
-+ Auth, Note, Star, Schedule, Document
++ Auth, Note, Star, Schedule, Document, Raw
 + Api see [api.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/api.md)
-
-### Config
-+ See [Config.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Config/Config.py)
++ Database models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/database/Model.sql)
 
 ### Run
 
 ```bash
 # Modify config in ./app/config/Config.py
+# Create Database db_biji
+
 python3 ./server.py
 ```
-
-### Database Models
-+ MySQL database Models see [Model.sql](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Database/Model.sql)
 
 ### Dependency Libraries
 + [pymysql](https://github.com/PyMySQL/PyMySQL)

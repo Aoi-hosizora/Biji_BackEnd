@@ -16,7 +16,7 @@ class NoteDao(MySQLHelper):
     col_content = 'n_content'
     col_group_id = 'n_group_id'
     col_create_time = 'n_create_time'
-    col_update_time = 'n_create_time'
+    col_update_time = 'n_update_time'
 
     def __init__(self):
         super().__init__()
@@ -31,13 +31,12 @@ class NoteDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
-                    {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_title} VARCHAR({Config.FMT_NOTE_TITLE_MAX}) NOT NULL,
+                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {self.col_title} VARCHAR ({Config.FMT_NOTE_TITLE_MAX}) NOT NULL,
                     {self.col_content} TEXT,
                     {self.col_group_id} INT NOT NULL,
                     {self.col_create_time} DATETIME NOT NULL,
-                    {self.col_update_time} DATETIME NOT NULL,
-                    PRIMARY KEY ({self.col_user}, {self.col_id})
+                    {self.col_update_time} DATETIME NOT NULL
                 )
             ''')
         except:
@@ -136,11 +135,7 @@ class NoteDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_note_id = int(cursor.fetchone()[0])
-            new_note = self.queryNoteById(uid, new_note_id)
-            return DbStatusType.SUCCESS, new_note
+            return DbStatusType.SUCCESS, self.queryNoteById(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -170,11 +165,7 @@ class NoteDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_note_id = int(cursor.fetchone()[0])
-            new_note = self.queryNoteById(uid, new_note_id)
-            return DbStatusType.SUCCESS, new_note
+            return DbStatusType.SUCCESS, self.queryNoteById(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None

@@ -12,11 +12,12 @@ class Config(object):
     MYSQL_HOST = 'localhost'
     MYSQL_PORT = 3306
     MYSQL_USER = 'root'
-    MYSQL_PASS = 123
+    MYSQL_PASS = '123'
     MYSQL_DB = 'db_biji'
 
     REDIS_HOST = 'localhost'
     REDIS_PORT = 6379
+    REDIS_DB = 0
 
     # token ex (Second)
     LOGIN_TOKEN_EX = 86400  # 1 * 24 * 3600 = 1 day

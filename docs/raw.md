@@ -38,7 +38,7 @@
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`imge`|`file`|Required|上传的用户图片||
+|`imge`|`file`|Required|上传的用户图片|只支持 `[jpg, png, jpeg, bmp]`|
 |`type`|`string`|Required|上传图片的类型|候选：`note`|
 
 + `DELETE /raw/image/` (Form-Data)

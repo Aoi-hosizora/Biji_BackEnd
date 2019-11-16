@@ -30,8 +30,7 @@ def setup(flask_app: app.Flask):
 
 # nginx + uwsgi + flask + blueprint
 setup(FlaskApp)
+
 if __name__ == "__main__":
     FlaskApp.run(
-        host=Config.SERVER_HOST, port=Config.SERVER_PORT,
-        threaded=True, debug=True
-    )
+        host=Config.SERVER_HOST, port=Config.SERVER_PORT)

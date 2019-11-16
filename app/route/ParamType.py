@@ -19,9 +19,12 @@ class ParamError(Exception):
     请求参数错误，返回 400
     """
 
-    def __init__(self, paramType: ParamType) -> None:
+    def __init__(self, paramType: ParamType):
         super().__init__()
         self.paramType = paramType
+
+    def __str__(self):
+        return 'Param Error'
 
     def with_traceback(self, tb: Optional[TracebackType]) -> BaseException:
         return super().with_traceback(tb)

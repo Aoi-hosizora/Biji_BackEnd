@@ -28,11 +28,10 @@ class GroupDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
-                    {self.col_id} INT NOT NULL AUTO_INCREMENT,
+                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
                     {self.col_name} VARCHAR({Config.FMT_GROUP_NAME_MAX}) NOT NULL UNIQUE,
                     {self.col_order} INT NOT NULL,
-                    {self.col_color} VARCHAR(10) NOT NULL,
-                    PRIMARY KEY ({self.col_user}, {self.col_id})
+                    {self.col_color} VARCHAR(10) NOT NULL
                 )
             ''')
         except:
@@ -130,11 +129,7 @@ class GroupDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_group_id = int(cursor.fetchone()[0])
-            new_group = self.queryGroupByIdOrName(uid, new_group_id)
-            return DbStatusType.SUCCESS, new_group
+            return DbStatusType.SUCCESS, self.queryGroupByIdOrName(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -168,11 +163,7 @@ class GroupDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_group_id = int(cursor.fetchone()[0])
-            new_group = self.queryGroupByIdOrName(uid, new_group_id)
-            return DbStatusType.SUCCESS, new_group
+            return DbStatusType.SUCCESS, self.queryGroupByIdOrName(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -223,7 +214,7 @@ class GroupDao(MySQLHelper):
             cursor = self.db.cursor()
             cursor.execute(f'''
                 SELECT * FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_name} = {name}
+                WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
             ''')
             return cursor.rowcount != 0
 

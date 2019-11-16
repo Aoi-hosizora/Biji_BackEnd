@@ -55,11 +55,17 @@ class Result(JsonModel):
     ########################################################################################################################################
 
     def to_json(self) -> dict:
-        return {
-            'code': self.code,
-            'message': self.message,
-            'data': self.data
-        }
+        if self.data:
+            return {
+                'code': self.code,
+                'message': self.message,
+                'data': self.data
+            }
+        else:
+            return {
+                'code': self.code,
+                'message': self.message
+            }
 
     def json_ret(self, headers=None) -> Response:
         """ 自定义数据返回 Response """

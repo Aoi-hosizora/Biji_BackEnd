@@ -15,15 +15,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/group`
     """
 
-    @auth.login_required
     @blue.route("/", methods=['GET'])
+    @auth.login_required
     def GetAllRoute():
         """ 所有分组 """
         groups = GroupDao().queryAllGroups(uid=g.user)
         return Result.ok().setData(Group.to_jsons(groups)).json_ret()
 
-    @auth.login_required
     @blue.route("/<int:gid>", methods=['GET'])
+    @auth.login_required
     def GetByIdRoute(gid: int):
         """ gid 查询分组 """
         group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=int(gid))
@@ -31,8 +31,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         return Result.ok().setData(group.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/", methods=['GET'])
+    @auth.login_required
     def GetByNameRoute():
         """ name 查询分组 """
         name = request.args.get('name')
@@ -43,8 +43,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         return Result.ok().setData(group.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/default", methods=['GET'])
+    @auth.login_required
     def GetDefaultRoute():
         """ 默认分组 """
         return Result.ok().setData(
@@ -53,8 +53,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     #######################################################################################################################
 
-    @auth.login_required
     @blue.route("/", methods=['POST'])
+    @auth.login_required
     def InsertRoute():
         """ 插入 """
         try:
@@ -76,8 +76,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_group.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/", methods=['PUT'])
+    @auth.login_required
     def UpdateRoute():
         """ 更新 """
         try:
@@ -103,8 +103,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_group.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/<int:gid>", methods=['DELETE'])
+    @auth.login_required
     def DeleteRoute(gid: int):
         """ 删除 """
         group: Group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=int(gid))

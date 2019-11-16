@@ -71,7 +71,7 @@
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`file`|`file`|Required|上传的文档文件||
+|`file`|`file`|Required|上传的文档文件|只支持 `[txt, md, pdf, doc, docx, ppt, pptx, xls, xlsx, zip, rar]`|
 |`filename`|`string`|Required|文档原始文件名|后缀名 `.xxx` 不要超过 `10` 个字符|
 |`doc_class_id`|`int`|Required|文档分组编号||
 

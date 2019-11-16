@@ -1,9 +1,9 @@
 from flask import g
 from flask_httpauth import HTTPTokenAuth
-from itsdangerous import Serializer, SignatureExpired, BadSignature
+from itsdangerous import SignatureExpired, BadSignature
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 from app.config.Config import Config
-from app.database.DbStatusType import DbStatusType
 from app.database.dao.UserDao import UserDao
 from app.database.dao.UserTokenDao import UserTokenDao
 from app.model.dto.Result import Result
@@ -23,17 +23,19 @@ def setup_auth() -> HTTPTokenAuth:
         """
         if not token:
             return False
+
         try:
-            data = Serializer(Config.SECRET_KEY).loads(token)
-            uid: int = data['uid']
+            print(Config.SECRET_KEY)
+            data = Serializer(secret_key=Config.SECRET_KEY).loads(token)
+            uid: int = int(data['uid'])
         except SignatureExpired as ex:  # 过期
             raise ex
         except BadSignature as ex:  # 错误
             raise ex
+        except KeyError as ex:  # 格式错误
+            raise BadSignature(ex)
 
-        if not isinstance(uid, int) or uid <= 0:  # 格式错误
-            return False
-        if UserDao().queryUserById(uid) == DbStatusType.NOT_FOUND:  # 无用户
+        if not UserDao().queryUserById(uid):  # 无用户
             return False
         if not UserTokenDao().checkToken(token):  # 无登陆
             return False

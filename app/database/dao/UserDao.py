@@ -33,7 +33,7 @@ class UserDao(MySQLHelper):
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
                     {self.col_username} VARCHAR({Config.FMT_USERNAME_MAX}) NOT NULL UNIQUE,
-                    {self.col_password} VARCHAR({Config.FMT_PASSWORD_MAX}) NOT NULL
+                    {self.col_password} VARCHAR(150) NOT NULL
                 )
             ''')
         except:
@@ -104,7 +104,7 @@ class UserDao(MySQLHelper):
         :return: SUCCESS | FOUNDED | FAILED
         """
         if self.queryUserByName(username):
-            return DbStatusType.FOUNDED
+            return DbStatusType.FOUNDED, None
 
         encrypted_pass = AuthUtil.encrypt_password(unencrypted_pass)
         cursor = self.db.cursor()
@@ -114,17 +114,14 @@ class UserDao(MySQLHelper):
                 INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_password})
                 VALUES ('{username}', '{encrypted_pass}')
             ''')
+
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbStatusType.FAILED
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_uid = cursor.fetchone()[0]
-            new_user = self.queryUserById(new_uid)
-            return DbStatusType.SUCCESS, new_user
+                return DbStatusType.FAILED, None
+            return DbStatusType.SUCCESS, self.queryUserById(cursor.lastrowid)
         except:
             self.db.rollback()
-            return DbStatusType.FAILED
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()

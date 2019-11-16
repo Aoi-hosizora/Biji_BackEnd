@@ -38,7 +38,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             if not UserTokenDao().addToken(user.id, token):  # Add to redis
                 return Result.error(ResultCode.UNAUTHORIZED).setMessage("Login Failed").json_ret()
 
-            return Result.ok().setData(user.to_json()).json_ret(headers={'Authorization': token})
+            return Result.ok().setData(user.to_json()).json_ret(headers={'Authorization': 'Bearer ' + token})
 
     @blue.route("/register", methods=['POST'])
     def RegisterRoute():

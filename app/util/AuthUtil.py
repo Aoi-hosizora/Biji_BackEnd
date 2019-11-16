@@ -19,8 +19,9 @@ def verify_password(password, encrypted_password) -> bool:
 
 def generate_token(uid: int, expiration) -> str:
     """
-    生成 token(去除b')，有效期 expiration & uid
+    生成 token，有效期 expiration & uid
     """
-    return Serializer(Config.SECRET_KEY, expires_in=expiration).dumps({
+    print(Config.SECRET_KEY)
+    return Serializer(secret_key=Config.SECRET_KEY, expires_in=expiration).dumps({
         'uid': uid
-    }).__str__()[2:]
+    }).decode('utf-8')

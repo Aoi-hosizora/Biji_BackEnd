@@ -16,8 +16,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/raw`
     """
 
-    @auth.login_required
     @blue.route('/image', methods=['POST'])
+    @auth.login_required
     def UploadImageRoute():
         """ 上传图片 """
         try:
@@ -41,15 +41,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # 其他类型图片
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Not Support Upload Type').json_ret()
 
-    @auth.login_required
     @blue.route('/image', methods=['DELETE'])
+    @auth.login_required
     def DeleteImageRoute():
         """ 删除图片 """
         try:
             req_type = request.form['type']
             req_urls: List = request.form.getlist('urls')
         except:
-            raise ParamError(ParamType.RAW)
+            raise ParamError(ParamType.FORM)
 
         if req_type == 'note':  # 笔记图片
             count = 0
@@ -74,8 +74,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:
             send_file(filepath)
 
-    @auth.login_required
     @blue.route('/blob', methods=['GET'])
+    @auth.login_required
     def GetFileRoute():
         """ 获取文件 """
         # TODO ShareCode

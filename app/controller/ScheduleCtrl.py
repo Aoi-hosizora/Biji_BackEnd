@@ -13,8 +13,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/schedule`
     """
 
-    @auth.login_required
     @blue.route('/', methods=['GET'])
+    @auth.login_required
     def GetRoute():
         """ 获得 课程表 """
         schedule_data: str = ScheduleDao().querySchedule(uid=g.user)
@@ -25,8 +25,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     #######################################################################################################################
 
-    @auth.login_required
     @blue.route('/', methods=['PUT'])
+    @auth.login_required
     def UpdateRoute():
         """ 更新/新建 课程表 """
         schedule_data = request.form.get('schedule')
@@ -38,8 +38,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:
             return Result.ok().json_ret()
 
-    @auth.login_required
     @blue.route('/', methods=['DELETE'])
+    @auth.login_required
     def DeleteRoute():
         """ 删除 课程表 """
         status = ScheduleDao().deleteSchedule(uid=g.user)

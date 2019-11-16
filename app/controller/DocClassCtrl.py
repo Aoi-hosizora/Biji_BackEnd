@@ -15,15 +15,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/docclass`
     """
 
-    @auth.login_required
     @blue.route('/', methods=['GET'])
+    @auth.login_required
     def GetAllRoute():
         """ 所有文件分组 """
         docClasses = DocClassDao().queryAllDocClasses(uid=g.user)
         return Result.ok().setData(DocClass.to_jsons(docClasses)).json_ret()
 
-    @auth.login_required
     @blue.route('/<int:cid>', methods=['GET'])
+    @auth.login_required
     def GetByIdRoute(cid: int):
         """ id 获取文件分组 """
         docClass = DocClassDao().queryDocClassByIdOrName(uid=g.user, cid_name=int(cid))
@@ -31,8 +31,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
         return Result.ok().setData(docClass.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route('/', methods=['GET'])
+    @auth.login_required
     def GetByNameRoute():
         """ name 获取文件分组 """
         name = request.args.get('name')
@@ -43,8 +43,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
         return Result.ok().setData(docClass.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/default", methods=['GET'])
+    @auth.login_required
     def GetDefaultRoute():
         """ 默认分组 """
         return Result.ok().setData(
@@ -53,8 +53,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     #######################################################################################################################
 
-    @auth.login_required
     @blue.route('/', methods=['POST'])
+    @auth.login_required
     def InsertRoute():
         """ 新建文件分组 """
         try:
@@ -75,8 +75,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_docClass.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route('/', methods=['PUT'])
+    @auth.login_required
     def UpdateRoute():
         """ 更新文件分组 """
         try:
@@ -100,8 +100,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_docclass.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route('/<int:cid>', methods=['DELETE'])
+    @auth.login_required
     def DeleteRoute(cid: int):
         """ 删除文件分组 """
         docclass = DocClassDao().queryDocClassByIdOrName(uid=g.user, cid_name=int(cid))

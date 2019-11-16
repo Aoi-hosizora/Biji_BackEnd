@@ -28,11 +28,10 @@ class StarDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
-                    {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_url} TEXT NOT NULL UNIQUE,
+                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {self.col_url} VARCHAR(500) NOT NULL UNIQUE,
                     {self.col_title} VARCHAR({Config.FMT_STAR_TITLE_MAX}) NOT NULL,
-                    {self.col_content} VARCHAR({Config.FMT_STAR_CONTENT_MAX}),
-                    PRIMARY KEY ({self.col_user}, {self.col_id})
+                    {self.col_content} VARCHAR({Config.FMT_STAR_CONTENT_MAX})
                 )
             ''')
         except:
@@ -114,11 +113,7 @@ class StarDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_star_id = int(cursor.fetchone()[0])
-            new_star = self.queryStarByIdOrUrl(uid, new_star_id)
-            return DbStatusType.SUCCESS, new_star
+            return DbStatusType.SUCCESS, self.queryStarByIdOrUrl(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None

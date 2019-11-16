@@ -18,22 +18,22 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/document`
     """
 
-    @auth.login_required
     @blue.route('/', methods=['GET'])
+    @auth.login_required
     def GetAllRoute():
         """ 所有文档 """
         documents = DocumentDao().queryAllDocuments(g.user)
         return Result().ok().setData(Document.to_jsons(documents)).json_ret()
 
-    @auth.login_required
     @blue.route('/class/<int:cid>', methods=['GET'])
+    @auth.login_required
     def GetClassRoute(cid: int):
         """ classId 查询文档 """
         documents = DocumentDao().queryDocumentsByClassId(uid=g.user, cid=cid)
         return Result().ok().setData(Document.to_jsons(documents)).json_ret()
 
-    @auth.login_required
     @blue.route('/<int:did>', methods=['GET'])
+    @auth.login_required
     def GetOneRoute(did: int):
         """ did 查询文档 """
         document = DocumentDao().queryDocumentById(uid=g.user, did=did)
@@ -43,8 +43,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     #######################################################################################################################
 
-    @auth.login_required
     @blue.route('/', methods=['POST'])
+    @auth.login_required
     def InsertRoute():
         """ 插入文档 (DB + FS) """
         try:
@@ -76,8 +76,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_document.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route('/', methods=['PUT'])
+    @auth.login_required
     def UpdateRoute():
         """ 更新文档 (DB) """
         try:
@@ -96,8 +96,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_document.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route('/<int:did>', methods=['DELETE'])
+    @auth.login_required
     def DeleteRoute(did: int):
         """ 删除文档 (DB + FS) """
         document: Document = DocumentDao().queryDocumentById(uid=g.user, did=did)

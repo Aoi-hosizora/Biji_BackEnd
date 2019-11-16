@@ -17,15 +17,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/star`
     """
 
-    @auth.login_required
     @blue.route("/", methods=['GET'])
+    @auth.login_required
     def GetAllRoute():
         """ 所有分组 """
         stars = StarDao().queryAllStars(uid=g.user)
         return Result.ok().setData(StarItem.to_jsons(stars)).json_ret()
 
-    @auth.login_required
     @blue.route("/<int:sid>", methods=['GET'])
+    @auth.login_required
     def GetByIdRoute(sid: int):
         """ 根据 sid 获取分组 """
         star = StarDao().queryStarByIdOrUrl(uid=g.user, sid_url=sid)
@@ -35,8 +35,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     #######################################################################################################################
 
-    @auth.login_required
     @blue.route("/", methods=['POST'])
+    @auth.login_required
     def InsertRoute():
         """ 插入 """
         try:
@@ -62,8 +62,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_star.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/<int:sid>", methods=['DELETE'])
+    @auth.login_required
     def DeleteRoute(sid: int):
         """ 删除 """
         starItem: StarItem = StarDao().queryStarByIdOrUrl(uid=g.user, sid_url=sid)
@@ -75,8 +75,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:
             return Result().ok().setData(starItem.to_json()).json_ret()
 
-    @auth.login_required
     @blue.route("/", methods=['DELETE'])
+    @auth.login_required
     def DeletesRoute():
         """ 删除多个 """
         req_ids: List = request.form.getlist('id')

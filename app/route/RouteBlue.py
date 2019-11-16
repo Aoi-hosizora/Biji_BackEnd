@@ -14,6 +14,12 @@ def setup_route_blue(app: Flask):
     """
     auth = AuthMw.setup_auth()
 
+    @app.route('/')
+    def rootRoute():
+        return {
+            'message': 'Biji Api'
+        }
+
     # Auth Blue (1)
     blue_Auth = Blueprint("blue_Auth", __name__, url_prefix="/auth")
     AuthCtrl.apply_blue(blue_Auth, auth)

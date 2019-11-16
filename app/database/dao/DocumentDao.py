@@ -30,11 +30,10 @@ class DocumentDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
-                    {self.col_id} INT AUTO_INCREMENT,
+                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
                     {self.col_filename} TEXT NOT NULL,
                     {self.col_uuid} VARCHAR({Config.FMT_DOCUMENT_UUID_LEN}) NOT NULL,
-                    {self.col_class_id} INT NOT NULL,
-                    PRIMARY KEY ({self.col_user}, {self.col_id})
+                    {self.col_class_id} INT NOT NULL
                 )
             ''')
         except:
@@ -131,11 +130,7 @@ class DocumentDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_doc_id = int(cursor.fetchone()[0])
-            new_doc = self.queryDocumentById(uid, new_doc_id)
-            return DbStatusType.SUCCESS, new_doc
+            return DbStatusType.SUCCESS, self.queryDocumentById(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -163,11 +158,7 @@ class DocumentDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-
-            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_doc_id = int(cursor.fetchone()[0])
-            new_doc = self.queryDocumentById(uid, new_doc_id)
-            return DbStatusType.SUCCESS, new_doc
+            return DbStatusType.SUCCESS, self.queryDocumentById(uid, cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
