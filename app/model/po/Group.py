@@ -1,15 +1,16 @@
-from typing import Optional
-
 from app.model.JsonModel import JsonModel
 
 
 class Group(JsonModel):
 
-    def __init__(self, gid: int, name: str, order: int, color: str):
+    def __init__(self, gid: int, name: str, order: int = -1, color: str = '#F0F0F0'):
         self.id: int = int(gid)
         self.name: str = name
         self.order: int = int(order)
-        self.color: str = color
+        if not color.startswith('#'):
+            self.color: str = '#F0F0F0'
+        else:
+            self.color: str = color
 
     def to_json(self) -> dict:
         return {
@@ -18,18 +19,6 @@ class Group(JsonModel):
             'order': self.order,
             'color': self.color
         }
-
-    @staticmethod
-    def from_json(jsonDict: dict) -> Optional:
-        try:
-            return Group(
-                gid=jsonDict['id'],
-                name=jsonDict['name'],
-                order=jsonDict['order'],
-                color=jsonDict['color']
-            )
-        except KeyError:
-            return None
 
 
 DEF_GROUP = Group(1, "默认分组", 0, '#F0F0F0')

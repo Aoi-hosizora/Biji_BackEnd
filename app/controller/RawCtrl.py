@@ -8,7 +8,7 @@ from flask_httpauth import HTTPTokenAuth
 from app.model.dto.RawResult import RawResult
 from app.model.dto.Result import Result
 from app.model.dto.ResultCode import ResultCode
-from app.route.ParamError import ParamError, ParamType
+from app.route.ParamType import ParamError, ParamType
 from app.util import FileUtil
 
 

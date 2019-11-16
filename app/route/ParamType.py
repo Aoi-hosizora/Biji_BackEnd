@@ -16,8 +16,9 @@ class ParamType(Enum):
 
 class ParamError(Exception):
     """
-    请求参数错误，返回 406
+    请求参数错误，返回 400
     """
+
     def __init__(self, paramType: ParamType) -> None:
         super().__init__()
         self.paramType = paramType

@@ -30,6 +30,8 @@ class Result(JsonModel):
         """ 错误相应处理 """
         return Result(code=err.code, message=err.message)
 
+    ########################################################################################################################################
+
     def setCode(self, code: int):
         """ 链式设置响应状态码 """
         self.code = code
@@ -49,6 +51,8 @@ class Result(JsonModel):
         """ 添加进字典 """
         self.data[name] = data
         return self
+
+    ########################################################################################################################################
 
     def to_json(self) -> dict:
         return {

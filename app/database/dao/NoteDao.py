@@ -1,7 +1,8 @@
-from app.database.DbErrorType import DbErrorType
-from app.database.MySQLHelper import MySQLHelper
 from typing import List, Optional
 
+from app.config.Config import Config
+from app.database.DbStatusType import DbStatusType
+from app.database.MySQLHelper import MySQLHelper
 from app.database.dao.GroupDao import GroupDao
 from app.model.po.Note import Note
 
@@ -31,7 +32,7 @@ class NoteDao(MySQLHelper):
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
                     {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_title} VARCHAR(100) NOT NULL,
+                    {self.col_title} VARCHAR({Config.FMT_NOTE_TITLE_MAX}) NOT NULL,
                     {self.col_content} TEXT,
                     {self.col_group_id} INT NOT NULL,
                     {self.col_create_time} DATETIME NOT NULL,
@@ -78,8 +79,7 @@ class NoteDao(MySQLHelper):
         for result in results:
             # noinspection PyBroadException
             try:
-                group_id: int = int(result[4])
-                group = GroupDao().queryGroupById(uid, group_id)
+                group = GroupDao().queryGroupByIdOrName(uid, gid_name=int(result[4]))
                 if group is None:
                     group = GroupDao().queryDefaultGroup(uid)
                 returns.append(Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6]))
@@ -103,8 +103,7 @@ class NoteDao(MySQLHelper):
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
-            group_id: int = int(result[4])
-            group = GroupDao().queryGroupById(uid, group_id)
+            group = GroupDao().queryGroupByIdOrName(uid, gid_name=int(result[4]))
             if group is None:
                 group = GroupDao().queryDefaultGroup(uid)
             return Note(nid=result[1], title=result[2], content=result[3], group=group, create_time=result[5], update_time=result[6])
@@ -115,13 +114,15 @@ class NoteDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertNote(self, uid: int, note: Note) -> (DbErrorType, Note):
+    def insertNote(self, uid: int, note: Note) -> (DbStatusType, Note):
         """
-        插入新笔记
-        :return: SUCCESS | FOUNDED | FAILED
+        插入新笔记 (title, content, group_id, ct, ut) SUCCESS | FOUNDED | FAILED
         """
-        if self.queryNoteById(uid, note.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED, None
+        if self.queryNoteById(uid, note.id):  # 已存在
+            return DbStatusType.FOUNDED, None
+
+        if not GroupDao().queryGroupByIdOrName(uid=uid, gid_name=note.group.id):  # 分组不存在
+            note.group = GroupDao().queryDefaultGroup(uid=uid)
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -134,25 +135,28 @@ class NoteDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED, None
+                return DbStatusType.FAILED, None
 
-            new_note_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_note_id = int(cursor.fetchone()[0])
             new_note = self.queryNoteById(uid, new_note_id)
-            return DbErrorType.SUCCESS, new_note
+            return DbStatusType.SUCCESS, new_note
         except:
             self.db.rollback()
-            return DbErrorType.FAILED, None
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def updateNote(self, uid: int, note: Note) -> DbErrorType:
+    def updateNote(self, uid: int, note: Note) -> (DbStatusType, Note):
         """
-        更新笔记 (title, content, groupId, ct, ut)
-        :return: SUCCESS | NOT_FOUND | FAILED
+        更新笔记 (title, content, group_id, ut) SUCCESS | NOT_FOUND | FAILED
         """
-        if self.queryNoteById(uid, note.id) is None:
-            return DbErrorType.NOT_FOUND
+        if not self.queryNoteById(uid, note.id):  # 不存在
+            return DbStatusType.NOT_FOUND, None
+
+        if not GroupDao().queryGroupByIdOrName(uid=uid, gid_name=note.group.id):  # 分组不存在
+            note.group = GroupDao().queryDefaultGroup(uid=uid)
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -160,42 +164,40 @@ class NoteDao(MySQLHelper):
             cursor.execute(f'''
                 UPDATE {self.tbl_name} 
                 WHERE {self.col_user} = {uid} AND {self.col_id} = {note.id}
-                SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', {self.col_group_id} = {note.group.id},
-                    {self.col_create_time} = '{note.create_time}', {self.col_update_time} = '{note.update_time}'
+                SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', 
+                    {self.col_group_id} = {note.group.id}, {self.col_update_time} = '{note.update_time}'
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED, None
+
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_note_id = int(cursor.fetchone()[0])
+            new_note = self.queryNoteById(uid, new_note_id)
+            return DbStatusType.SUCCESS, new_note
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def deleteNote(self, uid: int, nid: int) -> DbErrorType:
+    def deleteNotes(self, uid: int, ids: List[int]) -> int:
         """
-        删除一条笔记
-        :return: SUCCESS | NOT_FOUND | FAILED
+        删除多个笔记
+        :return: 删除的条数 -1 for error
         """
-        if self.queryNoteById(uid, nid) is None:
-            return DbErrorType.NOT_FOUND
-
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {nid}
+                WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(nid) for nid in ids])})
             ''')
-            if cursor.rowcount == 0:
-                self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+            return cursor.rowcount
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return -1
         finally:
             self.db.commit()
             cursor.close()

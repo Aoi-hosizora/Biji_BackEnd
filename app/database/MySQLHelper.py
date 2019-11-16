@@ -1,6 +1,6 @@
 import pymysql
 
-from app.config import Config
+from app.config.Config import Config
 
 
 class MySQLHelper(object):
@@ -10,11 +10,11 @@ class MySQLHelper(object):
         统一建立数据库
         """
         self.db = pymysql.connect(
-            host=Config.MySQL_Host,
-            port=Config.MySQL_Port,
-            user=Config.MySQL_User,
-            passwd=Config.MySQL_Pass,
-            db=Config.MySQL_Db,
+            host=Config.MYSQL_HOST,
+            port=Config.MYSQL_PORT,
+            user=Config.MYSQL_USER,
+            passwd=Config.MYSQL_PASS,
+            db=Config.MYSQL_DB,
             charset='utf8'
         )
         self.create_tbl()

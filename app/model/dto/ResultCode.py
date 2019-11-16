@@ -11,12 +11,18 @@ class ResultCode(Enum):
         self.code = code
         self.message = message
 
+    # HTTP 状态码
     SUCCESS = 200, 'Success'
+    UNAUTHORIZED = 401, 'Unauthorized'
     NOT_FOUND = 404, 'Not Found'
     INTERNAL_SERVER_ERROR = 500, 'Internal Server Error'
 
     BAD_REQUEST = 400, 'Bad Request'
-    UNAUTHORIZED = 401, 'Unauthorized'
     FORBIDDEN = 403, 'Forbidden'
     METHOD_NOT_ALLOWED = 405, 'Method Not Allowed'
     NOT_ACCEPTABLE = 406, 'Not Acceptable'
+
+    # 自定义错误码
+    DATABASE_FAILED = 600, 'Database Failed'
+    HAS_EXISTED = 601, 'Has Existed'
+    DUPLICATE_DEFAULT = 602, 'Data Duplicate Or Default'

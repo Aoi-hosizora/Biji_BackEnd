@@ -1,8 +1,9 @@
 from typing import List, Optional
 
-from app.database.DbErrorType import DbErrorType
+from app.config.Config import Config
+from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
-from app.database.dao.DocumentClassDao import DocumentClassDao
+from app.database.dao.DocClassDao import DocClassDao
 
 from app.model.po.Document import Document
 
@@ -13,8 +14,8 @@ class DocumentDao(MySQLHelper):
     col_user = "d_user"
     col_id = "d_id"
     col_filename = "d_filename"
+    col_uuid = "d_uuid_name"
     col_class_id = "d_class_id"
-    col_filepath = "d_filepath"
 
     def __init__(self):
         super().__init__()
@@ -30,9 +31,9 @@ class DocumentDao(MySQLHelper):
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
                     {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_filename} VARCHAR(200) NOT NULL,
+                    {self.col_filename} TEXT NOT NULL,
+                    {self.col_uuid} VARCHAR({Config.FMT_DOCUMENT_UUID_LEN}) NOT NULL,
                     {self.col_class_id} INT NOT NULL,
-                    {self.col_filepath} VARCHAR(50) NOT NULL,
                     PRIMARY KEY ({self.col_user}, {self.col_id})
                 )
             ''')
@@ -59,13 +60,13 @@ class DocumentDao(MySQLHelper):
         cursor = self.db.cursor()
         if cid == -1:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
+                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
                 FROM {self.tbl_name} 
                 WHERE {self.col_user} = {uid}
             ''')
         else:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
+                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
                 FROM {self.tbl_name} 
                 WHERE {self.col_user} = {uid} AND {self.col_class_id} = {cid}
             ''')
@@ -75,11 +76,10 @@ class DocumentDao(MySQLHelper):
         for result in results:
             # noinspection PyBroadException
             try:
-                class_id: int = int(result[3])
-                docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
+                docClass = DocClassDao().queryDocClassByIdOrName(uid, result[3])
                 if docClass is None:
-                    docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
-                returns.append(Document(did=result[1], filename=result[2], docClass=docClass, server_filename=result[4]))
+                    docClass = DocClassDao().queryDefaultDocClass(uid)
+                returns.append(Document(did=result[1], filename=result[2], docClass=docClass, uuid=result[4]))
             except:
                 pass
         cursor.close()
@@ -91,18 +91,17 @@ class DocumentDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
+            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
             FROM {self.tbl_name}
             WHERE {self.col_user} = {uid} AND {self.col_id} = {did}
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
-            class_id: int = int(result[3])
-            docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
+            docClass = DocClassDao().queryDocClassByIdOrName(uid, result[3])
             if docClass is None:
-                docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
-            return Document(did=result[1], filename=result[2], docClass=docClass, server_filename=result[4])
+                docClass = DocClassDao().queryDefaultDocClass(uid)
+            return Document(did=result[1], filename=result[2], docClass=docClass, uuid=result[4])
         except:
             return None
         finally:
@@ -110,44 +109,49 @@ class DocumentDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertDocument(self, uid: int, document: Document) -> (DbErrorType, Document):
+    def insertDocument(self, uid: int, document: Document) -> (DbStatusType, Document):
         """
-        插入新文档
-        :return: SUCCESS | FOUNDED | FAILED
+        插入新文档 (filename, uuid, docclass) SUCCESS | FOUNDED | FAILED
         """
-        if self.queryDocumentById(uid, document.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED, None
+        if self.queryDocumentById(uid, document.id):  # 已存在
+            return DbStatusType.FOUNDED, None
+
+        if not DocClassDao().queryDocClassByIdOrName(uid=uid, cid_name=document.docClass.id):  # 分组不存在
+            document.docClass = DocClassDao().queryDefaultDocClass(uid=uid)
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
+                    {self.col_user}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
                 )
-                VALUES ({uid}, '{document.filename}', {document.docClass.id}, '{document.server_filename}') 
+                VALUES ({uid}, '{document.filename}', {document.docClass.id}, '{document.uuid}') 
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED, None
+                return DbStatusType.FAILED, None
 
-            new_doc_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_doc_id = int(cursor.fetchone()[0])
             new_doc = self.queryDocumentById(uid, new_doc_id)
-            return DbErrorType.SUCCESS, new_doc
+            return DbStatusType.SUCCESS, new_doc
         except:
             self.db.rollback()
-            return DbErrorType.FAILED, None
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def updateDocument(self, uid: int, document: Document) -> DbErrorType:
+    def updateDocument(self, uid: int, document: Document) -> (DbStatusType, Document):
         """
-        更新文档 (docClass, filename)
-        :return: SUCCESS | NOT_FOUND | FAILED
+        更新文档 (filename, docClass) SUCCESS | NOT_FOUND | FAILED
         """
         if self.queryDocumentById(uid, document.id) is None:
-            return DbErrorType.NOT_FOUND
+            return DbStatusType.NOT_FOUND, None
+
+        if not DocClassDao().queryDocClassByIdOrName(uid=uid, cid_name=document.docClass.id):  # 分组不存在
+            document.docClass = DocClassDao().queryDefaultDocClass(uid=uid)
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -158,22 +162,25 @@ class DocumentDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED, None
+
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_doc_id = int(cursor.fetchone()[0])
+            new_doc = self.queryDocumentById(uid, new_doc_id)
+            return DbStatusType.SUCCESS, new_doc
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def deleteDocument(self, uid: int, did: int) -> DbErrorType:
+    def deleteDocument(self, uid: int, did: int) -> DbStatusType:
         """
-        删除一项文件
-        :return: SUCCESS | NOT_FOUND | FAILED
+        删除一项文件 SUCCESS | NOT_FOUND | FAILED
         """
         if self.queryDocumentById(uid, did) is None:  # 不存在
-            return DbErrorType.NOT_FOUND
+            return DbStatusType.NOT_FOUND
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -184,11 +191,11 @@ class DocumentDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED
+            return DbStatusType.SUCCESS
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED
         finally:
             self.db.commit()
             cursor.close()

@@ -1,8 +1,8 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from app.database.DbErrorType import DbErrorType
+from app.config.Config import Config
+from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
-
 from app.model.po.Group import Group, DEF_GROUP
 
 
@@ -28,8 +28,8 @@ class GroupDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
-                    {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_name} VARCHAR(100) NOT NULL UNIQUE,
+                    {self.col_id} INT NOT NULL AUTO_INCREMENT,
+                    {self.col_name} VARCHAR({Config.FMT_GROUP_NAME_MAX}) NOT NULL UNIQUE,
                     {self.col_order} INT NOT NULL,
                     {self.col_color} VARCHAR(10) NOT NULL,
                     PRIMARY KEY ({self.col_user}, {self.col_id})
@@ -68,39 +68,25 @@ class GroupDao(MySQLHelper):
         cursor.close()
         return results
 
-    def queryGroupById(self, uid: int, gid: int) -> Optional[Group]:
+    def queryGroupByIdOrName(self, uid: int, gid_name: Union[int, str]) -> Optional[Group]:
         """
         根据 gid 查询分组
         """
         self.processGroups(uid)  # 查询前处理
 
         cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_id} = {gid}
-        ''')
-        result = cursor.fetchone()
-        # noinspection PyBroadException
-        try:
-            return Group(gid=result[1], name=result[2], order=result[3], color=result[4])
-        except:
-            return None
-        finally:
-            cursor.close()
-
-    def queryGroupByName(self, uid: int, name: str) -> Optional[Group]:
-        """
-        根据 name 查询分组
-        """
-        self.processGroups(uid)  # 查询前处理
-
-        cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
-        ''')
+        if isinstance(gid_name, int):
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
+                FROM {self.tbl_name}
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {gid_name}
+            ''')
+        else:
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
+                FROM {self.tbl_name}
+                WHERE {self.col_user} = {uid} AND {self.col_name} = '{gid_name}'
+            ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
@@ -114,23 +100,21 @@ class GroupDao(MySQLHelper):
         """
         查询默认分组
         """
-        return self.queryGroupByName(uid, DEF_GROUP.name)
+        return self.queryGroupByIdOrName(uid, DEF_GROUP.name)
 
     #######################################################################################################################
 
-    def insertGroup(self, uid: int, group: Group) -> (DbErrorType, Group):
+    def insertGroup(self, uid: int, group: Group) -> (DbStatusType, Group):
         """
-        插入新分组
-        :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
+        插入新分组 (name, color) SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
-        if self.queryGroupById(uid, group.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED, None
-        if self.queryGroupByName(uid, group.name) is not None:  # 名字重复
-            return DbErrorType.DUPLICATE, None
-
-        group.order = len(self.queryAllGroups(uid))  # 顺序最后
+        if self.queryGroupByIdOrName(uid, group.id) is not None:  # 已存在
+            return DbStatusType.FOUNDED, None
+        if self.queryGroupByIdOrName(uid, group.name) is not None:  # 名字重复
+            return DbStatusType.DUPLICATE, None
 
         self.processGroups(uid)  # 插入前处理
+        group.order = len(self.queryAllGroups(uid))  # 顺序最后
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -145,32 +129,33 @@ class GroupDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED, None
-            new_group_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_group = self.queryGroupById(uid, new_group_id)
-            return DbErrorType.SUCCESS, new_group
+                return DbStatusType.FAILED, None
+
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_group_id = int(cursor.fetchone()[0])
+            new_group = self.queryGroupByIdOrName(uid, new_group_id)
+            return DbStatusType.SUCCESS, new_group
         except:
             self.db.rollback()
-            return DbErrorType.FAILED, None
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def updateGroup(self, uid: int, group: Group) -> DbErrorType:
+    def updateGroup(self, uid: int, group: Group) -> (DbStatusType, Group):
         """
-        更新分组 (name, order, color)
-        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
+        更新分组 (name, order, color) SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
         """
-        if self.queryGroupById(uid, group.id) is None:  # 不存在
-            return DbErrorType.NOT_FOUND
-        if self.queryGroupByName(uid, group.name) is not None:  # 名字重复
-            return DbErrorType.DUPLICATE
+        if self.queryGroupByIdOrName(uid, group.id) is None:  # 不存在
+            return DbStatusType.NOT_FOUND, None
+        if self.queryGroupByIdOrName(uid, group.name) is not None:  # 名字重复
+            return DbStatusType.DUPLICATE, None
         self.processGroups(uid)  # 更新前处理
 
         # 修改默认分组名
         defGroup = self.queryDefaultGroup(uid)
         if group.id == defGroup.id and group.name != defGroup:
-            return DbErrorType.DEFAULT
+            return DbStatusType.DEFAULT, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -178,31 +163,33 @@ class GroupDao(MySQLHelper):
             cursor.execute(f'''
                 UPDATE {self.tbl_name} 
                 WHERE {self.col_user} = {uid} AND {self.col_id} = {group.id}
-                SET {self.col_name} = '{group.name}', {self.col_order} = '{group.order}', {self.col_color} = {group.color}
+                SET {self.col_name} = '{group.name}', {self.col_order} = {group.order}, {self.col_color} = '{group.color}'
             ''')
-
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED, None
+
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_group_id = int(cursor.fetchone()[0])
+            new_group = self.queryGroupByIdOrName(uid, new_group_id)
+            return DbStatusType.SUCCESS, new_group
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def deleteGroup(self, uid: int, gid: int) -> DbErrorType:
+    def deleteGroup(self, uid: int, gid: int) -> DbStatusType:
         """
-        删除一个分组
-        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
+        删除一个分组 SUCCESS | NOT_FOUND | DEFAULT | FAILED
         """
-        if self.queryGroupById(uid, gid) is None:
-            return DbErrorType.NOT_FOUND
+        if self.queryGroupByIdOrName(uid, gid) is None:  # 不存在
+            return DbStatusType.NOT_FOUND
 
         # 删除默认分组
         if gid == self.queryDefaultGroup(uid).id:
-            return DbErrorType.DEFAULT
+            return DbStatusType.DEFAULT
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -213,13 +200,13 @@ class GroupDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
+                return DbStatusType.FAILED
 
             self.processGroups(uid)  # 删除后处理
-            return DbErrorType.SUCCESS
+            return DbStatusType.SUCCESS
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED
         finally:
             self.db.commit()
             cursor.close()

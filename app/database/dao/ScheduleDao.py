@@ -1,4 +1,4 @@
-from app.database.DbErrorType import DbErrorType
+from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 
 
@@ -50,14 +50,14 @@ class ScheduleDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def updateSchedule(self, uid: int, data: str) -> DbErrorType:
+    def updateSchedule(self, uid: int, data: str) -> DbStatusType:
         """
         更新课程表
         :return: SUCCESS | FAILED
         """
         db_data = self.querySchedule(uid)
         if db_data == data:  # Not Modify
-            return DbErrorType.SUCCESS
+            return DbStatusType.SUCCESS
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -69,22 +69,22 @@ class ScheduleDao(MySQLHelper):
 
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED
+            return DbStatusType.SUCCESS
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED
         finally:
             self.db.commit()
             cursor.close()
 
-    def deleteSchedule(self, uid: int) -> DbErrorType:
+    def deleteSchedule(self, uid: int) -> DbStatusType:
         """
         删除课表
         :return: SUCCESS | NOT_FOUND | FAILED
         """
         if self.querySchedule(uid) == '':
-            return DbErrorType.NOT_FOUND
+            return DbStatusType.NOT_FOUND
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -92,11 +92,11 @@ class ScheduleDao(MySQLHelper):
             cursor.execute(f'''DELETE FROM {self.tbl_name} WHERE {self.col_user} = {uid}''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED
+            return DbStatusType.SUCCESS
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED
         finally:
             self.db.commit()
             cursor.close()

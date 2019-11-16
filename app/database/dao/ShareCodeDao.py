@@ -1,4 +1,4 @@
-from app.config import Config
+from app.config.Config import Config
 
 import redis
 
@@ -7,8 +7,8 @@ class ShareCodeDao(object):
 
     def __init__(self):
         self.db = redis.Redis(
-            host=Config.Redis_Host,
-            port=Config.Redis_Port
+            host=Config.REDIS_HOST,
+            port=Config.REDIS_PORT
         )
 
     def __del__(self):

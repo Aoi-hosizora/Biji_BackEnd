@@ -1,10 +1,11 @@
 from flask import Blueprint, g, request
 from flask_httpauth import HTTPTokenAuth
 
-from app.database.DbErrorType import DbErrorType
+from app.database.DbStatusType import DbStatusType
 from app.database.dao.ScheduleDao import ScheduleDao
 from app.model.dto.Result import Result
 from app.model.dto.ResultCode import ResultCode
+from app.route.ParamType import ParamError, ParamType
 
 
 def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
@@ -28,9 +29,11 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():
         """ 更新/新建 课程表 """
-        schedule_data = request.get_data(as_text=True)
+        schedule_data = request.form.get('schedule')
+        if not schedule_data:
+            raise ParamError(ParamType.FORM)
         status = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
-        if status == DbErrorType.FAILED:
+        if status == DbStatusType.FAILED:
             return Result.error().setMessage('Update Schedule Failed').json_ret()
         else:
             return Result.ok().json_ret()
@@ -40,9 +43,9 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     def DeleteRoute():
         """ 删除 课程表 """
         status = ScheduleDao().deleteSchedule(uid=g.user)
-        if status == DbErrorType.NOT_FOUND:
+        if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage('Schedule Not Found').json_ret()
-        elif status == DbErrorType.FAILED:
+        elif status == DbStatusType.FAILED:
             return Result.error().setMessage('Delete Schedule Failed').json_ret()
         else:
             return Result.ok().json_ret()

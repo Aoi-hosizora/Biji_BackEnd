@@ -1,11 +1,12 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from app.database.DbErrorType import DbErrorType
+from app.config.Config import Config
+from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
-from app.model.po.DocumentClass import DocumentClass, DEF_DOC_CLASS
+from app.model.po.DocClass import DocClass, DEF_DOC_CLASS
 
 
-class DocumentClassDao(MySQLHelper):
+class DocClassDao(MySQLHelper):
     tbl_name = "tbl_doc_class"
 
     col_user = "dc_user"
@@ -26,7 +27,7 @@ class DocumentClassDao(MySQLHelper):
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
                     {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_name} VARCHAR(100) NOT NULL UNIQUE,
+                    {self.col_name} VARCHAR({Config.FMT_DOCCLASS_NAME_MAX}) NOT NULL UNIQUE,
                     PRIMARY KEY ({self.col_user}, {self.col_id})
                 )
             ''')
@@ -38,11 +39,11 @@ class DocumentClassDao(MySQLHelper):
             cursor.close()
         return True
 
-    def queryAllDocumentClasses(self, uid: int) -> List[DocumentClass]:
+    def queryAllDocClasses(self, uid: int) -> List[DocClass]:
         """
         查询所有文件分组
         """
-        self.processDocumentClass(uid)  # 查询前处理
+        self.processDocClass(uid)  # 查询前处理
 
         cursor = self.db.cursor()
         cursor.execute(f'''
@@ -55,109 +56,95 @@ class DocumentClassDao(MySQLHelper):
         for result in results:
             # noinspection PyBroadException
             try:
-                returns.append(DocumentClass(cid=result[1], name=result[2]))
+                returns.append(DocClass(cid=result[1], name=result[2]))
             except:
                 pass
 
         cursor.close()
         return results
 
-    def queryDocumentClassById(self, uid: int, cid: int) -> Optional[DocumentClass]:
+    def queryDocClassByIdOrName(self, uid: int, cid_name: Union[int, str]) -> Optional[DocClass]:
         """
         根据 id 查询文件分组
         """
-        self.processDocumentClass(uid)  # 查询前处理
+        self.processDocClass(uid)  # 查询前处理
 
         cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_name}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_id} = {cid}
-        ''')
+        if isinstance(cid_name, int):
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_name}
+                FROM {self.tbl_name}
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {cid_name}
+            ''')
+        else:
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_name}
+                FROM {self.tbl_name}
+                WHERE {self.col_user} = {uid} AND {self.col_name} = '{cid_name}'
+            ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
-            return DocumentClass(cid=result[1], name=result[2])
+            return DocClass(cid=result[1], name=result[2])
         except:
             return None
         finally:
             cursor.close()
 
-    def queryDocumentClassByName(self, uid: int, name: str) -> Optional[DocumentClass]:
-        """
-        根据 name 查询文件分组
-        """
-        self.processDocumentClass(uid)  # 查询前处理
-
-        cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_name}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
-        ''')
-        result = cursor.fetchone()
-        # noinspection PyBroadException
-        try:
-            return DocumentClass(cid=result[1], name=result[2])
-        except:
-            return None
-        finally:
-            cursor.close()
-
-    def queryDefaultDocumentClass(self, uid: int) -> DocumentClass:
+    def queryDefaultDocClass(self, uid: int) -> DocClass:
         """
         查询默认分组
         """
-        return self.queryDocumentClassByName(uid, DEF_DOC_CLASS.name)
+        return self.queryDocClassByIdOrName(uid, cid_name=DEF_DOC_CLASS.name)
 
     #######################################################################################################################
 
-    def insertDocumentClass(self, uid: int, docClass: DocumentClass) -> (DbErrorType, DocumentClass):
+    def insertDocClass(self, uid: int, docClass: DocClass) -> (DbStatusType, DocClass):
         """
-        插入新分组
-        :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
+        插入新分组 (name) SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
-        if self.queryDocumentClassById(uid, docClass.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED, None
-        if self.queryDocumentClassByName(uid, docClass.name) is not None:  # 重复
-            return DbErrorType.DUPLICATE, None
-        self.processDocumentClass(uid)  # 插入前处理
+        if self.queryDocClassByIdOrName(uid, cid_name=docClass.id) is not None:  # 已存在
+            return DbStatusType.FOUNDED, None
+        if self.queryDocClassByIdOrName(uid, cid_name=docClass.name) is not None:  # 重复
+            return DbStatusType.DUPLICATE, None
+        self.processDocClass(uid)  # 插入前处理
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_id}, {self.col_name})
-                VALUES ({uid}, {docClass.id}, '{docClass.name}')
+                INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_name})
+                VALUES ({uid}, '{docClass.name}')
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED, None
-            new_docClass_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_docClass = self.queryDocumentClassById(uid, new_docClass_id)
-            return DbErrorType.SUCCESS, new_docClass
+                return DbStatusType.FAILED, None
+
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_docClass_id = int(cursor.fetchone()[0])
+            new_docClass = self.queryDocClassByIdOrName(uid, new_docClass_id)
+            return DbStatusType.SUCCESS, new_docClass
         except:
             self.db.rollback()
-            return DbErrorType.FAILED, None
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def updateDocumentClass(self, uid: int, docClass: DocumentClass) -> DbErrorType:
+    def updateDocClass(self, uid: int, docClass: DocClass) -> (DbStatusType, DocClass):
         """
-        更新分组 (name)
-        :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
+        更新分组 (name) SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
         """
-        if self.queryDocumentClassById(uid, docClass.id) is None:  # 不存在
-            return DbErrorType.NOT_FOUND
-        if self.queryDocumentClassByName(uid, docClass.name) is not None:  # 重复
-            return DbErrorType.DUPLICATE
-        self.processDocumentClass(uid)  # 更新前处理
+        if self.queryDocClassByIdOrName(uid, docClass.id) is None:  # 不存在
+            return DbStatusType.NOT_FOUND, None
+        if self.queryDocClassByIdOrName(uid, docClass.name) is not None:  # 重复
+            return DbStatusType.DUPLICATE, None
+        self.processDocClass(uid)  # 更新前处理
 
         # 修改默认分组名
-        defClass = self.queryDefaultDocumentClass(uid)
+        defClass = self.queryDefaultDocClass(uid)
         if docClass.id == defClass.id and docClass.name != defClass:
-            return DbErrorType.DEFAULT
+            return DbStatusType.DEFAULT, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -167,29 +154,32 @@ class DocumentClassDao(MySQLHelper):
                 WHERE {self.col_user} = {uid} AND {self.col_id} = {docClass.id}
                 SET {self.col_name} = '{docClass.name}'
             ''')
-
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbStatusType.FAILED, None
+
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_docclass_id = int(cursor.fetchone()[0])
+            new_docclass = self.queryDocClassByIdOrName(uid, new_docclass_id)
+            return DbStatusType.SUCCESS, new_docclass
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
-    def deleteDocumentClass(self, uid: int, cid: int) -> DbErrorType:
+    def deleteDocClass(self, uid: int, cid: int) -> DbStatusType:
         """
         删除一个分组
         :return: SUCCESS | NOT_FOUND | DEFAULT | FAILED
         """
-        if self.queryDocumentClassById(uid, cid) is None:  # 不存在
-            return DbErrorType.NOT_FOUND
+        if self.queryDocClassByIdOrName(uid, cid) is None:  # 不存在
+            return DbStatusType.NOT_FOUND
 
         # 删除默认分组
-        if cid == self.queryDefaultDocumentClass(uid).id:
-            return DbErrorType.DEFAULT
+        if cid == self.queryDefaultDocClass(uid).id:
+            return DbStatusType.DEFAULT
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -200,20 +190,20 @@ class DocumentClassDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
+                return DbStatusType.FAILED
 
-            self.processDocumentClass(uid)  # 删除后处理
-            return DbErrorType.SUCCESS
+            self.processDocClass(uid)  # 删除后处理
+            return DbStatusType.SUCCESS
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED
         finally:
             self.db.commit()
             cursor.close()
 
     ####################################################################################
 
-    def processDocumentClass(self, uid: int):
+    def processDocClass(self, uid: int):
         """
         操作前后 处理默认分组
         """
@@ -226,7 +216,7 @@ class DocumentClassDao(MySQLHelper):
             ''')
             return cursor.rowcount != 0
 
-        def insert(docClass: DocumentClass):
+        def insert(docClass: DocClass):
             cursor = self.db.cursor()
             # noinspection PyBroadException
             try:

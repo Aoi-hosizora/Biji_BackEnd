@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class DbErrorType(Enum):
+class DbStatusType(Enum):
     """
     数据库操作后的状态枚举
     """

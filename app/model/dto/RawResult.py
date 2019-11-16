@@ -24,6 +24,8 @@ class RawResult(object):
         """ 错误码返回数据 """
         return RawResult(code=err.code)
 
+    ########################################################################################################################################
+
     def setCode(self, code: int):
         """ 链式设置响应状态码 """
         self.code = code
@@ -33,6 +35,8 @@ class RawResult(object):
         """ 链式设置返回数据 """
         self.data = data
         return self
+
+    ########################################################################################################################################
 
     def raw_ret(self, headers=None, is_image=True) -> Response:
         """ 自定义二进制数据返回 Response """

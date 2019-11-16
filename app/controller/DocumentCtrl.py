@@ -1,16 +1,14 @@
-import json
 import os
 
 from flask import Blueprint, g, request
 from flask_httpauth import HTTPTokenAuth
 
-from app.database.DbErrorType import DbErrorType
+from app.database.DbStatusType import DbStatusType
 from app.database.dao.DocumentDao import DocumentDao
 from app.model.dto.Result import Result
 from app.model.dto.ResultCode import ResultCode
 from app.model.po.Document import Document
-from app.model.po.DocumentClass import DocumentClass
-from app.route.ParamError import ParamError, ParamType
+from app.route.ParamType import ParamError, ParamType
 from app.util import FileUtil
 
 
@@ -51,7 +49,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         try:
             upload_file = request.files.get('file')
             req_filename = request.form['filename']
-            req_docClass = int(request.form['docClass'])
+            req_docClass = int(request.form['docClass_id'])
             if not (upload_file and req_filename and req_docClass):
                 raise ParamError(ParamType.FORM)
         except:
@@ -66,17 +64,14 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error().setMessage('Document Save Failed').json_ret()
 
         # Database
-        document = Document(  # 只用到 filename, server_filename, docClass.cid
-            did=-1, filename=req_filename, server_filename=server_filename,
-            docClass=DocumentClass(cid=req_docClass, name='')
-        )
+        document = Document(did=-1, filename=req_filename, uuid=server_filename, docClass=req_docClass)
         status, new_document = DocumentDao().insertDocument(uid=g.user, document=document)
-        if status == DbErrorType.FOUNDED:  # -1 永远不会
+        if status == DbStatusType.FOUNDED:  # -1 永远不会
             os.remove(server_filepath + server_filename)
-            return Result.error().setMessage("Document Existed").json_ret()
-        elif status == DbErrorType.FAILED or not new_document:
+            return Result.error(ResultCode.HAS_EXISTED).setMessage("Document Existed").json_ret()
+        elif status == DbStatusType.FAILED or not new_document:
             os.remove(server_filepath + server_filename)
-            return Result.error().setMessage("Document Insert Failed").json_ret()
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Insert Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_document.to_json()).json_ret()
 
@@ -84,17 +79,21 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():
         """ 更新文件 """
-        # 文件名 文件类别
-        # TODO 文件操作
-        rawJson = json.loads(request.get_data(as_text=True))
-        document = Document.from_json(rawJson)
-        status = DocumentDao().updateDocument(uid=g.user, document=document)
-        if status == DbErrorType.NOT_FOUND:
+        try:
+            req_id = int(request.form['id'])
+            req_filename = request.form['filename']
+            req_docClass = int(request.form['docClass_id'])
+        except:
+            raise ParamError(ParamType.FORM)
+        req_doc = Document(did=req_id, filename=req_filename, docClass=req_docClass)
+
+        status, new_doc = DocumentDao().updateDocument(uid=g.user, document=req_doc)
+        if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
-        elif status == DbErrorType.FAILED:
-            return Result.error().setMessage("Document Update Failed").json_ret()
+        elif status == DbStatusType.FAILED:
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Update Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(document.to_json()).json_ret()
+            return Result.ok().setData(new_doc.to_json()).json_ret()
 
     @auth.login_required
     @blue.route('/<int:did>', methods=['DELETE'])
@@ -102,13 +101,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 删除文件 (DB+FS) """
         document: Document = DocumentDao().queryDocumentById(uid=g.user, did=did)
         status = DocumentDao().deleteDocument(uid=g.user, did=did)
-        if status == DbErrorType.NOT_FOUND or not document:
+        if status == DbStatusType.NOT_FOUND or not document:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
-        elif status == DbErrorType.FAILED:
-            return Result.error().setMessage("Document Delete Failed").json_ret()
+        elif status == DbStatusType.FAILED:
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Delete Failed").json_ret()
         else:  # Success
             server_filepath = f'./usr/image/{g.user}/'
-            server_filename = document.server_filename
+            server_filename = document.uuid
             os.remove(server_filepath + server_filename)
             return Result.ok().json_ret()
 
@@ -131,7 +130,7 @@ def GetSharedFiles():
 
     if FileCtrl.checkShareCode(usernameShared + foldernameShared, shareCodeJson):
         
-        fileClass = FileClassCtrl.getOneFileClass(usernameShared, DocumentClass(0, foldernameShared))
+        fileClass = FileClassCtrl.getOneFileClass(usernameShared, DocClass(0, foldernameShared))
         files = FileCtrl.getAllFiles(usernameShared, foldernameShared)
         for file in files:
             file.username = username

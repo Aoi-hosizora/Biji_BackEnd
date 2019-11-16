@@ -4,7 +4,7 @@ from app.model.dto.ResultCode import ResultCode
 from app.model.dto.Result import Result
 from itsdangerous import SignatureExpired, BadSignature
 
-from app.route.ParamError import ParamError, ParamType
+from app.route.ParamType import ParamError, ParamType
 
 
 def setup_error_forward(app: Flask):
@@ -15,6 +15,10 @@ def setup_error_forward(app: Flask):
     @app.errorhandler(400)
     def error_400():
         return Result.error(ResultCode.BAD_REQUEST).json_ret()
+
+    @app.errorhandler(401)
+    def error_401():
+        return Result.error(ResultCode.UNAUTHORIZED).json_ret()
 
     @app.errorhandler(403)
     def error_403():
@@ -50,4 +54,4 @@ def setup_error_forward(app: Flask):
                       'Request Raw Json Param Error'
             return Result.error(ResultCode.BAD_REQUEST).setMessage(message).json_ret()  # 400
 
-        return Result.error(ResultCode.INTERNAL_SERVER_ERROR).json_ret()  # 500
+        return Result.error(ResultCode.INTERNAL_SERVER_ERROR).setMessage(str(error)).json_ret()  # 500

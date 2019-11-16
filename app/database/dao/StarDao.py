@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from app.database.DbErrorType import DbErrorType
+from app.config.Config import Config
+from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 from app.model.po.StarItem import StarItem
 
@@ -10,8 +11,8 @@ class StarDao(MySQLHelper):
 
     col_user = 'sis_user'
     col_id = 'sis_id'
-    col_title = 'sis_title'
     col_url = 'sis_url'
+    col_title = 'sis_title'
     col_content = 'sis_content'
 
     def __init__(self):
@@ -28,9 +29,9 @@ class StarDao(MySQLHelper):
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
                     {self.col_id} INT AUTO_INCREMENT,
-                    {self.col_title} VARCHAR(100) NOT NULL,
-                    {self.col_url} VARCHAR(200) NOT NULL UNIQUE,
-                    {self.col_content} VARCHAR(300) NOT NULL,
+                    {self.col_url} TEXT NOT NULL UNIQUE,
+                    {self.col_title} VARCHAR({Config.FMT_STAR_TITLE_MAX}) NOT NULL,
+                    {self.col_content} VARCHAR({Config.FMT_STAR_CONTENT_MAX}),
                     PRIMARY KEY ({self.col_user}, {self.col_id})
                 )
             ''')
@@ -66,35 +67,23 @@ class StarDao(MySQLHelper):
         cursor.close()
         return returns
 
-    def queryStarById(self, uid: int, sid: int) -> Optional[StarItem]:
+    def queryStarByIdOrUrl(self, uid: int, sid_url: Union[int, str]) -> Optional[StarItem]:
         """
-        根据 sid 查询收藏
-        """
-        cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
-            FROM {self.tbl_name} 
-            WHERE {self.col_user} = {uid} and {self.col_id} = {sid}
-        ''')
-        result = cursor.fetchone()
-        # noinspection PyBroadException
-        try:
-            return StarItem(sid=result[1], url=result[2], title=result[3], content=result[4])
-        except:
-            return None
-        finally:
-            cursor.close()
-
-    def queryStarByUrl(self, uid: int, url: str) -> Optional[StarItem]:
-        """
-        根据 uid 查询收藏
+        根据 sid / url 查询收藏
         """
         cursor = self.db.cursor()
-        cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
-            FROM {self.tbl_name} 
-            WHERE {self.col_user} = {uid} and {self.col_url} = '{url}'
-        ''')
+        if isinstance(sid_url, int):
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
+                FROM {self.tbl_name} 
+                WHERE {self.col_user} = {uid} and {self.col_id} = {sid_url}
+            ''')
+        else:
+            cursor.execute(f'''
+                SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
+                FROM {self.tbl_name} 
+                WHERE {self.col_user} = {uid} and {self.col_url} = '{sid_url}'
+            ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
@@ -106,63 +95,33 @@ class StarDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertStar(self, uid: int, star: StarItem) -> (DbErrorType, StarItem):
+    def insertStar(self, uid: int, star: StarItem) -> (DbStatusType, StarItem):
         """
-        插入新收藏
-        :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
+        插入新收藏 (url, title, content) SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
-        if self.queryStarById(uid, star.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED, None
-        if self.queryStarByUrl(uid, star.url) is not None:  # url 重复
-            return DbErrorType.DUPLICATE, None
+        if self.queryStarByIdOrUrl(uid, star.id) is not None:  # 已存在
+            return DbStatusType.FOUNDED, None
+        if self.queryStarByIdOrUrl(uid, star.url) is not None:  # url 重复
+            return DbStatusType.DUPLICATE, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_url}, {self.col_title}, {self.col_content}
-                )
-                VALUES (
-                    {uid}, '{star.url}', '{star.title}', '{star.content}'
-                )
+                INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_url}, {self.col_title}, {self.col_content})
+                VALUES ({uid}, '{star.url}', '{star.title}', '{star.content}')
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED, None
+                return DbStatusType.FAILED, None
 
-            new_star_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
-            new_star = self.queryStarById(uid, new_star_id)
-            return DbErrorType.SUCCESS, new_star
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_star_id = int(cursor.fetchone()[0])
+            new_star = self.queryStarByIdOrUrl(uid, new_star_id)
+            return DbStatusType.SUCCESS, new_star
         except:
             self.db.rollback()
-            return DbErrorType.FAILED, None
-        finally:
-            self.db.commit()
-            cursor.close()
-
-    def deleteStar(self, uid: int, sid: int) -> DbErrorType:
-        """
-        删除一个分组
-        :return: SUCCESS | NOT_FOUND | FAILED
-        """
-        if self.queryStarById(uid, sid) is None:
-            return DbErrorType.NOT_FOUND
-
-        cursor = self.db.cursor()
-        # noinspection PyBroadException
-        try:
-            cursor.execute(f'''
-                DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {sid}
-            ''')
-            if cursor.rowcount == 0:
-                self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
-        except:
-            self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
@@ -170,7 +129,7 @@ class StarDao(MySQLHelper):
     def deleteStars(self, uid: int, ids: List[int]) -> int:
         """
         删除多个分组
-        :return: 更新的数目 -1 for error
+        :return: 删除的数目 -1 for error
         """
         cursor = self.db.cursor()
         # noinspection PyBroadException

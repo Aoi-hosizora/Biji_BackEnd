@@ -1,6 +1,7 @@
 from typing import Optional
 
-from app.database.DbErrorType import DbErrorType
+from app.config.Config import Config
+from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 from app.model.po.User import User
 from app.util import AuthUtil
@@ -31,8 +32,8 @@ class UserDao(MySQLHelper):
             cursor.execute(f'''
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_username} VARCHAR(30) UNIQUE,
-                    {self.col_password} VARCHAR(120) NOT NULL
+                    {self.col_username} VARCHAR({Config.FMT_USERNAME_MAX}) NOT NULL UNIQUE,
+                    {self.col_password} VARCHAR({Config.FMT_PASSWORD_MAX}) NOT NULL
                 )
             ''')
         except:
@@ -43,27 +44,6 @@ class UserDao(MySQLHelper):
             cursor.close()
         return True
 
-    # def queryAllUsers(self) -> List[User]:
-    #     """
-    #     查询所有用户
-    #     """
-    #     cursor = self.db.cursor()
-    #     cursor.execute(f'''
-    #         SELECT {self.col_id}, {self.col_username}, {self.col_password} FROM {self.tbl_name}
-    #     ''')
-    #
-    #     returns = []
-    #     results = cursor.fetchall()
-    #     for result in results:
-    #         # noinspection PyBroadException
-    #         try:
-    #             returns.append(User(uid=result[0], username=result[1], encrypted_pass=result[2]))
-    #         except:
-    #             pass
-    #
-    #     cursor.close()
-    #     return returns
-
     def queryUserById(self, uid: int) -> Optional[User]:
         """
         根据 uid 查询用户
@@ -72,7 +52,7 @@ class UserDao(MySQLHelper):
         cursor.execute(f'''
             SELECT {self.col_id}, {self.col_username}, {self.col_password} 
             FROM {self.tbl_name}
-            WHERE {self.col_id} = '{uid}'
+            WHERE {self.col_id} = {uid}
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -102,31 +82,31 @@ class UserDao(MySQLHelper):
         finally:
             cursor.close()
 
-    def checkUserPassword(self, username: str, unencrypted_pass: str) -> (DbErrorType, User):
+    def checkUserPassword(self, username: str, unencrypted_pass: str) -> (DbStatusType, User):
         """
         检查用户密码正确
         :return: SUCCESS | NOT_FOUND | FAILED (密码不一致) & User
         """
         user = self.queryUserByName(username)
         if user is None:
-            return DbErrorType.NOT_FOUND, None
+            return DbStatusType.NOT_FOUND, None
 
         if AuthUtil.verify_password(password=unencrypted_pass, encrypted_password=user.encrypted_pass):
-            return DbErrorType.SUCCESS, user
+            return DbStatusType.SUCCESS, user
         else:
-            return DbErrorType.FAILED, None
+            return DbStatusType.FAILED, None
 
     #######################################################################################################################
 
-    def insertUser(self, username: str, unencrypted_pass: str) -> (DbErrorType, User):
+    def insertUser(self, username: str, unencrypted_pass: str) -> (DbStatusType, User):
         """
         加密密码并创建新用户
         :return: SUCCESS | FOUNDED | FAILED
         """
-        encrypted_pass = AuthUtil.encrypt_password(unencrypted_pass)
-        if self.queryUserByName(username) is not None:
-            return DbErrorType.FOUNDED
+        if self.queryUserByName(username):
+            return DbStatusType.FOUNDED
 
+        encrypted_pass = AuthUtil.encrypt_password(unencrypted_pass)
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
@@ -136,37 +116,15 @@ class UserDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
+                return DbStatusType.FAILED
 
-            new_uid = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_uid = cursor.fetchone()[0]
             new_user = self.queryUserById(new_uid)
-            return DbErrorType.SUCCESS, new_user
+            return DbStatusType.SUCCESS, new_user
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbStatusType.FAILED
         finally:
             self.db.commit()
             cursor.close()
-
-    # def deleteUser(self, username: str) -> DbErrorType:
-    #     """
-    #     删除用户
-    #     :return: SUCCESS | NOT_FOUND | FAILED
-    #     """
-    #     if self.queryUserByName(username) is None:
-    #         return DbErrorType.NOT_FOUND
-    #
-    #     cursor = self.db.cursor()
-    #     # noinspection PyBroadException
-    #     try:
-    #         cursor.execute(f'''DELETE FROM {self.tbl_name} WHERE {self.col_username} = '{username}' ''')
-    #         if cursor.rowcount == 0:
-    #             self.db.rollback()
-    #             return DbErrorType.FAILED
-    #         return DbErrorType.SUCCESS
-    #     except:
-    #         self.db.rollback()
-    #         return DbErrorType.FAILED
-    #     finally:
-    #         self.db.commit()
-    #         cursor.close()
