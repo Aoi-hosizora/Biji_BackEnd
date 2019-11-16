@@ -20,7 +20,7 @@ def is_image(filename: str) -> bool:
 def is_document(filename: str) -> bool:
     """ 通过后缀名判断 文档类型 """
     ext = get_ext(filename)
-    supported = ['txt', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'rar']
+    supported = ['txt', 'md', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'rar']
     return ext in supported
 
 
@@ -40,9 +40,9 @@ def saveFile(file, path: str, file_image: bool) -> (str, bool, bool):
     """
     保存文件
     :param file: request.files.get('file')
-    :param path: f'./usr/blob/{g.user}/' 不加最后的文件名
+    :param path: f'{Config.UPLOAD_FOLDER}/xxx/{g.user}/' 不加最后的文件名
     :param file_image: 上传的文件是否是图片,判断后缀名
-    :return: 文件格式正确，是否保存成功
+    :return: 文件格式 (is_image / is_document) 正确，是否保存成功 (os.path.exists)
     """
     filename: str = secure_filename(file.filename)  # 旧文件名
     if file_image and not is_image(filename):  # 非图片

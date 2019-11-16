@@ -3,6 +3,7 @@ import os
 from flask import Blueprint, g, request
 from flask_httpauth import HTTPTokenAuth
 
+from app.config.Config import Config
 from app.database.DbStatusType import DbStatusType
 from app.database.dao.DocumentDao import DocumentDao
 from app.model.dto.Result import Result
@@ -20,21 +21,21 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['GET'])
     def GetAllRoute():
-        """ 所有文件 """
+        """ 所有文档 """
         documents = DocumentDao().queryAllDocuments(g.user)
         return Result().ok().setData(Document.to_jsons(documents)).json_ret()
 
     @auth.login_required
     @blue.route('/class/<int:cid>', methods=['GET'])
     def GetClassRoute(cid: int):
-        """ classId 查询文件 """
+        """ classId 查询文档 """
         documents = DocumentDao().queryDocumentsByClassId(uid=g.user, cid=cid)
         return Result().ok().setData(Document.to_jsons(documents)).json_ret()
 
     @auth.login_required
     @blue.route('/<int:did>', methods=['GET'])
     def GetOneRoute(did: int):
-        """ did 查询文件 """
+        """ did 查询文档 """
         document = DocumentDao().queryDocumentById(uid=g.user, did=did)
         if not document:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
@@ -45,7 +46,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['POST'])
     def InsertRoute():
-        """ 插入文件 (使用 form-Data) """
+        """ 插入文档 (DB + FS) """
         try:
             upload_file = request.files.get('file')
             req_filename = request.form['filename']
@@ -56,21 +57,21 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             raise ParamError(ParamType.FORM)
 
         # Save
-        server_filepath = f'./usr/image/{g.user}/'
+        server_filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
         server_filename, type_ok, save_ok = FileUtil.saveFile(file=upload_file, path=server_filepath, file_image=False)
         if not type_ok:  # 格式错误
-            return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
+            return Result.error(ResultCode.BAD_REQUEST).setMessage('File Extension Error').json_ret()
         if not save_ok:  # 保存失败
-            return Result.error().setMessage('Document Save Failed').json_ret()
+            return Result.error(ResultCode.SAVE_FILE_FAILED).setMessage('Save Document Failed').json_ret()
 
         # Database
         document = Document(did=-1, filename=req_filename, uuid=server_filename, docClass=req_docClass)
         status, new_document = DocumentDao().insertDocument(uid=g.user, document=document)
         if status == DbStatusType.FOUNDED:  # -1 永远不会
-            os.remove(server_filepath + server_filename)
+            os.remove(os.path.join(server_filepath, server_filename))
             return Result.error(ResultCode.HAS_EXISTED).setMessage("Document Existed").json_ret()
         elif status == DbStatusType.FAILED or not new_document:
-            os.remove(server_filepath + server_filename)
+            os.remove(os.path.join(server_filepath, server_filename))
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Insert Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_document.to_json()).json_ret()
@@ -78,7 +79,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/', methods=['PUT'])
     def UpdateRoute():
-        """ 更新文件 """
+        """ 更新文档 (DB) """
         try:
             req_id = int(request.form['id'])
             req_filename = request.form['filename']
@@ -98,7 +99,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @auth.login_required
     @blue.route('/<int:did>', methods=['DELETE'])
     def DeleteRoute(did: int):
-        """ 删除文件 (DB+FS) """
+        """ 删除文档 (DB + FS) """
         document: Document = DocumentDao().queryDocumentById(uid=g.user, did=did)
         status = DocumentDao().deleteDocument(uid=g.user, did=did)
         if status == DbStatusType.NOT_FOUND or not document:
@@ -106,9 +107,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Delete Failed").json_ret()
         else:  # Success
-            server_filepath = f'./usr/image/{g.user}/'
-            server_filename = document.uuid
-            os.remove(server_filepath + server_filename)
+            server_filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/{document.uuid}'
+            os.remove(server_filepath)
             return Result.ok().setData(document.to_json()).json_ret()
 
 

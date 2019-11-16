@@ -5,9 +5,7 @@
 |Date|Remark|
 |--|--|
 |`2019/08/02`|Complete note module|
-|`2019/08/03`|Add `ImgBlue`|
 |`2019/08/07`|Add `PushNote` and `PushGroup` route|
-|`2019/08/09`|Add `DeleteImg` route|
 |`2019/11/16`|Reconstruct backend|
 
 ## URI

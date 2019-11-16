@@ -156,7 +156,6 @@ Example:
 |Code|Message|Description|
 |--|--|--|
 |404|`Document Not Found`||
-|400|`Upload File Type Error`||
 |601|`Document Existed`||
 |600|`Document Insert Failed`||
 |600|`Document Update Failed`||
@@ -169,3 +168,5 @@ Example:
 |602|`Document Class Name Duplicate`||
 |602|`Could Not Update Default Document Class`||
 |602|`Could Not Delete Default Document Class`||
+|400|`File Extension Error`||
+|603|`Save Document Failed`||

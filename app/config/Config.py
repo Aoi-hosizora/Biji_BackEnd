@@ -4,7 +4,9 @@ class Config(object):
     SERVER_PORT = 8001
 
     SECRET_KEY = '{786C8A4B-9492-47C2-982D-74CECD921E74}'  # random uuid
-    UPLOAD_FOLDER = './usr/'
+    UPLOAD_FOLDER = './user/'
+    UPLOAD_IMAGE_FOLDER = './user/image'
+    UPLOAD_DOC_FOLDER = './user/document'
 
     # database
     MYSQL_HOST = 'localhost'

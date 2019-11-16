@@ -26,3 +26,4 @@ class ResultCode(Enum):
     DATABASE_FAILED = 600, 'Database Failed'
     HAS_EXISTED = 601, 'Has Existed'
     DUPLICATE_DEFAULT = 602, 'Data Duplicate Or Default'
+    SAVE_FILE_FAILED = 603, 'Save File Failed'
