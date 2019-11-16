@@ -8,8 +8,8 @@
 + `Redis` for linux
 
 ### Modules
-+ Auth
-+ Note, Star, Schedule, Document
++ Auth, Note, Star, Schedule, Document
++ Api see [api.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/api.md)
 
 ### Config
 + See [Config.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Config/Config.py)

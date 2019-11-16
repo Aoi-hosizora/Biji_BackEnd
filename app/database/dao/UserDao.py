@@ -118,7 +118,7 @@ class UserDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertUser(self, username: str, unencrypted_pass: str) -> DbErrorType:
+    def insertUser(self, username: str, unencrypted_pass: str) -> (DbErrorType, User):
         """
         加密密码并创建新用户
         :return: SUCCESS | FOUNDED | FAILED
@@ -137,7 +137,10 @@ class UserDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+
+            new_uid = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_user = self.queryUserById(new_uid)
+            return DbErrorType.SUCCESS, new_user
         except:
             self.db.rollback()
             return DbErrorType.FAILED

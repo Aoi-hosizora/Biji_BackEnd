@@ -5,83 +5,73 @@
 |Date|Remark|
 |--|--|
 |`2019/08/04`|Complete schedule module|
+|`2019/11/16`|Reconstruct backend|
 
 ## URI
 
 |Method|Uri|Description|
 |--|--|--|
-|`GET`|`/schedule/download`|Download a schedule|
-|`POST`|`/schedule/upload`|Upload a schedule \*\*|
-|`DELETE`|`/schedule/delete`|Delete a schedule|
-|`PUT`|`/schedule/update`|Update a schedule \*\*|
-|`POST`|`/schedule/push`|Push a schedule \*\*|
+|`GET`|`/schedule/`|获取用户课表 <sup>[4]</sup>|
+|`PUT`|`/schedule/`|更新用户课表 <sup>[1] [4]</sup>|
+|`DELETE`|`/schedule/`|删除用户课表 <sup>[4]</sup>|
 
++ [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-body)
++ [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-route-param)
++ [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-query-param)
++ [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#request-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md#response-header)
 
-[\* Need request query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md#request-query-param)
-
-[\*\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md#request-body)
+---
 
 ## Request Header
 
-+ Global
++ Routes needed authorization
 
 |Key|Is Required|Description|
 |--|--|--|
-|`Authorization`|Required|User Login Token|
+|`Authorization`|Required|User login token (Start with `Bearer`)|
 
 ## Request Query Param
 
-+ Nothing
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
 
-## Request Body
-
-+ `POST` `/schedule/upload`
-+ `DELETE` `/schedule/update`
-+ `POST` `/schedule/push`
+## Request Route Param
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`schedulejson`|`string`|Required|Schedule json string||
 
-Example:
+## Request Body
 
-```json
-{
-    "schedulejson": "[{\"name\": \"Math\", \"teacher\": \"Han Meimei\", \"Room\": \"A2302\", \"day\": 3, \"time\": \"理论：48 实验：16\", \"weeklist\": [1, 2, 3, 4, 5], \"id\": 2, \"start\": 3, \"step\": 2}]"
-}
-```
++ `PUT /schedule/`
 
-## Response Body
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`data`|`string`|Required|用户课表指定格式 Json 字符串|直接置于外层 Json 的 `data`|
 
-+ `GET /schedule/download`
-    + Same as [request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md#request-body)
+---
 
-+ `POST` `/schedule/upload`
-+ `DELETE` `/schedule/delete`
-+ `PUT` `/schedule/update`
-+ `POST` `/schedule/push`
+## Response Header
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`message`|`string`|Upload status||
 
-Example:
+## Response Body
 
-```json
-{
-    "message": "Schedule upload success"
-}
-```
++ `GET /schedule/`
 
-## Error Message Type
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`data`|`string`|用户课表 Json|直接置于外层 Json 的 `data`|
 
-+ Public error code and error message type see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
+---
 
-|Message|Description|
-|--|--|
-|`Not Exist Error`|Delete an unexist schedule|
-|`Exist Error`|Insert an exist schedule|
-|`Insert Error`|Insert into database error|
-|`Delete Error`|Delete from database error|
-|`Update Error`|Update from database error|
-|`Schedule Upload Error`|Schedule not exist or upload error|
+## Error Message
+
++ Other public error message see [api.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/api.md)
+
+|Code|Message|Description|
+|--|--|--|
+|404|`Schedule Not Found`||
+|500|`Update Schedule Failed`||
+|500|`Delete Schedule Failed`||

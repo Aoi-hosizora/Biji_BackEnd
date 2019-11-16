@@ -21,9 +21,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         try:
             username = request.form['username']
             password = request.form['password']
-            ex = request.form['expiration']
         except:
             raise ParamError(ParamType.FORM)
+
+        try:
+            ex = request.form['expiration']
+        except KeyError:
+            ex = 1 * 24 * 3600 * 1000  # 1 days
 
         status, user = UserDao().checkUserPassword(username, password)
         if status == DbErrorType.FAILED:
@@ -46,13 +50,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
 
-        status = UserDao().insertUser(username, password)
+        status, new_user = UserDao().insertUser(username, password)
         if status == DbErrorType.FAILED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("Register Failed").json_ret()
         elif status == DbErrorType.FOUNDED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("User Existed").json_ret()
         else:  # Success
-            return Result.ok().putData("username", username).json_ret()
+            return Result.ok().setData(new_user.to_json()).json_ret()
 
     @blue.route("/logout", methods=['POST'])
     @auth.login_required
@@ -60,6 +64,6 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 注销 """
         count = UserTokenDao().removeToken(g.user)
         if count == 0:
-            return Result.error(ResultCode.SUCCESS).setMessage("Logout Failed").json_ret()
+            return Result.error().setMessage("Logout Failed").json_ret()
         else:
-            return Result.error(ResultCode.SUCCESS).putData("count", count).json_ret()
+            return Result.ok().putData("count", count).json_ret()

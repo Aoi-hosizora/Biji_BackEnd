@@ -1,48 +1,53 @@
-# Public Server Api
+# Biji Public Server Api
 
-## Modules API Document
-+ Auth doc see [Auth](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md)
-+ Note doc see [Note](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md)
-+ Star doc see [Star](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Star/readme.md)
-+ File doc see [File](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/File/readme.md)
-+ Schedule doc see [Schedule](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Schedule/readme.md)
-+ Log doc see [Log](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Log/readme.md)
+## Module API Documents
++ Authorization module see [auth.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md)
++ Note module see [note.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md)
++ Search Star module see [star.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md)
++ Schedule module see [schedule.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md)
++ Document module see [document.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md)
++ File raw subroute see [raw.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md)
 
 ## Revision
 
 |Date|Remark|
 |--|--|
 |`2019/08/02`|Complete project structure & global error msg|
+|`2019/11/16`|Reconstruct the project|
 
-
-## Log Route
-
-
-## Status Code
-
-+ Error code see [ErrorUtil.py](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Utils/ErrorUtil.py)
-
-## Public Error Response
+## Common Response Body Format
 
 |Field|Type|Description|
 |--|--|--|
-|`message`|`string`|Error main title|
-|`detail`|`string`|Error detail description|
+|`code`|`int`|Response code|
+|`message`|`string`|Response message (error message)|
+|`data`|`nullable`|Response Body Data|
 
 + Example:
 
 ```json
 {
-    "message": "Body Json Error",
-    "detail": "Body: json key-value error, key ['title', 'url'] not found or error"
+    "code": 200,
+    "message": "Success",
+    "data": {}
 }
 ```
 
-## Public Error Message
+## Common Status Code
 
-|Message|Description|
-|--|--|
-|`Auth Token Error`|Request with a wrong token or no token|
-|`Body Form Error`|Request body form-data is wrong|
-|`Body Json Error`|Request body raw-json is wrong|
-|`Query Param Error`|Request query param is wrong|
++ Continue...
+
+## Common Error Message
+
++ Continue...
+
+|Code|Message|Description|
+|--|--|--|
+|200|`Success`||
+|400|`Request Query Param Error`||
+|400|`Request Route Param Error`||
+|400|`Request Route Param Error`||
+|400|`Request Form Data Param Error`||
+|400|`Request Raw Json Param Error`||
+|401|`Token Expired`||
+|401|`Token Bad Signature`||

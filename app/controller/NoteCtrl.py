@@ -48,7 +48,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         note = Note.from_json(rawJson)
         status, new_note = NoteDao().insertNote(uid=g.user, note=note)
         if status == DbErrorType.FOUNDED:
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Note Existed").json_ret()
+            return Result.error().setMessage("Note Existed").json_ret()
         elif status == DbErrorType.FAILED or not new_note:
             return Result.error().setMessage("Note Insert Failed").json_ret()
         else:  # Success

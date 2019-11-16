@@ -1,4 +1,4 @@
-# Auth Module Server Api
+# Authorization Module Server Api
 
 ## Revision
 
@@ -6,117 +6,114 @@
 |--|--|
 |`2019/08/02`|Complete Auth Module|
 |`2019/08/07`|Add logout route|
+|`2019/11/16`|Reconstruct backend|
+
+---
 
 ## URI
 
 |Method|Uri|Description|
 |--|--|--|
-|POST|`/auth/register`|Register an unexisting user \*|
-|POST|`/auth/login`|Login as an existing user \*|
-|POST|`/auth/logout`|Logout the current user \*|
+|`POST`|`/auth/login`|Login <sup>[1]</sup>|
+|`POST`|`/auth/register`|Register <sup>[1]</sup>|
+|`POST`|`/auth/logout`|Logout <sup>[4]</sup>|
 
-[\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Auth/readme.md#request-body)
++ [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-body)
++ [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-route-param)
++ [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-query-param)
++ [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#request-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/auth.md#response-header)
+
+---
 
 ## Request Header
 
-+ `POST /auth/logout`
++ Routes needed authorization
 
 |Key|Is Required|Description|
 |--|--|--|
-|`Authorization`|Required|User Login Token|
+|`Authorization`|Required|User login token (Start with `Bearer`)|
 
 ## Request Query Param
 
-+ Nothing
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+
+## Request Route Param
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
 
 ## Request Body
 
-+ `POST /auth/register`
++ `POST /auth/login` (Form-data)
 
-|Field|Type|Is Required|Description|
-|--|--|--|--|
-|`username`|`string`|Required|Registered Username|
-|`password`|`string`|Required|Registered Password|
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`username`|`string`|Required|User's username||
+|`password`|`string`|Required|User's password||
+|`expiration`|`int`|Not required|Login expiration(second)|Default for `1 days`|
 
-Example:
++ `POST /auth/register` (Form-data)
 
-```json
-{
-    "username": "aaaaaaaa",
-    "password": "aaaaaaaa"
-} 
-```
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`username`|`string`|Required|User's username||
+|`password`|`string`|Required|User's password||
 
-+ `POST /auth/login`
-
-|Field|Type|Is Required|Description|
-|--|--|--|--|
-|`username`|`string`|Required|Login Username|
-|`password`|`string`|Required|Login Password|
-|`expiration`|`int`|Not Required \*|Token Timeout Expiration (second)|
-
-\* Expiration default for 30 days
-
-Example:
-
-```json
-{
-    "username": "aaaaaaaa",
-    "password": "aaaaaaaa",
-    "expiration": 500
-} 
-```
+---
 
 ## Response Header
 
 + `POST /auth/login`
 
-|Key|Description|
-|--|--|
-|`Authorization`|Return User Login Token|
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`Authorization`|`string`|User login token|Default expired time is `1 days`|
 
 ## Response Body
 
-+ `POST /auth/login`
-+ `POST /auth/register`
++ `POST /auth/login` (Json)
++ `POST /auth/register` (Json)
 
-|Field|Type|Description|
-|--|--|--|
-|`username`|`string`|Login Username|
-|`message`|`string`|Login Success Or Register Success|
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`id`|`int`|User id||
+|`username`|`string`|User name||
 
 Example:
-
 ```json
 {
-    "username": "aoihosizora",
-    "status": "Login Success"
+    "id": 1,
+    "username": "Testuser"
 }
 ```
 
-+ `POST /auth/logout`
++ `POST /auth/logout` (Json)
 
-|Field|Type|Description|
-|--|--|--|
-|`title`|`string`|Logout Success|
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`count`|`int`|Logout deleted token count||
 
 Example:
-
 ```json
 {
-    "title": "User \"aoihosizora\" logout success"
+    "count": 1
 }
 ```
 
-## Error Message Type
+---
 
-+ Public error code and error message type see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
+## Error Message
 
-|Message|Description|
-|--|--|
-|`Register Error`|(Something wrong with the server)|
-|`Login Error`|Password error or use a wrong token|
-|`User Exist Error`|Register an exist username|
-|`User Not Exist Error`|Login as an unexist username|
-|`Username Format Error`|Username length should be in `[5, 30)`|
-|`Password Format Error`|Password length should be in `[8, 20)`|
++ Other public error message see [api.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/api.md)
+
+|Code|Message|Description|
+|--|--|--|
+|200|`Success`||
+|401|`Password Error`||
+|401|`User Not Found`||
+|401|`Login Failed`||
+|401|`Register Failed`||
+|401|`User Existed`||
+|500|`Logout Failed`||

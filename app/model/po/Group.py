@@ -6,10 +6,10 @@ from app.model.JsonModel import JsonModel
 class Group(JsonModel):
 
     def __init__(self, gid: int, name: str, order: int, color: str):
-        self.id = int(gid)
-        self.name = name
-        self.order = int(order)
-        self.color = color
+        self.id: int = int(gid)
+        self.name: str = name
+        self.order: int = int(order)
+        self.color: str = color
 
     def to_json(self) -> dict:
         return {

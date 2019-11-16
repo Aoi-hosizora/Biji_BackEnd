@@ -128,6 +128,8 @@ class GroupDao(MySQLHelper):
         if self.queryGroupByName(uid, group.name) is not None:  # 名字重复
             return DbErrorType.DUPLICATE, None
 
+        group.order = len(self.queryAllGroups(uid))  # 顺序最后
+
         self.processGroups(uid)  # 插入前处理
 
         cursor = self.db.cursor()

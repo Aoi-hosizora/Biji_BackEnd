@@ -24,6 +24,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         stars = StarDao().queryAllStars(uid=g.user)
         return Result.ok().setData(StarItem.to_jsons(stars)).json_ret()
 
+    @auth.login_required
+    @blue.route("/<int:sid>", methods=['GET'])
+    def GetByIdRoute(sid: int):
+        """ 根据 sid 获取分组 """
+        star = StarDao().queryStarById(uid=g.user, sid=sid)
+        if not star:
+            return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
+        return Result.ok().setData(star.to_json())
+
     #######################################################################################################################
 
     @auth.login_required
@@ -34,7 +43,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         star = StarItem.from_json(rawJson)
         status, new_star = StarDao().insertStar(uid=g.user, star=star)
         if status == DbErrorType.FOUNDED:
-            return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Existed").json_ret()
+            return Result.error().setMessage("StarItem Existed").json_ret()
         elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("StatItem Url Duplicate").json_ret()
         elif status == DbErrorType.FAILED or not new_star:
@@ -55,7 +64,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.ok().json_ret()
 
     @auth.login_required
-    @blue.route("/delete/", methods=['DELETE'])
+    @blue.route("/", methods=['DELETE'])
     def DeletesRoute():
         """ 删除多个 """
         rawJson: List[int] = json.loads(request.get_data(as_text=True))

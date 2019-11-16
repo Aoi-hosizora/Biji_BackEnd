@@ -80,35 +80,9 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # 其他图片
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Not Support Request Upload Type').json_ret()
 
-    # @auth.login_required
-    # @blue.route('/blob', methods=['POST'])
-    # def UploadFileRoute():
-    #     """ 上传文件 """
-    #     try:
-    #         upload_file = request.files.get('file')
-    #         if not upload_file:
-    #             raise ParamError(ParamType.FORM)
-    #     except:
-    #         raise ParamError(ParamType.FORM)
-    #
-    #     filepath = f'./usr/image/{g.user}/'
-    #     filename, type_ok, save_ok = FileUtil.saveFile(file=upload_file, path=filepath, file_image=False)
-    #     if not type_ok:  # 格式错误
-    #         return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
-    #     if not save_ok:  # 保存失败
-    #         return Result.error().setMessage('Document Save Failed').json_ret()
-    #     else:  # 保存成功，返回路径
-    #         return Result.ok().putData('filename', filename)  # 201911160411418089.doc
-
     @auth.login_required
     @blue.route('/blob', methods=['GET'])
     def GetFileRoute():
         """ 获取文件 """
         # TODO ShareCode
         pass
-
-    # @auth.login_required
-    # @blue.route('/blob', methods=['DELETE'])
-    # def DeleteFileRoute():
-    #     """ 删除文件 """
-    #     pass

@@ -58,7 +58,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         group = Group.from_json(rawJson)
         status, new_group = GroupDao().insertGroup(uid=g.user, group=group)
         if status == DbErrorType.FOUNDED:
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Group Existed").json_ret()
+            return Result.error().setMessage("Group Existed").json_ret()
         elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("Group Name Duplicate").json_ret()
         elif status == DbErrorType.FAILED or new_group:

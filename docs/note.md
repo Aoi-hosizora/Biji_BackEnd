@@ -8,215 +8,166 @@
 |`2019/08/03`|Add `ImgBlue`|
 |`2019/08/07`|Add `PushNote` and `PushGroup` route|
 |`2019/08/09`|Add `DeleteImg` route|
+|`2019/11/16`|Reconstruct backend|
 
 ## URI
 
 |Method|Uri|Description|
 |--|--|--|
-|`GET`|`/note/all`|Get user all notes|
-|`GET`|`/note/one`|Get user one notes \*|
-|`POST`|`/note/update`|Update note content \*\*|
-|`PUT`|`/note/insert`|Add a new note \*\*|
-|`DELETE`|`/note/delete`|Delete an old note \*\*|
-|`POST`|`/note/push`|Through log update notes \*\*|
-|`GET`|`/group/all`|Get user all groups|
-|`GET`|`/group/one`|Get user one groups \*|
-|`POST`|`/group/update`|Update group content \*\*|
-|`PUT`|`/group/insert`|Add a new group \*\*|
-|`DELETE`|`/group/delete`|Delete an old group \*\*|
-|`POST`|`/group/push`|Through log update groups \*\*|
-|`POST`|`/note/img/upload`|Upload user note image \*\*|
-|`GET`|`/note/img/blob/<usr>/<img>`|Download user note image|
-|`DELETE`|`/note/img/delete`|Delete user note image \*\*|
+|`GET`|`/note/`|获取所有的笔记 <sup>[4]</sup>|
+|`GET`|`/note/group/:gid`|获取分组为 gid 的笔记 <sup>[2] [4]</sup>|
+|`GET`|`/note/:nid`|获取编号为 nid 的笔记 <sup>[2] [4]</sup>|
+|`POST`|`/note/`|新建笔记 <sup>[1] [4]</sup>|
+|`PUT`|`/note/`|更新笔记 <sup>[1] [4]</sup>|
+|`DELETE`|`/note/:nid`|删除笔记 <sup>[2] [4]</sup>|
+|`GET`|`/group/`|获取所有笔记分组 <sup>[4]</sup>|
+|`GET`|`/group/:gid`|获取编号为 gid 的笔记分组 <sup>[2] [4]</sup>|
+|`GET`|`/group/:name`|获取标题为 name 的笔记分组 <sup>[2] [4]</sup>|
+|`GET`|`/group/default`|获取默认笔记分组 <sup>[4]</sup>|
+|`POST`|`/group/`|新建笔记分组 <sup>[1] [4]</sup>|
+|`PUT`|`/group/`|更新笔记分组 <sup>[1] [4]</sup>|
+|`DELETE`|`/group/:gid`|删除笔记分组 <sup>[2] [4]</sup>|
 
-[\* Need request query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-query-param)
++ [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-body)
++ [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-route-param)
++ [3] [Need query param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-query-param)
++ [4] [Need login](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-header)
++ [Response](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#response-header)
 
-[\*\* Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
+---
 
 ## Request Header
 
-+ Global (Except `GET /note/img/blob/<usr>/<img>`)
++ Routes needed authorization
 
 |Key|Is Required|Description|
 |--|--|--|
-|`Authorization`|Required|User Login Token|
+|`Authorization`|Required|User login token (Start with `Bearer`)|
 
 ## Request Query Param
 
-+ `GET /note/all?`
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+
+## Request Route Param
+
++ `GET /note/:nid`
++ `DELETE /note/:nid`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|Queried note id||
+|`nid`|`int`|Required|笔记编号||
 
-+ `GET /group/all?`
++ `GET /note/group/:gid`
++ `GET /group/:gid`
++ `DELETE /group/:gid`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|Queried group id||
+|`gid`|`int`|Required|笔记分组编号||
+
++ `GET /group/:name`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`name`|`string`|Required|笔记分组标题|不能为 `default`|
 
 ## Request Body
 
-+ `POST /note/update`
-+ `PUT /note/insert`
-+ `DELETE /note/delete`
++ `POST /note/` (Raw-Json)
++ `PUT /note/` (Raw-Json)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|Note ID|Primary key|
-|`title`|`string`|Required|Note Title|Max length 100|
-|`content`|`string`|Not Required|Note Content||
-|`group_id`|`int`|Required|Note Group||
-|`create_time`|`datetime`|Required|Note Create Time|Format like `%Y-%m-%d %H:%M:%S`|
-|`update_time`|`datetime`|Required|Note Update Time|Format like `%Y-%m-%d %H:%M:%S`|
+|`id`|`int`|Required|笔记编号|`POST` 占位|
+|`title`|`string`|Required|笔记标题||
+|`content`|`string`|Required|笔记内容||
+|`group`|`object`|Required|笔记分组|只会用到 `group.id`|
+|`create_time`|`datetime`|Required|笔记创建时间||
+|`update_time`|`datetime`|Required|笔记更新时间||
 
-Example:
-
-```json
-{
-    "id": 1,
-    "title": "New Title",
-    "content": "New Content",
-    "group_id": 1,
-    "create_time": "2019-08-02 17:00:00",
-    "update_time": "2019-08-02 17:00:00"
-}
-```
-
-+ `POST /group/update`
-+ `PUT /group/insert`
-+ `DELETE /group/delete`
++ `POST /group/` (Raw-Json)
++ `PUT /group/` (Raw-Json)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`id`|`int`|Required|Group ID|Primary|
-|`name`|`string`|Required|Group Name|Max length 100|
-|`order`|`int`|Required|Group Order||
-|`color`|`int`|Required|Group Color|Fromat like `#FFFFFF`|
+|`id`|`int`|Required|笔记分组编号|`POST` 占位|
+|`name`|`string`|Required|笔记分组标题||
+|`order`|`int`|Required|笔记分组顺序 (0 开始)|`POST` 占位|
+|`color`|`string`|Required|笔记分组颜色||
 
-Example:
-
-```json
-{
-    "id": 1,
-    "name": "G1",
-    "order": 1,
-    "color": "#FFFFFF"
-}
-```
-
-+ `POST /note/push`
-    + Array
-    + Same with `PUT /note/insert` Request Body
-
-+ `POST /group/push`
-    + Array
-    + Same with `PUT /group/insert` Request Body
-
-+ `POST /note/img/upload`
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
-|`noteimg`|`File`|Required|Image File|Only support `jpg, png, 'jpeg, bmp`|
-
-+ `DELETE /note/img/delete`
-    + Array
-
-|Field|Type|Is Required|Description|Remark|
-|--|--|--|--|--|
-|`username`|`string`|Required|Deleted Image Username||
-|`filename`|`string`|Required|Deleted Image Filename|Contain Img extension|
-
-Example:
-```json
-[
-    {
-        "usernsme": "aoihosizora",
-        "filename": "2019080920071958.jpg"
-    }
-]
-```
+---
 
 ## Response Header
 
-+ `GET /note/img/blob/<usr>/<img>`
-
-|Key|Description|
-|--|--|
-|`Content-Type`|`image/png`|
-
+|Field|Type|Description|Remark|
+|--|--|--|--|
 
 ## Response Body
 
-+ `GET /note/all`
-+ `GET /group/all`
-    + Array
-    + Content is same as [request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
-
-+ `POST /note/update`
-+ `PUT /note/insert`
-+ `DELETE /note/delete`
-+ `POST /group/update`
-+ `PUT /group/insert`
-+ `DELETE /group/delete`
-    + Same as [request Body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/Note/readme.md#request-body)
-
-+ `POST /note/push`
-+ `POST /group/push`
++ `GET /note/` (Array)
++ `GET /note/group/:gid` (Array)
++ `GET /note/:nid` (Json)
++ `POST /note/` (Json)
++ `PUT /note/` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`message`|`string`|Push status||
-|`detail`|`string`|Push items length||
-
-+ `POST /note/img/upload`
-
-|Field|Type|Description|Remark|
-|--|--|--|--|
-|`message`|`string`|Upload status||
-|`detail`|`string`|Group Name|New filename, please update note content|
+|`id`|`int`|笔记编号||
+|`title`|`string`|笔记标题||
+|`content`|`string`|笔记内容||
+|`group`|`object`|笔记分组|见 `GET /group`|
+|`create_time`|`datetime`|笔记创建时间||
+|`update_time`|`datetime`|笔记更新时间||
 
 Example:
 
 ```json
 {
-    "message": "Image upload success",
-    "detail": "2019080223044764.png"
+
 }
 ```
 
-+ `GET /note/img/blob/<usr>/<img>`
-    + Response `Content-Type: image/png`
-
-Example: `GET /note/img/blob/aoihosizora/2019080223044764.png`
-
-+ `DELETE /note/img/delete`
++ `GET /group/` (Array)
++ `GET /group/:gid` (Json)
++ `GET /group/:name` (Json)
++ `GET /group/default` (Json)
++ `POST /group` (Json)
++ `PUT /group` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`message`|`string`|Delete status||
-|`detail`|`int`|Deleted items count||
+|`id`|`int`|笔记分组编号||
+|`name`|`string`|笔记分组标题||
+|`order`|`int`|笔记分组顺序 (0 开始)||
+|`color`|`string`|笔记分组颜色||
 
 Example:
 
 ```json
 {
-    "message": "Images delete success",
-    "detail": 3
+
 }
 ```
 
-## Error Message Type
+---
 
-+ Public error code and error message type see [Modules](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/app/Modules/readme.md)
+## Error Message
 
-|Message|Description|
-|--|--|
-|`Not Exist Error`|Delete/Update an unexist note or group|
-|`Exist Error`|Insert an exist note or group|
-|`Insert Error`|Insert into database error|
-|`Update Error`|Update database error|
-|`Delete Error`|Delete from database error|
-|`Image Upload Error`|Image not exist or upload error|
-|`Image Type Error`|Image type is not supported|
-|`Image Not Exist Error`|Image type not exist|
++ Other public error message see [api.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/api.md)
+
+|Code|Message|Description|
+|--|--|--|
+|404|`Note Not Found`||
+|500|`Note Existed`||
+|500|`Note Insert Failed`||
+|500|`Note Update Failed`||
+|500|`Note Delete Failed`||
+|404|`Group Not Found`||
+|500|`Group Existed`||
+|500|`Group Name Duplicate`||
+|500|`Group Insert Failed`||
+|500|`Could Not Update Default Group`||
+|500|`Group Update Failed`||
+|500|`Could Not Delete Default Group`||
+|500|`Group Delete Failed`||
