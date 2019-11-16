@@ -59,6 +59,12 @@
 |`url`|`string`|Required|收藏项链接||
 |`content`|`string`|Required|收藏项内容||
 
++ `DELETE /star/` (Raw-Json)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`data`|`int[]`|Required|删除的所有收藏编号|直接置于外层 Json 的 `data`|
+
 ---
 
 ## Response Header
@@ -79,11 +85,31 @@
 |`url`|`string`|收藏项链接||
 |`content`|`string`|收藏项内容||
 
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {}
+}
+```
+
 + `DELETE /star/` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
 |`count`|`int`|删除的项数||
+
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {}
+}
+```
 
 ---
 

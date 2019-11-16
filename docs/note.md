@@ -124,7 +124,9 @@ Example:
 
 ```json
 {
-
+    "code": 200,
+    "message": "Success",
+    "data": {}
 }
 ```
 
@@ -146,7 +148,9 @@ Example:
 
 ```json
 {
-
+    "code": 200,
+    "message": "Success",
+    "data": {}
 }
 ```
 

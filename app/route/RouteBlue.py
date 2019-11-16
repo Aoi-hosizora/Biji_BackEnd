@@ -39,7 +39,7 @@ def setup_route_blue(app: Flask):
     app.register_blueprint(blue_Schedule)
 
     # Document Blue (2)
-    blue_DocumentClass = Blueprint("blue_DocumentClass", __name__, url_prefix="/document/class")
+    blue_DocumentClass = Blueprint("blue_DocumentClass", __name__, url_prefix="/docclass")
     DocumentClassCtrl.apply_blue(blue_DocumentClass, auth)
     app.register_blueprint(blue_DocumentClass)
 

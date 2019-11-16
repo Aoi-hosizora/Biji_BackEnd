@@ -43,7 +43,7 @@
 
 ## Request Body
 
-+ `PUT /schedule/`
++ `PUT /schedule/` (Raw-Json)
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
@@ -58,11 +58,21 @@
 
 ## Response Body
 
-+ `GET /schedule/`
++ `GET /schedule/` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
 |`data`|`string`|用户课表 Json|直接置于外层 Json 的 `data`|
+
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {}
+}
+```
 
 ---
 

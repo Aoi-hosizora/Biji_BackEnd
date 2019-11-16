@@ -12,7 +12,7 @@ from app.model.po.DocumentClass import DocumentClass
 
 def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     """
-    应用 Blueprint Endpoint 路由映射 `/document/class`
+    应用 Blueprint Endpoint 路由映射 `/docclass`
     """
 
     @auth.login_required
@@ -49,7 +49,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         docClass = DocumentClass.from_json(rawJson)
         status, new_docClass = DocumentClassDao().insertDocumentClass(uid=g.user, docClass=docClass)
         if status == DbErrorType.FOUNDED:
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Existed").json_ret()
+            return Result.error().setMessage("Document Class Existed").json_ret()
         elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("Document Class Name Duplicate").json_ret()
         elif status == DbErrorType.FAILED or not new_docClass:

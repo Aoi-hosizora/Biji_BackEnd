@@ -84,8 +84,12 @@
 Example:
 ```json
 {
-    "id": 1,
-    "username": "Testuser"
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "id": 1,
+        "username": "Testuser"
+    }
 }
 ```
 
@@ -98,7 +102,11 @@ Example:
 Example:
 ```json
 {
-    "count": 1
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "count": 1
+    }
 }
 ```
 

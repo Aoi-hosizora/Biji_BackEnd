@@ -27,7 +27,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         return Result().ok().setData(Document.to_jsons(documents)).json_ret()
 
     @auth.login_required
-    @blue.route('/<int:cid>', methods=['GET'])
+    @blue.route('/class/<int:cid>', methods=['GET'])
     def GetClassRoute(cid: int):
         """ classId 查询文件 """
         documents = DocumentDao().queryDocumentsByClassId(uid=g.user, cid=cid)
@@ -51,7 +51,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         try:
             upload_file = request.files.get('file')
             req_filename = request.form['filename']
-            req_docClass = int(request.form['docclass'])
+            req_docClass = int(request.form['docClass'])
             if not (upload_file and req_filename and req_docClass):
                 raise ParamError(ParamType.FORM)
         except:
@@ -73,7 +73,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         status, new_document = DocumentDao().insertDocument(uid=g.user, document=document)
         if status == DbErrorType.FOUNDED:  # -1 永远不会
             os.remove(server_filepath + server_filename)
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Document Existed").json_ret()
+            return Result.error().setMessage("Document Existed").json_ret()
         elif status == DbErrorType.FAILED or not new_document:
             os.remove(server_filepath + server_filename)
             return Result.error().setMessage("Document Insert Failed").json_ret()

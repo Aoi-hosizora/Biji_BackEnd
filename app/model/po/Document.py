@@ -29,7 +29,8 @@ class Document(JsonModel):
                 did=jsonDict['id'],
                 filename=jsonDict['filename'],
                 docClass=DocumentClass.from_json(jsonDict['docClass']),
-                server_filename=jsonDict['server_filename']  # 插入 Document 时用
+                # server_filename=jsonDict['server_filename'],  # 插入 Document 时用
+                server_filename=''
             )
         except KeyError:
             return None
