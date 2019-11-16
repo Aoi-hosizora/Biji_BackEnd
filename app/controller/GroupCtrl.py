@@ -56,15 +56,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 插入 """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
-        ret = GroupDao().insertGroup(uid=g.user, group=group)
-        if ret == DbErrorType.FOUNDED:
+        status, new_group = GroupDao().insertGroup(uid=g.user, group=group)
+        if status == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Existed").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("Group Insert Failed").json_ret()
-        elif ret == DbErrorType.DUPLICATE:
+        elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("Group Name Duplicate").json_ret()
+        elif status == DbErrorType.FAILED or new_group:
+            return Result.error().setMessage("Group Insert Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(group.to_json()).json_ret()
+            return Result.ok().setData(new_group.to_json()).json_ret()
 
     @auth.login_required
     @blue.route("/", methods=['PUT'])
@@ -72,15 +72,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 更新 """
         rawJson = json.loads(request.get_data(as_text=True))
         group = Group.from_json(rawJson)
-        ret = GroupDao().updateGroup(uid=g.user, group=group)
-        if ret == DbErrorType.NOT_FOUND:
+        status = GroupDao().updateGroup(uid=g.user, group=group)
+        if status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("Group Update Failed").json_ret()
-        elif ret == DbErrorType.DUPLICATE:
+        elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("Group Name Duplicate").json_ret()
-        elif ret == DbErrorType.DEFAULT:
+        elif status == DbErrorType.DEFAULT:
             return Result.error().setMessage("Could Not Update Default Group").json_ret()
+        elif status == DbErrorType.FAILED:
+            return Result.error().setMessage("Group Update Failed").json_ret()
         else:  # Success
             return Result.ok().setData(group.to_json()).json_ret()
 
@@ -88,12 +88,12 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route("/<int:gid>", methods=['DELETE'])
     def DeleteRoute(gid: int):
         """ 删除 """
-        ret = GroupDao().deleteGroup(uid=g.user, gid=gid)
-        if ret == DbErrorType.NOT_FOUND:
+        status = GroupDao().deleteGroup(uid=g.user, gid=gid)
+        if status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("Group Delete Failed").json_ret()
-        elif ret == DbErrorType.DEFAULT:
+        elif status == DbErrorType.DEFAULT:
             return Result.error().setMessage("Could Not Delete Default Group").json_ret()
+        elif status == DbErrorType.FAILED:
+            return Result.error().setMessage("Group Delete Failed").json_ret()
         else:  # Success
             return Result.ok().json_ret()

@@ -32,15 +32,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 插入 """
         rawJson = json.loads(request.get_data(as_text=True))
         star = StarItem.from_json(rawJson)
-        ret = StarDao().insertStar(uid=g.user, star=star)
-        if ret == DbErrorType.FOUNDED:
+        status, new_star = StarDao().insertStar(uid=g.user, star=star)
+        if status == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Existed").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("StatItem Insert Failed").json_ret()
-        elif ret == DbErrorType.DUPLICATE:
+        elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("StatItem Url Duplicate").json_ret()
+        elif status == DbErrorType.FAILED or not new_star:
+            return Result.error().setMessage("StatItem Insert Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(star.to_json()).json_ret()
+            return Result.ok().setData(new_star.to_json()).json_ret()
 
     @auth.login_required
     @blue.route("/<int:sid>", methods=['DELETE'])

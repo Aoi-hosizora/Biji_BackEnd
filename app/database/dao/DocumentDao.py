@@ -79,7 +79,7 @@ class DocumentDao(MySQLHelper):
                 docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
                 if docClass is None:
                     docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
-                returns.append(Document(did=result[1], filename=result[2], docClass=docClass, filepath=result[4]))
+                returns.append(Document(did=result[1], filename=result[2], docClass=docClass, server_filename=result[4]))
             except:
                 pass
         cursor.close()
@@ -102,7 +102,7 @@ class DocumentDao(MySQLHelper):
             docClass = DocumentClassDao().queryDocumentClassById(uid, class_id)
             if docClass is None:
                 docClass = DocumentClassDao().queryDefaultDocumentClass(uid)
-            return Document(did=result[1], filename=result[2], docClass=docClass, filepath=result[4])
+            return Document(did=result[1], filename=result[2], docClass=docClass, server_filename=result[4])
         except:
             return None
         finally:
@@ -110,30 +110,33 @@ class DocumentDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertDocument(self, uid: int, document: Document) -> DbErrorType:
+    def insertDocument(self, uid: int, document: Document) -> (DbErrorType, Document):
         """
         插入新文档
         :return: SUCCESS | FOUNDED | FAILED
         """
         if self.queryDocumentById(uid, document.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED
+            return DbErrorType.FOUNDED, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
+                    {self.col_user}, {self.col_filename}, {self.col_class_id}, {self.col_filepath}
                 )
-                VALUES ({uid}, {document.id}, '{document.filename}', {document.docClass.id}, '{document.filepath}') 
+                VALUES ({uid}, '{document.filename}', {document.docClass.id}, '{document.server_filename}') 
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbErrorType.FAILED, None
+
+            new_doc_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_doc = self.queryDocumentById(uid, new_doc_id)
+            return DbErrorType.SUCCESS, new_doc
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbErrorType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()

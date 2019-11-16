@@ -112,15 +112,15 @@ class DocumentClassDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertDocumentClass(self, uid: int, docClass: DocumentClass) -> DbErrorType:
+    def insertDocumentClass(self, uid: int, docClass: DocumentClass) -> (DbErrorType, DocumentClass):
         """
         插入新分组
         :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
         if self.queryDocumentClassById(uid, docClass.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED
+            return DbErrorType.FOUNDED, None
         if self.queryDocumentClassByName(uid, docClass.name) is not None:  # 重复
-            return DbErrorType.DUPLICATE
+            return DbErrorType.DUPLICATE, None
         self.processDocumentClass(uid)  # 插入前处理
 
         cursor = self.db.cursor()
@@ -132,11 +132,13 @@ class DocumentClassDao(MySQLHelper):
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbErrorType.FAILED, None
+            new_docClass_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_docClass = self.queryDocumentClassById(uid, new_docClass_id)
+            return DbErrorType.SUCCESS, new_docClass
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbErrorType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()

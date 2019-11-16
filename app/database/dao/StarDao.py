@@ -106,34 +106,37 @@ class StarDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertStar(self, uid: int, star: StarItem) -> DbErrorType:
+    def insertStar(self, uid: int, star: StarItem) -> (DbErrorType, StarItem):
         """
         插入新收藏
         :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
         if self.queryStarById(uid, star.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED
+            return DbErrorType.FOUNDED, None
         if self.queryStarByUrl(uid, star.url) is not None:  # url 重复
-            return DbErrorType.DUPLICATE
+            return DbErrorType.DUPLICATE, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
+                    {self.col_user}, {self.col_url}, {self.col_title}, {self.col_content}
                 )
                 VALUES (
-                    {uid}, {star.id}, '{star.url}', '{star.title}', '{star.content}'
+                    {uid}, '{star.url}', '{star.title}', '{star.content}'
                 )
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbErrorType.FAILED, None
+
+            new_star_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_star = self.queryStarById(uid, new_star_id)
+            return DbErrorType.SUCCESS, new_star
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbErrorType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()

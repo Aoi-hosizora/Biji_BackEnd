@@ -47,15 +47,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 新建文件分组 """
         rawJson = json.loads(request.get_data(as_text=True))
         docClass = DocumentClass.from_json(rawJson)
-        ret = DocumentClassDao().insertDocumentClass(uid=g.user, docClass=docClass)
-        if ret == DbErrorType.FOUNDED:
+        status, new_docClass = DocumentClassDao().insertDocumentClass(uid=g.user, docClass=docClass)
+        if status == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Existed").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("Document Class Insert Failed").json_ret()
-        elif ret == DbErrorType.DUPLICATE:
+        elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("Document Class Name Duplicate").json_ret()
+        elif status == DbErrorType.FAILED or not new_docClass:
+            return Result.error().setMessage("Document Class Insert Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(docClass.to_json()).json_ret()
+            return Result.ok().setData(new_docClass.to_json()).json_ret()
 
     @auth.login_required
     @blue.route('/', methods=['PUT'])
@@ -63,15 +63,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 更新文件分组 """
         rawJson = json.loads(request.get_data(as_text=True))
         docClass = DocumentClass.from_json(rawJson)
-        ret = DocumentClassDao().updateDocumentClass(uid=g.user, docClass=docClass)
-        if ret == DbErrorType.NOT_FOUND:
+        status = DocumentClassDao().updateDocumentClass(uid=g.user, docClass=docClass)
+        if status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("Document Class Update Failed").json_ret()
-        elif ret == DbErrorType.DUPLICATE:
+        elif status == DbErrorType.DUPLICATE:
             return Result.error().setMessage("Document Class Name Duplicate").json_ret()
-        elif ret == DbErrorType.DEFAULT:
+        elif status == DbErrorType.DEFAULT:
             return Result.error().setMessage("Could Not Update Default Document Class").json_ret()
+        elif status == DbErrorType.FAILED:
+            return Result.error().setMessage("Document Class Update Failed").json_ret()
         else:  # Success
             return Result.ok().setData(docClass.to_json()).json_ret()
 
@@ -79,13 +79,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/<int:cid>', methods=['DELETE'])
     def DeleteRoute(cid: int):
         """ 删除文件分组 """
-        ret = DocumentClassDao().deleteDocumentClass(uid=g.user, cid=cid)
-        if ret == DbErrorType.NOT_FOUND:
+        status = DocumentClassDao().deleteDocumentClass(uid=g.user, cid=cid)
+        if status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
-        elif ret == DbErrorType.FAILED:
-            return Result.error().setMessage("Document Class Delete Failed").json_ret()
-        elif ret == DbErrorType.DEFAULT:
+        elif status == DbErrorType.DEFAULT:
             return Result.error().setMessage("Could Not Delete Default Document Class").json_ret()
+        elif status == DbErrorType.FAILED:
+            return Result.error().setMessage("Document Class Delete Failed").json_ret()
         else:  # Success
             return Result.ok().json_ret()
 

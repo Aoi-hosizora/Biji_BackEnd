@@ -46,13 +46,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 插入 """
         rawJson = json.loads(request.get_data(as_text=True))
         note = Note.from_json(rawJson)
-        ret = NoteDao().insertNote(uid=g.user, note=note)
-        if ret == DbErrorType.FOUNDED:
+        status, new_note = NoteDao().insertNote(uid=g.user, note=note)
+        if status == DbErrorType.FOUNDED:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Note Existed").json_ret()
-        elif ret == DbErrorType.FAILED:
+        elif status == DbErrorType.FAILED or not new_note:
             return Result.error().setMessage("Note Insert Failed").json_ret()
         else:  # Success
-            return Result.ok().setData(note.to_json()).json_ret()
+            return Result.ok().setData(new_note.to_json()).json_ret()
 
     @auth.login_required
     @blue.route("/", methods=['PUT'])
@@ -60,10 +60,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         """ 更新 """
         rawJson = json.loads(request.get_data(as_text=True))
         note = Note.from_json(rawJson)
-        ret = NoteDao().updateNote(uid=g.user, note=note)
-        if ret == DbErrorType.NOT_FOUND:
+        status = NoteDao().updateNote(uid=g.user, note=note)
+        if status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Note Not Found").json_ret()
-        elif ret == DbErrorType.FAILED:
+        elif status == DbErrorType.FAILED:
             return Result.error().setMessage("Note Update Failed").json_ret()
         else:  # Success
             return Result.ok().setData(note.to_json()).json_ret()
@@ -72,10 +72,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route("/<int:nid>", methods=['DELETE'])
     def DeleteRoute(nid: int):
         """ 删除 """
-        ret = NoteDao().deleteNote(uid=g.user, nid=nid)
-        if ret == DbErrorType.NOT_FOUND:
+        status = NoteDao().deleteNote(uid=g.user, nid=nid)
+        if status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Note Not Found").json_ret()
-        elif ret == DbErrorType.FAILED:
+        elif status == DbErrorType.FAILED:
             return Result.error().setMessage("Note Delete Failed").json_ret()
         else:  # Success
             return Result.ok().json_ret()

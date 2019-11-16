@@ -4,13 +4,12 @@ from typing import List
 
 from flask import Blueprint, request, g
 from flask_httpauth import HTTPTokenAuth
-from werkzeug.utils import secure_filename  # 已修改中文支持
 
 from app.model.dto.RawResult import RawResult
 from app.model.dto.Result import Result
 from app.model.dto.ResultCode import ResultCode
 from app.route.ParamError import ParamError, ParamType
-from app.util import TypeUtil
+from app.util import FileUtil
 
 
 def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
@@ -30,24 +29,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
 
-        filename: str = secure_filename(upload_image.filename)  # 旧文件名
-        if not TypeUtil.is_image(filename):  # 非图片
-            return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
-
-        ext = TypeUtil.get_ext(filename)  # 后缀名
-        filename: str = f'{TypeUtil.create_uuid()}.{ext}'  # 新文件名
-
         if upload_type == 'note':  # 笔记图片
-            filepath = f'./usr/img/{g.user}/'
-            if not os.path.exists(filepath):
-                os.makedirs(filepath)
-            filepath = os.path.join(filepath, filename)  # 最终文件路径名
-            upload_image.save(filepath)  # ./usr/img/1111/201911160411418089.jpg
-
-            if not os.path.exists(filepath):  # 保存失败
+            filepath = f'./usr/image/{g.user}/'
+            filename, type_ok, save_ok = FileUtil.saveFile(file=upload_image, path=filepath, file_image=True)
+            if not type_ok:  # 格式错误
+                return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
+            if not save_ok:  # 保存失败
                 return Result.error().setMessage('Image Save Failed').json_ret()
             else:  # 保存成功，返回路径
-                return Result.ok().putData('filename', {filename})  # 201911160411418089.jpg
+                return Result.ok().putData('filename', filename)  # 201911160411418089.jpg
         else:  # 其他格式
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Not Support Request Upload Type').json_ret()
 
@@ -80,44 +70,35 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
         if request_type == 'note':  # 笔记图片
             count = 0
-            for delUrl in rawJson:
+            for delUrl in rawJson:  # 直接存着图片地址
                 filepath = f'./usr/img/{g.user}/{delUrl}'
-                if filepath:
+                if os.path.exists(filepath):
                     os.remove(filepath)
-                    if not os.path.exists(filepath):
-                        count += 1
+                    count += 1 if not os.path.exists(filepath) else 0
             return Result.ok().putData('count', count).json_ret()
 
         else:  # 其他图片
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Not Support Request Upload Type').json_ret()
 
-    @auth.login_required
-    @blue.route('/blob', methods=['POST'])
-    def UploadFileRoute():
-        """ 上传文件 """
-        try:
-            upload_file = request.files.get('file')
-            if not upload_file:
-                raise ParamError(ParamType.FORM)
-        except:
-            raise ParamError(ParamType.FORM)
-
-        filename: str = secure_filename(upload_file.filename)  # 旧文件名
-        if not TypeUtil.is_document(filename):  # 非文档
-            return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
-
-        ext = TypeUtil.get_ext(filename)  # 后缀名
-        filename: str = f'{TypeUtil.create_uuid()}.{ext}'  # 新文件名
-        filepath = f'./usr/blob/{g.user}/'
-        if not os.path.exists(filepath):
-            os.makedirs(filepath)
-        filepath = os.path.join(filepath, filename)  # 最终文件路径名
-        upload_file.save(filepath)  # ./usr/blob/1111/201911160411418089.doc
-
-        if not os.path.exists(filepath):  # 保存失败
-            return Result.error().setMessage('Document Save Failed').json_ret()
-        else:  # 保存成功，返回路径
-            return Result.ok().putData('filename', {filename})  # 201911160411418089.doc
+    # @auth.login_required
+    # @blue.route('/blob', methods=['POST'])
+    # def UploadFileRoute():
+    #     """ 上传文件 """
+    #     try:
+    #         upload_file = request.files.get('file')
+    #         if not upload_file:
+    #             raise ParamError(ParamType.FORM)
+    #     except:
+    #         raise ParamError(ParamType.FORM)
+    #
+    #     filepath = f'./usr/image/{g.user}/'
+    #     filename, type_ok, save_ok = FileUtil.saveFile(file=upload_file, path=filepath, file_image=False)
+    #     if not type_ok:  # 格式错误
+    #         return Result.error(ResultCode.BAD_REQUEST).setMessage('Upload File Type Error').json_ret()
+    #     if not save_ok:  # 保存失败
+    #         return Result.error().setMessage('Document Save Failed').json_ret()
+    #     else:  # 保存成功，返回路径
+    #         return Result.ok().putData('filename', filename)  # 201911160411418089.doc
 
     @auth.login_required
     @blue.route('/blob', methods=['GET'])
@@ -126,8 +107,8 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         # TODO ShareCode
         pass
 
-    @auth.login_required
-    @blue.route('/blob', methods=['DELETE'])
-    def DeleteFileRoute():
-        """ 删除文件 """
-        pass
+    # @auth.login_required
+    # @blue.route('/blob', methods=['DELETE'])
+    # def DeleteFileRoute():
+    #     """ 删除文件 """
+    #     pass

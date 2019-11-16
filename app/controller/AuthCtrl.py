@@ -25,10 +25,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
 
-        ret, user = UserDao().checkUserPassword(username, password)
-        if ret == DbErrorType.FAILED:
+        status, user = UserDao().checkUserPassword(username, password)
+        if status == DbErrorType.FAILED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("Password Error").json_ret()
-        elif ret == DbErrorType.NOT_FOUND:
+        elif status == DbErrorType.NOT_FOUND:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("User Not Found").json_ret()
         else:  # Success
             token = AuthUtil.generate_token(user.id, ex)
@@ -46,10 +46,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
 
-        ret = UserDao().insertUser(username, password)
-        if ret == DbErrorType.FAILED:
+        status = UserDao().insertUser(username, password)
+        if status == DbErrorType.FAILED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("Register Failed").json_ret()
-        elif ret == DbErrorType.FOUNDED:
+        elif status == DbErrorType.FOUNDED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("User Existed").json_ret()
         else:  # Success
             return Result.ok().putData("username", username).json_ret()

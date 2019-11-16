@@ -115,37 +115,40 @@ class NoteDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertNote(self, uid: int, note: Note) -> DbErrorType:
+    def insertNote(self, uid: int, note: Note) -> (DbErrorType, Note):
         """
         插入新笔记
         :return: SUCCESS | FOUNDED | FAILED
         """
         if self.queryNoteById(uid, note.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED
+            return DbErrorType.FOUNDED, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
+                    {self.col_user}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
                 )
-                VALUES ({uid}, {note.id}, '{note.title}', '{note.content}', {note.group.id}, '{note.create_time}', '{note.update_time}')
+                VALUES ({uid}, '{note.title}', '{note.content}', {note.group.id}, '{note.create_time}', '{note.update_time}')
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbErrorType.FAILED, None
+
+            new_note_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_note = self.queryNoteById(uid, new_note_id)
+            return DbErrorType.SUCCESS, new_note
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbErrorType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
 
     def updateNote(self, uid: int, note: Note) -> DbErrorType:
         """
-        更新笔记 除了 nid
+        更新笔记 (title, content, groupId, ct, ut)
         :return: SUCCESS | NOT_FOUND | FAILED
         """
         if self.queryNoteById(uid, note.id) is None:

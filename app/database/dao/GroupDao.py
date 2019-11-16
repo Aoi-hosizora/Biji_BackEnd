@@ -118,15 +118,15 @@ class GroupDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def insertGroup(self, uid: int, group: Group) -> DbErrorType:
+    def insertGroup(self, uid: int, group: Group) -> (DbErrorType, Group):
         """
         插入新分组
         :return: SUCCESS | FOUNDED | FAILED | DUPLICATE
         """
         if self.queryGroupById(uid, group.id) is not None:  # 已存在
-            return DbErrorType.FOUNDED
+            return DbErrorType.FOUNDED, None
         if self.queryGroupByName(uid, group.name) is not None:  # 名字重复
-            return DbErrorType.DUPLICATE
+            return DbErrorType.DUPLICATE, None
 
         self.processGroups(uid)  # 插入前处理
 
@@ -135,19 +135,21 @@ class GroupDao(MySQLHelper):
         try:
             cursor.execute(f'''
                 INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
+                    {self.col_user}, {self.col_name}, {self.col_order}, {self.col_color}
                 )
                 VALUES (
-                    {uid}, {group.id}, '{group.name}', {group.order}, '{group.color}'
+                    {uid}, '{group.name}', {group.order}, '{group.color}'
                 )
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbErrorType.FAILED
-            return DbErrorType.SUCCESS
+                return DbErrorType.FAILED, None
+            new_group_id = cursor.execute(f'''SELECT MAX({self.col_id} FROM {self.tbl_name}''')
+            new_group = self.queryGroupById(uid, new_group_id)
+            return DbErrorType.SUCCESS, new_group
         except:
             self.db.rollback()
-            return DbErrorType.FAILED
+            return DbErrorType.FAILED, None
         finally:
             self.db.commit()
             cursor.close()
