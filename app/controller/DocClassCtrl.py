@@ -18,27 +18,22 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['GET'])
     @auth.login_required
     def GetAllRoute():
-        """ 所有文件分组 """
-        docClasses = DocClassDao().queryAllDocClasses(uid=g.user)
-        return Result.ok().setData(DocClass.to_jsons(docClasses)).json_ret()
+        """ 所有文件分组 / name """
+        name = request.args.get('name')
+        if name:  # 查詢
+            docClass = DocClassDao().queryDocClassByIdOrName(uid=g.user, cid_name=str(name))
+            if not docClass:
+                return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
+            return Result.ok().setData(docClass.to_json()).json_ret()
+        else:  # 無查詢
+            docClasses = DocClassDao().queryAllDocClasses(uid=g.user)
+            return Result.ok().setData(DocClass.to_jsons(docClasses)).json_ret()
 
     @blue.route('/<int:cid>', methods=['GET'])
     @auth.login_required
     def GetByIdRoute(cid: int):
         """ id 获取文件分组 """
         docClass = DocClassDao().queryDocClassByIdOrName(uid=g.user, cid_name=int(cid))
-        if not docClass:
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
-        return Result.ok().setData(docClass.to_json()).json_ret()
-
-    @blue.route('/', methods=['GET'])
-    @auth.login_required
-    def GetByNameRoute():
-        """ name 获取文件分组 """
-        name = request.args.get('name')
-        if not name:
-            raise ParamError(ParamType.QUERY)
-        docClass = DocClassDao().queryDocClassByIdOrName(uid=g.user, cid_name=str(name))
         if not docClass:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
         return Result.ok().setData(docClass.to_json()).json_ret()

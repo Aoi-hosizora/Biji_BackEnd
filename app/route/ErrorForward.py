@@ -56,9 +56,9 @@ def setup_error_forward(app: Flask):
         if isinstance(error, ParamError):
             message = 'Request Query Param Error' if error.paramType == ParamType.QUERY else \
                       'Request Route Param Error' if error.paramType == ParamType.ROUTE else \
-                      'Request Route Param Error' if error.paramType == ParamType.FORM else \
-                      'Request Form Data Param Error' if error.paramType == ParamType.RAW else \
-                      'Request Raw Json Param Error'
+                      'Request Form Data Param Error' if error.paramType == ParamType.FORM else \
+                      'Request Raw Json Param Error' if error.paramType == ParamType.RAW else \
+                      'Request Param Error'
             return Result.error(ResultCode.BAD_REQUEST).setMessage(message).json_ret()  # 400
 
         return Result.error(ResultCode.INTERNAL_SERVER_ERROR).setMessage(str(error)).json_ret()  # 500

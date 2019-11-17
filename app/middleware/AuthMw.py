@@ -25,7 +25,6 @@ def setup_auth() -> HTTPTokenAuth:
             return False
 
         try:
-            print(Config.SECRET_KEY)
             data = Serializer(secret_key=Config.SECRET_KEY).loads(token)
             uid: int = int(data['uid'])
         except SignatureExpired as ex:  # 过期

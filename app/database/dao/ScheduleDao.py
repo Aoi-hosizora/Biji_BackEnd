@@ -50,41 +50,42 @@ class ScheduleDao(MySQLHelper):
 
     #######################################################################################################################
 
-    def updateSchedule(self, uid: int, data: str) -> DbStatusType:
+    def updateSchedule(self, uid: int, data: str) -> (DbStatusType, str):
         """
         更新课程表
         :return: SUCCESS | FAILED
         """
         db_data = self.querySchedule(uid)
         if db_data == data:  # Not Modify
-            return DbStatusType.SUCCESS
+            return DbStatusType.SUCCESS, db_data
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             if db_data == '':  # New
-                cursor.execute(f'''INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_json}) VALUES ({uid}, {data})''')
+                cursor.execute(f'''INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_json}) VALUES ({uid}, '{data}')''')
             else:
-                cursor.execute(f'''UPDATE {self.tbl_name} WHERE {self.col_user} = {uid} SET {self.col_json} = {data}''')
+                cursor.execute(f'''UPDATE {self.tbl_name} SET {self.col_json} = '{data}' WHERE {self.col_user} = {uid}''')
 
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbStatusType.FAILED
-            return DbStatusType.SUCCESS
+                return DbStatusType.FAILED, ''
+            return DbStatusType.SUCCESS, self.querySchedule(uid)
         except:
             self.db.rollback()
-            return DbStatusType.FAILED
+            return DbStatusType.FAILED, ''
         finally:
             self.db.commit()
             cursor.close()
 
-    def deleteSchedule(self, uid: int) -> DbStatusType:
+    def deleteSchedule(self, uid: int) -> (DbStatusType, str):
         """
         删除课表
         :return: SUCCESS | NOT_FOUND | FAILED
         """
-        if self.querySchedule(uid) == '':
-            return DbStatusType.NOT_FOUND
+        schedule = self.querySchedule(uid)
+        if schedule == '':
+            return DbStatusType.NOT_FOUND, ''
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -92,11 +93,11 @@ class ScheduleDao(MySQLHelper):
             cursor.execute(f'''DELETE FROM {self.tbl_name} WHERE {self.col_user} = {uid}''')
             if cursor.rowcount == 0:
                 self.db.rollback()
-                return DbStatusType.FAILED
-            return DbStatusType.SUCCESS
+                return DbStatusType.FAILED, ''
+            return DbStatusType.SUCCESS, schedule
         except:
             self.db.rollback()
-            return DbStatusType.FAILED
+            return DbStatusType.FAILED, ''
         finally:
             self.db.commit()
             cursor.close()

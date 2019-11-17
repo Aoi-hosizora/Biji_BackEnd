@@ -21,7 +21,6 @@ def generate_token(uid: int, expiration) -> str:
     """
     生成 token，有效期 expiration & uid
     """
-    print(Config.SECRET_KEY)
     return Serializer(secret_key=Config.SECRET_KEY, expires_in=expiration).dumps({
         'uid': uid
     }).decode('utf-8')

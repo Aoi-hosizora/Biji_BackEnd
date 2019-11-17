@@ -47,7 +47,7 @@ def saveFile(file, path: str, file_image: bool) -> (str, bool, bool):
     filename: str = secure_filename(file.filename)  # 旧文件名
     if file_image and not is_image(filename):  # 非图片
         return '', False, False
-    if not file_image and not is_document(filename):  # 非文档
+    if not file_image and not (is_image(filename) or is_document(filename)):  # 非文档
         return '', False, False
 
     filename: str = f'{create_uuid()}.{get_ext(filename)}'  # 新文件名 201911160411418089.jpg

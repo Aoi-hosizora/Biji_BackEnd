@@ -142,23 +142,29 @@ class DocumentDao(MySQLHelper):
         """
         更新文档 (filename, docClass) SUCCESS | NOT_FOUND | FAILED
         """
-        if self.queryDocumentById(uid, document.id) is None:
+        sameIdDoc = self.queryDocumentById(uid, document.id)
+        if not sameIdDoc:
             return DbStatusType.NOT_FOUND, None
 
         if not DocClassDao().queryDocClassByIdOrName(uid=uid, cid_name=document.docClass.id):  # 分组不存在
             document.docClass = DocClassDao().queryDefaultDocClass(uid=uid)
 
+        # 沒更新
+        if sameIdDoc.filename == document.filename and sameIdDoc.docClass.id == document.docClass.id:
+            return DbStatusType.SUCCESS, sameIdDoc
+
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name} WHERE {self.col_user} = {uid} AND {self.col_id} = {document.id}
+                UPDATE {self.tbl_name} 
                 SET {self.col_class_id} = {document.docClass.id}, {self.col_filename} = '{document.filename}'
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {document.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-            return DbStatusType.SUCCESS, self.queryDocumentById(uid, cursor.lastrowid)
+            return DbStatusType.SUCCESS, self.queryDocumentById(uid, document.id)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None

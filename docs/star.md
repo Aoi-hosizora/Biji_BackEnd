@@ -73,7 +73,14 @@ Example:
 {
     "code": 200,
     "message": "Success",
-    "data": {}
+    "data": [
+        {
+            "id": 1,
+            "title": "Test",
+            "url": "http://xxx",
+            "content": ""
+        }
+    ]
 }
 ```
 

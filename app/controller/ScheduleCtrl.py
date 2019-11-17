@@ -32,20 +32,20 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         schedule_data = request.form.get('schedule')
         if not schedule_data:
             raise ParamError(ParamType.FORM)
-        status = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
-        if status == DbStatusType.FAILED:
+        status, new_schedule = ScheduleDao().updateSchedule(uid=g.user, data=schedule_data)
+        if status == DbStatusType.FAILED or not new_schedule:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage('Update Schedule Failed').json_ret()
         else:
-            return Result.ok().json_ret()
+            return Result.ok().putData('schedule', new_schedule).json_ret()
 
     @blue.route('/', methods=['DELETE'])
     @auth.login_required
     def DeleteRoute():
         """ 删除 课程表 """
-        status = ScheduleDao().deleteSchedule(uid=g.user)
+        status, schedule = ScheduleDao().deleteSchedule(uid=g.user)
         if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage('Schedule Not Found').json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage('Delete Schedule Failed').json_ret()
         else:
-            return Result.ok().json_ret()
+            return Result.ok().putData('schedule', schedule).json_ret()

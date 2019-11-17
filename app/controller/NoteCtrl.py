@@ -82,7 +82,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         status, new_note = NoteDao().updateNote(uid=g.user, note=req_note)
         if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Note Not Found").json_ret()
-        elif status == DbStatusType.FAILED:
+        elif status == DbStatusType.FAILED or not new_note:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Note Update Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_note.to_json()).json_ret()

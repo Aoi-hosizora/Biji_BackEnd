@@ -1,4 +1,4 @@
-# File Module Server Api
+# Document Module Server Api
 
 ## Revision
 
@@ -71,8 +71,7 @@
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`file`|`file`|Required|上传的文档文件|只支持 `[txt, md, pdf, doc, docx, ppt, pptx, xls, xlsx, zip, rar]`|
-|`filename`|`string`|Required|文档原始文件名|后缀名 `.xxx` 不要超过 `10` 个字符|
+|`file`|`file`|Required|上传的文档文件|只支持 `[txt, md, pdf, doc, docx, ppt, pptx, xls, xlsx, zip, rar]` 與 `[jpg, png, jpeg, bmp]`|
 |`doc_class_id`|`int`|Required|文档分组编号||
 
 + `PUT /document/` (Form-data)
@@ -120,7 +119,15 @@ Example:
 {
     "code": 200,
     "message": "Success",
-    "data": {}
+    "data": {
+        "id": 3,
+        "filename": "angular-dev-roadmap.png",
+        "docClass": {
+            "id": 1,
+            "name": "默认分组"
+        },
+        "uuid": "201911171436542520.png"
+    }
 }
 ```
 
@@ -143,7 +150,10 @@ Example:
 {
     "code": 200,
     "message": "Success",
-    "data": {}
+    "data": {
+        "id": 1,
+        "name": "默认分组"
+    }
 }
 ```
 

@@ -60,7 +60,7 @@ class DocClassDao(MySQLHelper):
                 pass
 
         cursor.close()
-        return results
+        return returns
 
     def queryDocClassByIdOrName(self, uid: int, cid_name: Union[int, str]) -> Optional[DocClass]:
         """
@@ -94,7 +94,7 @@ class DocClassDao(MySQLHelper):
         """
         查询默认分组
         """
-        return self.queryDocClassByIdOrName(uid, cid_name=DEF_DOC_CLASS.name)
+        return self.queryDocClassByIdOrName(uid, cid_name=str(DEF_DOC_CLASS.name))
 
     #######################################################################################################################
 
@@ -106,7 +106,6 @@ class DocClassDao(MySQLHelper):
             return DbStatusType.FOUNDED, None
         if self.queryDocClassByIdOrName(uid, cid_name=docClass.name) is not None:  # 重复
             return DbStatusType.DUPLICATE, None
-        self.processDocClass(uid)  # 插入前处理
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
@@ -130,29 +129,37 @@ class DocClassDao(MySQLHelper):
         """
         更新分组 (name) SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
         """
-        if self.queryDocClassByIdOrName(uid, docClass.id) is None:  # 不存在
+        sameIdClass = self.queryDocClassByIdOrName(uid, docClass.id)
+        if not sameIdClass:  # 不存在
             return DbStatusType.NOT_FOUND, None
-        if self.queryDocClassByIdOrName(uid, docClass.name) is not None:  # 重复
-            return DbStatusType.DUPLICATE, None
-        self.processDocClass(uid)  # 更新前处理
 
         # 修改默认分组名
-        defClass = self.queryDefaultDocClass(uid)
-        if docClass.id == defClass.id and docClass.name != defClass:
+        if docClass.id == self.queryDefaultDocClass(uid).id:
             return DbStatusType.DEFAULT, None
+
+        sameNameClass = self.queryDocClassByIdOrName(uid, docClass.name)
+        if sameNameClass and docClass.id != sameNameClass.id:  # 重复
+            return DbStatusType.DUPLICATE, None
+        # 沒更新
+        if docClass.name == sameIdClass.name:
+            return DbStatusType.SUCCESS, sameIdClass
+
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 UPDATE {self.tbl_name} 
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {docClass.id}
                 SET {self.col_name} = '{docClass.name}'
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {docClass.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-            return DbStatusType.SUCCESS, self.queryDocClassByIdOrName(uid, cursor.lastrowid)
+
+            self.db.commit()  # !!!
+            self.processDocClass(uid)  # 更新后处理
+            return DbStatusType.SUCCESS, self.queryDocClassByIdOrName(uid, int(docClass.id))
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -183,6 +190,7 @@ class DocClassDao(MySQLHelper):
                 self.db.rollback()
                 return DbStatusType.FAILED
 
+            self.db.commit()  # !!!
             self.processDocClass(uid)  # 删除后处理
             return DbStatusType.SUCCESS
         except:
@@ -205,14 +213,16 @@ class DocClassDao(MySQLHelper):
                 SELECT * FROM {self.tbl_name}
                 WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
             ''')
-            return cursor.rowcount != 0
+            count = cursor.rowcount
+            cursor.close()
+            return count != 0
 
         def insert(docClass: DocClass):
             cursor = self.db.cursor()
             # noinspection PyBroadException
             try:
                 cursor.execute(f'''
-                    INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_id}, {self.col_name}
+                    INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_id}, {self.col_name})
                     VALUES ({uid}, {docClass.id}, '{docClass.name}')
                 ''')
             except:
@@ -222,5 +232,5 @@ class DocClassDao(MySQLHelper):
                 cursor.close()
 
         # 插入默认分组
-        if query(DEF_DOC_CLASS.name) is None:
+        if not query(DEF_DOC_CLASS.name):
             insert(DEF_DOC_CLASS)

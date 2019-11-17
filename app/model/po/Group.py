@@ -7,7 +7,7 @@ class Group(JsonModel):
         self.id: int = int(gid)
         self.name: str = name
         self.order: int = int(order)
-        if not color.startswith('#'):
+        if not color or not color.startswith('#'):
             self.color: str = '#F0F0F0'
         else:
             self.color: str = color

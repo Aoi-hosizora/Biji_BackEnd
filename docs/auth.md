@@ -14,6 +14,7 @@
 
 |Method|Uri|Description|
 |--|--|--|
+|`GET`|`/auth/`|获取当前登录用户信息 <sup>[4]</sup>|
 |`POST`|`/auth/login`|登录 <sup>[1]</sup>|
 |`POST`|`/auth/register`|注册 <sup>[1]</sup>|
 |`POST`|`/auth/logout`|注销 <sup>[4]</sup>|
@@ -55,6 +56,7 @@
 
 ## Response Body
 
++ `GET /auth/` (Json)
 + `POST /auth/login` (Json)
 + `POST /auth/register` (Json)
 
@@ -70,7 +72,7 @@ Example:
     "message": "Success",
     "data": {
         "id": 1,
-        "username": "Testuser"
+        "username": "aoihosizora"
     }
 }
 ```

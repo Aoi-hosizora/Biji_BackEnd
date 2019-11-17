@@ -65,7 +65,7 @@ class GroupDao(MySQLHelper):
                 pass
 
         cursor.close()
-        return results
+        return returns
 
     def queryGroupByIdOrName(self, uid: int, gid_name: Union[int, str]) -> Optional[Group]:
         """
@@ -112,7 +112,6 @@ class GroupDao(MySQLHelper):
         if self.queryGroupByIdOrName(uid, group.name) is not None:  # 名字重复
             return DbStatusType.DUPLICATE, None
 
-        self.processGroups(uid)  # 插入前处理
         group.order = len(self.queryAllGroups(uid))  # 顺序最后
 
         cursor = self.db.cursor()
@@ -129,7 +128,7 @@ class GroupDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-            return DbStatusType.SUCCESS, self.queryGroupByIdOrName(uid, cursor.lastrowid)
+            return DbStatusType.SUCCESS, self.queryGroupByIdOrName(uid, int(cursor.lastrowid))
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -141,15 +140,19 @@ class GroupDao(MySQLHelper):
         """
         更新分组 (name, order, color) SUCCESS | NOT_FOUND | DEFAULT | FAILED | DUPLICATE
         """
-        if self.queryGroupByIdOrName(uid, group.id) is None:  # 不存在
+        sameIdGroup = self.queryGroupByIdOrName(uid, group.id)
+        if sameIdGroup is None:  # 不存在
             return DbStatusType.NOT_FOUND, None
-        if self.queryGroupByIdOrName(uid, group.name) is not None:  # 名字重复
+        sameNameGroup = self.queryGroupByIdOrName(uid, group.name)
+        if sameNameGroup and sameNameGroup.id != group.id:  # 名字重复
             return DbStatusType.DUPLICATE, None
-        self.processGroups(uid)  # 更新前处理
+        # 沒更新
+        if group.name == sameIdGroup.name and group.order == sameIdGroup.order and group.color == sameIdGroup.color:
+            return DbStatusType.SUCCESS, sameIdGroup
 
         # 修改默认分组名
         defGroup = self.queryDefaultGroup(uid)
-        if group.id == defGroup.id and group.name != defGroup:
+        if group.id == defGroup.id and group.name != defGroup.name:
             return DbStatusType.DEFAULT, None
 
         cursor = self.db.cursor()
@@ -157,13 +160,16 @@ class GroupDao(MySQLHelper):
         try:
             cursor.execute(f'''
                 UPDATE {self.tbl_name} 
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {group.id}
                 SET {self.col_name} = '{group.name}', {self.col_order} = {group.order}, {self.col_color} = '{group.color}'
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {group.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-            return DbStatusType.SUCCESS, self.queryGroupByIdOrName(uid, cursor.lastrowid)
+
+            self.db.commit()  # !!!
+            self.processGroups(uid)  # 更新后处理
+            return DbStatusType.SUCCESS, self.queryGroupByIdOrName(uid, group.id)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -175,7 +181,7 @@ class GroupDao(MySQLHelper):
         """
         删除一个分组 SUCCESS | NOT_FOUND | DEFAULT | FAILED
         """
-        if self.queryGroupByIdOrName(uid, gid) is None:  # 不存在
+        if self.queryGroupByIdOrName(uid, int(gid)) is None:  # 不存在
             return DbStatusType.NOT_FOUND
 
         # 删除默认分组
@@ -192,7 +198,7 @@ class GroupDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED
-
+            self.db.commit()  # !!!
             self.processGroups(uid)  # 删除后处理
             return DbStatusType.SUCCESS
         except:
@@ -216,7 +222,9 @@ class GroupDao(MySQLHelper):
                 SELECT * FROM {self.tbl_name}
                 WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
             ''')
-            return cursor.rowcount != 0
+            count = cursor.rowcount
+            cursor.close()
+            return count != 0
 
         def insert(g: Group):
             cursor = self.db.cursor()
@@ -248,16 +256,17 @@ class GroupDao(MySQLHelper):
                 except:
                     pass
             cursor.close()
-            return results
+            self.db.commit()
+            return returns
 
-        def update(g: Group):
+        def update(gid: int, order: int):
             cursor = self.db.cursor()
             # noinspection PyBroadException
             try:
                 cursor.execute(f'''
                     UPDATE {self.tbl_name} 
-                    WHERE {self.col_user} = {uid} AND {self.col_id} = {g.id}
-                    SET {self.col_order} = '{g.order}'
+                    SET {self.col_order} = {order}
+                    WHERE {self.col_user} = {uid} AND {self.col_id} = {gid}
                  ''')
             except:
                 self.db.rollback()
@@ -266,12 +275,11 @@ class GroupDao(MySQLHelper):
                 cursor.close()
 
         # 插入默认分组
-        if query(DEF_GROUP.name) is None:
+        if not query(DEF_GROUP.name):
             insert(DEF_GROUP)
 
         # 处理顺序 小到大
-        groups = sorted(queryAll(), key=lambda key: key.order)
+        groups = sorted(queryAll(), key=lambda k: k.order)
         for idx, group in enumerate(groups):
-            if group.order != idx:
-                group.order = idx
-                update(group)
+            if group.name != DEF_GROUP.name and group.order != idx:
+                update(group.id, idx)

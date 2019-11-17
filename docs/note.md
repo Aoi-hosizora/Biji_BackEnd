@@ -86,6 +86,12 @@
 |`content`|`string`|Required|笔记内容||
 |`group_id`|`int`|Required|笔记分组||
 
++ `DELETE /note/` (Form-Data)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`id`|`int[]`|Required|删除的笔记编号||
+
 + `POST /group/` (Data-Form)
 
 |Field|Type|Is Required|Description|Remark|
@@ -128,7 +134,19 @@ Example:
 {
     "code": 200,
     "message": "Success",
-    "data": {}
+    "data": {
+        "id": 1,
+        "title": "Demo Title",
+        "content": "Demo Content",
+        "group": {
+            "id": 1,
+            "name": "默认分组",
+            "order": 0,
+            "color": "#F0F0F0"
+        },
+        "create_time": "2019-11-17 11:18:59",
+        "update_time": "2019-11-17 11:18:59"
+    }
 }
 ```
 
@@ -171,7 +189,12 @@ Example:
 {
     "code": 200,
     "message": "Success",
-    "data": {}
+    "data": {
+        "id": 2,
+        "name": "Demo",
+        "order": 1,
+        "color": "#F0F0F0"
+    }
 }
 ```
 

@@ -18,27 +18,22 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route("/", methods=['GET'])
     @auth.login_required
     def GetAllRoute():
-        """ 所有分组 """
-        groups = GroupDao().queryAllGroups(uid=g.user)
-        return Result.ok().setData(Group.to_jsons(groups)).json_ret()
+        """ 所有分组 / name """
+        name = request.args.get('name')
+        if name:  # 有查詢
+            group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=str(name))
+            if not group:
+                return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
+            return Result.ok().setData(group.to_json()).json_ret()
+        else:  # 無查詢
+            groups = GroupDao().queryAllGroups(uid=g.user)
+            return Result.ok().setData(Group.to_jsons(groups)).json_ret()
 
     @blue.route("/<int:gid>", methods=['GET'])
     @auth.login_required
     def GetByIdRoute(gid: int):
         """ gid 查询分组 """
         group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=int(gid))
-        if not group:
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
-        return Result.ok().setData(group.to_json()).json_ret()
-
-    @blue.route("/", methods=['GET'])
-    @auth.login_required
-    def GetByNameRoute():
-        """ name 查询分组 """
-        name = request.args.get('name')
-        if not name:
-            raise ParamError(ParamType.QUERY)
-        group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=str(name))
         if not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         return Result.ok().setData(group.to_json()).json_ret()
@@ -71,7 +66,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.HAS_EXISTED).setMessage("Group Existed").json_ret()
         elif status == DbStatusType.DUPLICATE:
             return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Group Name Duplicate").json_ret()
-        elif status == DbStatusType.FAILED or new_group:
+        elif status == DbStatusType.FAILED or not new_group:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Insert Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_group.to_json()).json_ret()
@@ -98,7 +93,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Group Name Duplicate").json_ret()
         elif status == DbStatusType.DEFAULT:
             return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Could Not Update Default Group").json_ret()
-        elif status == DbStatusType.FAILED:
+        elif status == DbStatusType.FAILED or not new_group:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Update Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_group.to_json()).json_ret()

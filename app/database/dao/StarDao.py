@@ -126,12 +126,14 @@ class StarDao(MySQLHelper):
         删除多个分组
         :return: 删除的数目 -1 for error
         """
+        if len(ids) == 0:
+            return 0
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_url} IN ({', '.join([str(sid) for sid in ids])})
+                WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(sid) for sid in ids])})
             ''')
             return cursor.rowcount
         except:

@@ -7,7 +7,7 @@ from app.model.po.Group import Group
 
 class Note(JsonModel):
 
-    def __init__(self, nid: int, title: str, content: str, group: Union[Group, int], create_time: datetime = datetime.now(), update_time: datetime = datetime.now()):
+    def __init__(self, nid: int, title: str, content: str, group: Union[Group, int], create_time: datetime = '', update_time: datetime = ''):
         self.id: int = int(nid)
         self.title: str = title
         self.content: str = content

@@ -36,6 +36,8 @@
 ## Response Body
 
 + `GET /schedule/` (Json)
++ `PUT /schedule` (Json)
++ `DELETE /schedule` (Json)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
@@ -50,18 +52,6 @@ Example:
     "data": {
         "schedule": "{...}"
     }
-}
-```
-
-+ `DELETE /schedule` (Json)
-
-Example:
-
-```json
-{
-    "code": 200,
-    "message": "Success",
-    "data": {}
 }
 ```
 

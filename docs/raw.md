@@ -65,7 +65,7 @@ Example:
     "code": 200,
     "message": "Success",
     "data": {
-        "filename": "201911160411418089.jpg"
+        "filename": "201911171451307609.png"
     }
 }
 ```

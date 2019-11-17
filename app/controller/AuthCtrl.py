@@ -16,6 +16,16 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     应用 Blueprint Endpoint 路由映射 `/auth`
     """
 
+    @blue.route("/", methods=['GET'])
+    @auth.login_required
+    def CurrRoute():
+        """ 当前登陆用户 """
+        user = UserDao().queryUserById(g.user)
+        if not user:
+            return Result.error(ResultCode.UNAUTHORIZED).setMessage("User Not Found").json_ret()
+        else:
+            return Result.ok().setData(user.to_json()).json_ret()
+
     @blue.route("/login", methods=['POST'])
     def LoginRoute():
         """ 登录 """

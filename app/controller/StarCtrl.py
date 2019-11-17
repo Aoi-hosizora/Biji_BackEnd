@@ -31,7 +31,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         star = StarDao().queryStarByIdOrUrl(uid=g.user, sid_url=sid)
         if not star:
             return Result.error(ResultCode.NOT_FOUND).setMessage("StarItem Not Found").json_ret()
-        return Result.ok().setData(star.to_json())
+        return Result.ok().setData(star.to_json()).json_ret()
 
     #######################################################################################################################
 
@@ -86,7 +86,6 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
                 delete_ids.append(int(req_id))
             except KeyError:
                 pass
-
         count = StarDao().deleteStars(uid=g.user, ids=delete_ids)
         if count == -1:
             return Result().error(ResultCode.DATABASE_FAILED).setMessage("StarItem Delete Failed").json_ret()

@@ -135,7 +135,7 @@ class NoteDao(MySQLHelper):
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-            return DbStatusType.SUCCESS, self.queryNoteById(uid, cursor.lastrowid)
+            return DbStatusType.SUCCESS, self.queryNoteById(uid, nid=cursor.lastrowid)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -147,25 +147,30 @@ class NoteDao(MySQLHelper):
         """
         更新笔记 (title, content, group_id, ut) SUCCESS | NOT_FOUND | FAILED
         """
-        if not self.queryNoteById(uid, note.id):  # 不存在
+        sameIdNote = self.queryNoteById(uid, note.id)
+        if not sameIdNote:  # 不存在
             return DbStatusType.NOT_FOUND, None
 
         if not GroupDao().queryGroupByIdOrName(uid=uid, gid_name=note.group.id):  # 分组不存在
             note.group = GroupDao().queryDefaultGroup(uid=uid)
+
+        # 沒更新
+        if note.title == sameIdNote.title and note.content == sameIdNote.content and note.group.id == sameIdNote.group.id:
+            return DbStatusType.SUCCESS, sameIdNote
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
                 UPDATE {self.tbl_name} 
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {note.id}
                 SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', 
                     {self.col_group_id} = {note.group.id}, {self.col_update_time} = '{note.update_time}'
+                WHERE {self.col_user} = {uid} AND {self.col_id} = {note.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, None
-            return DbStatusType.SUCCESS, self.queryNoteById(uid, cursor.lastrowid)
+            return DbStatusType.SUCCESS, self.queryNoteById(uid, note.id)
         except:
             self.db.rollback()
             return DbStatusType.FAILED, None
@@ -178,6 +183,8 @@ class NoteDao(MySQLHelper):
         删除多个笔记
         :return: 删除的条数 -1 for error
         """
+        if len(ids) == 0:
+            return 0
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:

@@ -6,7 +6,7 @@
 + Search Star module see [star.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/star.md)
 + Schedule module see [schedule.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/schedule.md)
 + Document module see [document.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md)
-+ File raw subroute see [raw.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md)
++ Raw static resource url see [raw.md](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md)
 
 ## Revision
 
