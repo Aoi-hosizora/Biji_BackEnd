@@ -64,7 +64,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.FOUNDED:
             return Result.error(ResultCode.HAS_EXISTED).setMessage("Document Class Existed").json_ret()
         elif status == DbStatusType.DUPLICATE:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Document Class Name Duplicate").json_ret()
+            return Result.error(ResultCode.DUPLICATE_FAILED).setMessage("Document Class Name Duplicate").json_ret()
         elif status == DbStatusType.FAILED or not new_docClass:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Class Insert Failed").json_ret()
         else:  # Success
@@ -87,9 +87,9 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
         elif status == DbStatusType.DUPLICATE:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Document Class Name Duplicate").json_ret()
+            return Result.error(ResultCode.DUPLICATE_FAILED).setMessage("Document Class Name Duplicate").json_ret()
         elif status == DbStatusType.DEFAULT:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Could Not Update Default Document Class").json_ret()
+            return Result.error(ResultCode.DEFAULT_FAILED).setMessage("Could Not Update Default Document Class").json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Class Update Failed").json_ret()
         else:  # Success
@@ -104,7 +104,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.NOT_FOUND or not docclass:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
         elif status == DbStatusType.DEFAULT:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Could Not Delete Default Document Class").json_ret()
+            return Result.error(ResultCode.DEFAULT_FAILED).setMessage("Could Not Delete Default Document Class").json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Class Delete Failed").json_ret()
         else:  # Success

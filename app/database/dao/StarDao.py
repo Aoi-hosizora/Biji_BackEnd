@@ -29,7 +29,7 @@ class StarDao(MySQLHelper):
                 CREATE TABLE IF NOT EXISTS {self.tbl_name} (
                     {self.col_user} INT NOT NULL,
                     {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_url} VARCHAR(500) NOT NULL UNIQUE,
+                    {self.col_url} VARCHAR(500) NOT NULL,
                     {self.col_title} VARCHAR({Config.FMT_STAR_TITLE_MAX}) NOT NULL,
                     {self.col_content} VARCHAR({Config.FMT_STAR_CONTENT_MAX})
                 )
@@ -96,12 +96,10 @@ class StarDao(MySQLHelper):
 
     def insertStar(self, uid: int, star: StarItem) -> (DbStatusType, StarItem):
         """
-        插入新收藏 (url, title, content) SUCCESS | FOUNDED | FAILED | DUPLICATE
+        插入新收藏 (url, title, content) SUCCESS | FOUNDED | FAILED
         """
         if self.queryStarByIdOrUrl(uid, star.id) is not None:  # 已存在
             return DbStatusType.FOUNDED, None
-        if self.queryStarByIdOrUrl(uid, star.url) is not None:  # url 重复
-            return DbStatusType.DUPLICATE, None
 
         cursor = self.db.cursor()
         # noinspection PyBroadException

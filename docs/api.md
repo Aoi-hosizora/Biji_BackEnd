@@ -49,7 +49,8 @@
 |--|--|--|
 |600|`Database Failed`|CRUD in database but failed|
 |601|`Has Existed`|Insert an existed item into database|
-|602|`Data Duplicate Or Default`|Insert duplicate or update/delete the default item in the database|
+|602|`Duplicate Failed`|Insert or update duplicate into database|
+|602|`Default Failed`|Update or delete default item into database|
 |603|`Save File Failed`|Save uploaded file to disk failed|
 
 ## Common Error Message
@@ -59,8 +60,8 @@
 |Code|Message|Description|
 |--|--|--|
 |200|`Success`||
+|400|`Request Param Error`||
 |400|`Request Query Param Error`||
-|400|`Request Route Param Error`||
 |400|`Request Route Param Error`||
 |400|`Request Form Data Param Error`||
 |400|`Request Raw Json Param Error`||

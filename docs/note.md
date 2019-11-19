@@ -76,6 +76,8 @@
 |`title`|`string`|Required|笔记标题|长度要求在`[1, 50]`|
 |`content`|`string`|Required|笔记内容||
 |`group_id`|`int`|Required|笔记分组||
+|`create_time`|`string`|Required|笔记创建时间|格式为 `2019-11-17 11:18:59`|
+|`update_time`|`string`|Required|笔记更新时间|同上|
 
 + `PUT /note/` (Data-Form)
 

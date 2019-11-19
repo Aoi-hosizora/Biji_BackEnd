@@ -25,5 +25,6 @@ class ResultCode(Enum):
     # 自定义错误码
     DATABASE_FAILED = 600, 'Database Failed'
     HAS_EXISTED = 601, 'Has Existed'
-    DUPLICATE_DEFAULT = 602, 'Data Duplicate Or Default'
-    SAVE_FILE_FAILED = 603, 'Save File Failed'
+    DUPLICATE_FAILED = 602, 'Data Duplicate Failed'
+    DEFAULT_FAILED = 603, 'Modified Default Failed'
+    SAVE_FILE_FAILED = 604, 'Save File Failed'

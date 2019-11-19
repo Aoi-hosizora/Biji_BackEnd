@@ -51,13 +51,11 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
         req_star = StarItem(sid=-1, title=req_title, url=req_url, content=req_content)
-
+        
         status, new_star = StarDao().insertStar(uid=g.user, star=req_star)
         if status == DbStatusType.FOUNDED:
             return Result.error(ResultCode.HAS_EXISTED).setMessage("StarItem Existed").json_ret()
         elif status == DbStatusType.DUPLICATE:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("StatItem Url Duplicate").json_ret()
-        elif status == DbStatusType.FAILED or not new_star:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("StatItem Insert Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_star.to_json()).json_ret()

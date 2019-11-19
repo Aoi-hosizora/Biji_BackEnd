@@ -51,8 +51,7 @@ CREATE TABLE `tbl_star`
     `sis_url`     varchar(500) NOT NULL,
     `sis_title`   varchar(100) NOT NULL,
     `sis_content` varchar(200) DEFAULT NULL,
-    PRIMARY KEY (`sis_id`),
-    UNIQUE KEY `sis_url` (`sis_url`)
+    PRIMARY KEY (`sis_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 

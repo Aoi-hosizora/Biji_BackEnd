@@ -50,11 +50,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             req_title = request.form['title']
             req_content = request.form['content']
             req_group_id = int(request.form['group_id'])
+            req_ct = request.form['create_time']
+            req_ut = request.form['update_time']
         except:
             raise ParamError(ParamType.FORM)
         if not (Config.FMT_NOTE_TITLE_MIN <= len(req_title) <= Config.FMT_NOTE_TITLE_MAX):
             return Result().error(ResultCode.BAD_REQUEST).setMessage('Format Error').json_ret()
-        req_note = Note(nid=-1, title=req_title, content=req_content, group=req_group_id)
+        req_note = Note(nid=-1, title=req_title, content=req_content, group=req_group_id, create_time=req_ct, update_time=req_ut)
 
         status, new_note = NoteDao().insertNote(uid=g.user, note=req_note)
         if status == DbStatusType.FOUNDED:

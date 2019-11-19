@@ -65,7 +65,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.FOUNDED:
             return Result.error(ResultCode.HAS_EXISTED).setMessage("Group Existed").json_ret()
         elif status == DbStatusType.DUPLICATE:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Group Name Duplicate").json_ret()
+            return Result.error(ResultCode.DUPLICATE_FAILED).setMessage("Group Name Duplicate").json_ret()
         elif status == DbStatusType.FAILED or not new_group:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Insert Failed").json_ret()
         else:  # Success
@@ -90,9 +90,9 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.NOT_FOUND:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif status == DbStatusType.DUPLICATE:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Group Name Duplicate").json_ret()
+            return Result.error(ResultCode.DUPLICATE_FAILED).setMessage("Group Name Duplicate").json_ret()
         elif status == DbStatusType.DEFAULT:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Could Not Update Default Group").json_ret()
+            return Result.error(ResultCode.DEFAULT_FAILED).setMessage("Could Not Update Default Group").json_ret()
         elif status == DbStatusType.FAILED or not new_group:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Update Failed").json_ret()
         else:  # Success
@@ -107,7 +107,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         if status == DbStatusType.NOT_FOUND or not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif status == DbStatusType.DEFAULT:
-            return Result.error(ResultCode.DUPLICATE_DEFAULT).setMessage("Could Not Delete Default Group").json_ret()
+            return Result.error(ResultCode.DEFAULT_FAILED).setMessage("Could Not Delete Default Group").json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Delete Failed").json_ret()
         else:  # Success
