@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl, ScheduleCtrl, DocumentCtrl, DocClassCtrl, RawCtrl
+from app.controller import AuthCtrl, GroupCtrl, NoteCtrl, StarCtrl, ScheduleCtrl, DocumentCtrl, DocClassCtrl, RawCtrl, ShareDocCtrl
 from app.middleware import AuthMw
 
 from flask.app import Flask
@@ -44,7 +44,7 @@ def setup_route_blue(app: Flask):
     ScheduleCtrl.apply_blue(blue_Schedule, auth)
     app.register_blueprint(blue_Schedule)
 
-    # Document Blue (2)
+    # Document Blue (3)
     blue_DocClass = Blueprint("blue_DocClass", __name__, url_prefix="/docclass")
     DocClassCtrl.apply_blue(blue_DocClass, auth)
     app.register_blueprint(blue_DocClass)
@@ -52,6 +52,10 @@ def setup_route_blue(app: Flask):
     blue_Document = Blueprint("blue_Document", __name__, url_prefix="/document")
     DocumentCtrl.apply_blue(blue_Document, auth)
     app.register_blueprint(blue_Document)
+
+    blue_DocShare = Blueprint("blue_DocShare", __name__, url_prefix="/share")
+    ShareDocCtrl.apply_blue(blue_DocShare, auth)
+    app.register_blueprint(blue_DocShare)
 
     # Raw
     blue_Raw = Blueprint("blue_Raw", __name__, url_prefix="/raw")

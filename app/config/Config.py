@@ -7,6 +7,7 @@ class Config(object):
     UPLOAD_FOLDER = './user/'
     UPLOAD_IMAGE_FOLDER = './user/image'
     UPLOAD_DOC_FOLDER = './user/document'
+    TEMP_SHARE_ZIP_FOLDER = './user/temp/zip'
 
     # database
     MYSQL_HOST = 'localhost'
@@ -40,6 +41,3 @@ class Config(object):
     FMT_DOCCLASS_NAME_MIN = 1
     FMT_DOCCLASS_NAME_MAX = 30
     FMT_DOCUMENT_UUID_LEN = 18 + 10  # 18 uuid + 10 Ext
-
-    # Share Zip Temp
-    SHARE_TEMP_ZIP = './user/temp/temp-%s.zip'

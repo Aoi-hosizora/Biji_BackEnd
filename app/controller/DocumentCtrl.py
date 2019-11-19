@@ -1,15 +1,12 @@
 import os
-import zipfile
-from typing import List
 
-from flask import Blueprint, g, request, send_file
+from flask import Blueprint, g, request
 from flask_httpauth import HTTPTokenAuth
 from werkzeug.utils import secure_filename
 
 from app.config.Config import Config
 from app.database.DbStatusType import DbStatusType
 from app.database.dao.DocumentDao import DocumentDao
-from app.database.dao.ShareCodeDao import ShareCodeDao
 from app.model.dto.Result import Result
 from app.model.dto.ResultCode import ResultCode
 from app.model.po.Document import Document
@@ -119,89 +116,3 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             if os.path.exists(server_filepath):
                 os.remove(server_filepath)
             return Result.ok().setData(document.to_json()).json_ret()
-
-    @blue.route('/share', methods=['POST'])
-    @auth.login_required
-    def NewShareCodeRoute():
-        """ 新建共享码 addShareCode """
-        try:
-            req_Ex = int(request.form['ex'])
-        except ValueError:
-            req_Ex = Config.SHARE_TOKEN_EX
-
-        cid = request.args.get('cid')
-        if cid and isinstance(cid, int):  # 将整个集合共享 /share?cid
-            documents = DocumentDao().queryDocumentsByClassId(g.user, int(cid))
-            ids: List[int] = [did.id for did in documents]
-        else:  # /share
-            try:
-                req_didList = request.form.getlist('id')
-                if len(req_didList) == 0:
-                    raise ParamError(ParamType.FORM)
-                ids: List[int] = [int(did) for did in req_didList]
-            except:
-                raise ParamError(ParamType.FORM)
-
-        sc = ShareCodeDao().addShareCode(uid=g.user, dids=ids, ex=req_Ex)
-        if sc == '':
-            return Result.error(ResultCode.DATABASE_FAILED).setMessage('Document Share Code Generate Failed').json_ret()
-        else:
-            return Result.ok().putData('sc', sc).json_ret()
-
-    @blue.route('/share', methods=['GET'])
-    @auth.login_required
-    def GetUserShareCode():
-        """ 获取用户所有共享码 getUserShareCodes """
-        scs: List[int] = ShareCodeDao().getUserShareCodes(g.user)
-        return Result.ok().setData(scs).to_json()
-
-    @blue.route('/share', methods=['DELETE'])
-    @auth.login_required
-    def DeleteShareCodeRoute():
-        """ 根据 共享码 (过滤) 删除 removeShareCodes """
-        try:
-            req_codes = request.form.getlist('sc')
-        except:
-            raise ParamError(ParamType.FORM)
-        req_codes = list(filter(lambda code: code.startswith(ShareCodeDao.sc_prefix), req_codes))
-
-        count = ShareCodeDao().removeShareCodes(g.user, req_codes)
-        return Result.ok().putData('count', count)
-
-    @blue.route('/share/user', methods=['DELETE'])
-    @auth.login_required
-    def DeleteUserShareCodeRoute():
-        """ 根据 用户 删除 removeUserShareCodes """
-        count = ShareCodeDao().removeUserShareCodes(g.user)
-        return Result.ok().putData('count', count)
-
-    @blue.route('/share/<string:sc>', methods=['GET'])
-    def GetRawDocument(sc: str):
-        """ 通过 共享码 下载 """
-        uid, dids = ShareCodeDao().getShareContent(sc)
-        documents = DocumentDao().queryDocumentByIds(uid, dids)
-        uuids = [doc.uuid for doc in documents]
-
-        if len(uuids) == 1:  # 单个文件
-            filepath = os.path.join(f'{Config.UPLOAD_DOC_FOLDER}/{uid}', uuids[0])
-            if not os.path.exists(filepath):
-                return Result.error(ResultCode.NOT_FOUND).setMessage('File Not Found').putData('filename', filepath).json_ret()
-            else:
-                return send_file(filepath)
-
-        else:  # 压缩文件
-            filepaths = [os.path.join(f'{Config.UPLOAD_DOC_FOLDER}/{uid}', uuid) for uuid in uuids]
-            existFilepaths = []  # 存在的文件
-            for filepath in filepaths:
-                if os.path.exists(filepath):
-                    existFilepaths.append(filepath)
-
-            # noinspection PyBroadException
-            try:
-                with zipfile.ZipExtFile('tmp.zip', 'w', zipfile.ZIP_STORED) as zip:
-                    for filepath in existFilepaths:
-                        zip.write(filepath)
-                    return send_file('tmp.file')
-            except:
-                return Result.error().setMessage('Zip File Generate Failed').json_ret()
-

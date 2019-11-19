@@ -60,3 +60,16 @@ def saveFile(file, path: str, file_image: bool) -> (str, bool, bool):
         return '', True, False
     else:  # 保存成功，返回路径
         return filename, True, True
+
+
+def createFile(filename: str) -> bool:
+    """
+    新建文件
+    """
+    filepath = filename[0:filename.rfind(os.sep)]
+    if not os.path.isdir(filepath):
+        os.makedirs(filepath)
+    if not os.path.isfile(filename):
+        fd = open(filename, 'w')
+        fd.close()
+    return os.path.exists(filename)

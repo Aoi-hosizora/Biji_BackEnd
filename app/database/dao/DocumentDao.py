@@ -107,9 +107,9 @@ class DocumentDao(MySQLHelper):
         finally:
             cursor.close()
 
-    def queryDocumentByIds(self, uid: int, ids: List[int]) -> List[Document]:
+    def queryDocumentsByIds(self, uid: int, ids: List[int]) -> List[Document]:
         """
-        根据 ids 查询文件集合
+        根据 ids 查询 Document[]
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
@@ -118,15 +118,34 @@ class DocumentDao(MySQLHelper):
             WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(did) for did in ids])})
         ''')
         result = cursor.fetchall()
-        returns = []
-        defaultClass: DocClass = DocClassDao().queryDefaultDocClass(uid)
+        returns: List[Document] = []
         for ret in result:
             # noinspection PyBroadException
             try:
-                docClass: DocClass = DocClassDao().queryDocClassByIdOrName(uid, result[3])
+                docClass = DocClassDao().queryDocClassByIdOrName(uid, ret[3])
                 if docClass is None:
-                    docClass = defaultClass
+                    docClass = DocClassDao().queryDefaultDocClass(uid)
                 returns.append(Document(did=ret[1], filename=ret[2], docClass=docClass, uuid=ret[4]))
+            except:
+                pass
+        cursor.close()
+        return returns
+
+    def queryUuidByIds(self, uid: int, ids: List[int]) -> List[str]:
+        """
+        根据 ids 查询 uuid[]
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.col_uuid} FROM {self.tbl_name}
+            WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(did) for did in ids])})
+        ''')
+        result = cursor.fetchall()
+        returns: List[str] = []
+        for ret in result:
+            # noinspection PyBroadException
+            try:
+                returns.append(ret[0])
             except:
                 pass
         cursor.close()
