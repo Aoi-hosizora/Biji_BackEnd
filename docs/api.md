@@ -50,8 +50,9 @@
 |600|`Database Failed`|CRUD in database but failed|
 |601|`Has Existed`|Insert an existed item into database|
 |602|`Duplicate Failed`|Insert or update duplicate into database|
-|602|`Default Failed`|Update or delete default item into database|
-|603|`Save File Failed`|Save uploaded file to disk failed|
+|603|`Default Failed`|Update or delete default item into database|
+|604|`Save File Failed`|Save uploaded file to disk failed|
+|605|`Share Document Null`|Document in share code null|
 
 ## Common Error Message
 

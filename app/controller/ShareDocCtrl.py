@@ -1,10 +1,11 @@
+import io
 import os
 import random
 import zipfile
 from datetime import datetime
 from typing import List
 
-from flask import Blueprint, g, request, send_file
+from flask import Blueprint, g, request, send_file, after_this_request
 from flask_httpauth import HTTPTokenAuth
 from app.config.Config import Config
 from app.database.dao.DocumentDao import DocumentDao
@@ -20,37 +21,6 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     """
     应用 Blueprint Endpoint 路由映射 `/document/share`
     """
-    @blue.route('/', methods=['POST'])
-    @auth.login_required
-    def NewShareCodeRoute():
-        """ 新建共享码 addShareCode """
-        try:
-            req_Ex = int(request.form['ex'])
-        except ValueError:
-            req_Ex = Config.SHARE_TOKEN_EX
-
-        cid = request.args.get('cid')
-        if cid:  # 将整个集合共享 /share?cid
-            try:
-                cid = int(cid)
-            except ValueError:
-                raise ParamError(ParamType.FORM)
-            documents = DocumentDao().queryDocumentsByClassId(g.user, int(cid))
-            ids: List[int] = [did.id for did in documents]
-        else:  # /share
-            try:
-                req_didList = request.form.getlist('id')
-                if len(req_didList) == 0:
-                    raise ParamError(ParamType.FORM)
-                ids: List[int] = [int(did) for did in req_didList]
-            except:
-                raise ParamError(ParamType.FORM)
-
-        sc = ShareCodeDao().addShareCode(uid=g.user, dids=ids, ex=req_Ex)
-        if sc == '':
-            return Result.error(ResultCode.DATABASE_FAILED).setMessage('Document Share Code Generate Failed').json_ret()
-        else:
-            return Result.ok().putData('sc', sc).json_ret()
 
     @blue.route('/', methods=['GET'])
     @auth.login_required
@@ -68,6 +38,46 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
                 'documents': Document.to_jsons(documents)
             })
         return Result.ok().setData(returns).json_ret()
+
+    @blue.route('/', methods=['POST'])
+    @auth.login_required
+    def NewShareCodeRoute():
+        """ 新建共享码 addShareCode """
+        try:
+            req_Ex = int(request.form['ex'])
+        except KeyError:
+            req_Ex = Config.SHARE_TOKEN_EX
+        except ValueError:
+            raise ParamError(ParamType.FORM)
+
+        cid = request.args.get('cid')
+        if cid:  # 将整个集合共享 /share?cid
+            try:
+                cid = int(cid)
+            except ValueError:
+                raise ParamError(ParamType.FORM)
+            documents = DocumentDao().queryDocumentsByClassId(g.user, int(cid))
+            ids: List[int] = [did.id for did in documents]
+        else:  # /share
+            try:
+                req_didList = request.form.getlist('did')
+                if len(req_didList) == 0:
+                    raise ParamError(ParamType.FORM)
+                ids: List[int] = [int(did) for did in req_didList]
+            except:
+                raise ParamError(ParamType.FORM)
+
+        sc, docs = ShareCodeDao().addShareCode(uid=g.user, dids=ids, ex=req_Ex)
+        if len(docs) == 0:
+            return Result.error(ResultCode.SHARE_DOCUMENT_NULL).setMessage('Share Documents Null').json_ret()
+        if sc == '':
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage('Document Share Code Generate Failed').json_ret()
+        else:
+            data = {
+                'sc': sc,
+                'documents': Document.to_jsons(docs)
+            }
+            return Result.ok().setData(data).json_ret()
 
     @blue.route('/', methods=['DELETE'])
     @auth.login_required
@@ -99,10 +109,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Share Code Illegal').json_ret()
 
         dids = ShareCodeDao().getShareContent(sc)
+        if len(dids) == 0:
+            return Result.error(ResultCode.BAD_REQUEST).setMessage("Share Code Not Exist").json_ret()
+
         uuids: List[str] = DocumentDao().queryUuidByIds(uid, dids)
 
         if len(uuids) == 0:  # 没有文件
-            return Result.error(ResultCode.NOT_FOUND).setMessage("Share Code Not Include File").json_ret()
+            return Result.error(ResultCode.SHARE_DOCUMENT_NULL).setMessage("Share Code Not Include File").json_ret()
         elif len(uuids) == 1:  # 单个文件
             filepath = os.path.join(f'{Config.UPLOAD_DOC_FOLDER}/{uid}', uuids[0])
             if not os.path.exists(filepath):
@@ -125,15 +138,24 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
                 zip_name += random.randint(0, 9)
             if not FileUtil.createFile(zip_name):
                 return Result.error().setMessage('Zip File Generate Failed').json_ret()
+
+            @after_this_request
+            def remove(response):
+                # noinspection PyBroadException
+                try:
+                    os.remove(zip_name)
+                except Exception as ex:
+                    print(ex)
+                    pass
+                return response
+
             # noinspection PyBroadException
             try:
-                # Write into zip
-                with zipfile.ZipFile(zip_name, 'w') as z:
+                with zipfile.ZipFile(zip_name, 'w', zipfile.ZIP_DEFLATED) as z:
                     for filepath in existFilepaths:
-                        z.write(filepath)
-                return send_file(zip_name)
-            except Exception as ex:
+                        z.write(filename=filepath, arcname=os.path.basename(filepath))
+                with open(zip_name, 'rb') as f:
+                    data = f.read()
+                return send_file(io.BytesIO(data), mimetype='zip', attachment_filename=f'{sc}.zip')
+            except Exception:
                 return Result.error().setMessage('Zip File Generate Failed').json_ret()
-            finally:
-                pass
-                # os.remove(zip_name)

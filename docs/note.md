@@ -219,5 +219,5 @@ Example:
 |600|`Group Update Failed`||
 |600|`Group Delete Failed`||
 |602|`Group Name Duplicate`||
-|602|`Could Not Update Default Group`||
-|602|`Could Not Delete Default Group`||
+|603|`Could Not Update Default Group`||
+|603|`Could Not Delete Default Group`||

@@ -1,10 +1,11 @@
 import json
 import re
-from typing import List, Tuple
+from typing import List
 from datetime import datetime
 
 from app.database.RedisHelper import RedisHelper
 from app.database.dao.DocumentDao import DocumentDao
+from app.model.po.Document import Document
 
 
 class ShareCodeDao(RedisHelper):
@@ -24,20 +25,33 @@ class ShareCodeDao(RedisHelper):
     def __init__(self):
         super(ShareCodeDao, self).__init__()
 
-    def addShareCode(self, uid: int, dids: List[int], ex: int) -> str:
+    def addShareCode(self, uid: int, dids: List[int], ex: int) -> (str, List[Document]):
         """
         :param: uid 用户 id
         :param: dids 文档 id 列表
-        :return: 分享码 '' for error
+        :return: sc ('') & doc[] ([])
         """
         now = datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4]  # 2019111919004491 (16)
         uuid = '{}_{}'.format(uid, now)
         sc = self.sc_prefix + uuid  # biji_sc_23_2019111919004491
-        dids = [did for did in json.dumps(dids) if DocumentDao().queryDocumentById(uid, did) is not None]
+
+        # 传入空文档集
         if len(dids) == 0:
-            return ''
-        ok = self.db.set(name=sc, value=dids, ex=ex)
-        return sc if ok else ''
+            return '', []
+
+        # 共享的文档与id
+        docs = [doc for doc in DocumentDao().queryDocumentsByIds(uid, dids) if doc]
+        dids = [doc.id for doc in docs]
+
+        # 存在的文档集空
+        if len(dids) == 0:
+            return '', []
+
+        ok = self.db.set(name=sc, value=json.dumps(dids), ex=ex)
+        if ok:
+            return sc, docs
+        else:
+            return '', docs
 
     def getShareContent(self, sc: str) -> List[int]:
         """
@@ -45,7 +59,11 @@ class ShareCodeDao(RedisHelper):
         :return: (uid, [])
         """
         content = self.db.get(name=sc)  # biji_sc_23_2019111919004491
-        return json.loads(content)
+        # noinspection PyBroadException
+        try:
+            return json.loads(content)
+        except:
+            return []
 
     def getUserShareCodes(self, uid: int) -> List[str]:
         """

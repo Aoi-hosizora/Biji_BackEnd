@@ -26,11 +26,22 @@
 |--|--|--|
 |`GET`|`/docclass/`|获取所有文档分组 <sup>[4]</sup>|
 |`GET`|`/docclass/:cid`|获取编号为 cid 的文档分组 <sup>[2] [4]</sup>|
-|`GET`|`/docclass/?name`|获取分组名为 name 的文档分组 <sup>[2] [4]</sup>|
+|`GET`|`/docclass?name`|获取分组名为 name 的文档分组 <sup>[2] [4]</sup>|
 |`GET`|`/docclass/default`|获取默认文档分组 <sup>[4]</sup>|
 |`POST`|`/docclass/`|新建文档分组 <sup>[1] [4]</sup>|
 |`PUT`|`/docclass/`|更新文档分组 <sup>[1] [4]</sup>|
 |`DELETE`|`/docclass/:cid`|删除编号为 cid 的文档分组 <sup>[2] [4]</sup>|
+
++ `/share`
+
+|Method|Uri|Description|
+|--|--|--|
+|`GET`|`/share/`|获得用户所有的共享文档与共享码 <sup>[4]</sup>|
+|`POST`|`/share/`|设置指定的文档为共享文档 <sup>[1] [4]</sup>|
+|`POST`|`/share?cid`|设置指定分组的所有文档为共享文档 <sup>[1] [3] [4]</sup>|
+|`DELETE`|`/share/`|删除共享码 <sup>[1] [4]</sup>|
+|`DELETE`|`/share/user`|删除用户所有共享码 <sup>[4]</sup>|
+|`GET`|`/share/:sc`|根据共享码获取文档 <sup>[2]</sup>|
 
 + [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#request-body)
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/document.md#request-route-param)
@@ -42,11 +53,17 @@
 
 ## Request Query Param
 
-+ `GET /docclass/?name`
++ `GET /docclass?name`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`name`|`string`|Required|文档分组名||
+
++ `POST /share?cid`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`cid`|`int`|Required|指定整个分组共享的分组编号||
 
 ## Request Route Param
 
@@ -64,6 +81,12 @@
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`cid`|`int`|Required|文档分组编号||
+
++ `PUT /share/:sc`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`sc`|`string`|Required|文档共享码||
 
 ## Request Body
 
@@ -94,6 +117,25 @@
 |--|--|--|--|--|
 |`id`|`int`|Required|文档分组编号||
 |`name`|`string`|Required|文档分组名|长度要求在`[1, 30]`|
+
++ `POST /share/` (Form-Data)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`ex`|`int`|Not Required|共享时间长度|单位为秒，默认为一个小时 (3600s)|
+|`did`|`int[]`|Required|共享的用户文档编号|非该用户的文档自动忽略|
+
++ `POST /share?cid` (Form-Data)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`ex`|`int`|Not Required|共享时间长度|单位为秒，默认为一个小时 (3600s)|
+
++ `DELETE /share/` (Form-Data)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`sc`|`string[]`|Required|删除的所有共享码||
 
 ---
 
@@ -157,6 +199,53 @@ Example:
 }
 ```
 
++ `GET /share/` (Array)
++ `POST /share/` (Json)
++ `POST /share?cid` (Json)
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`sc`|`string`|用户的一个文档共享码||
+|`documents`|`Document[]`|该共享码的所有文档|格式见 `GET /document/`|
+
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "sc": "biji_sc_1_2019112000075599",
+        "documents": [{
+            "id": 7,
+            "filename": "AI_.png",
+            "docClass": {
+                "id": 5,
+                "name": "Demos"
+            },
+            "uuid": "201911192218313716.png"
+        }]
+    }
+}
+```
+
++ `DELETE /share/` (Json)
++ `DELETE /share/user` (Json)
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`count`|`int`|删除的共享码个数||
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "count": 3
+    }
+}
+```
+
 ---
 
 ## Error Message
@@ -176,7 +265,15 @@ Example:
 |600|`Document Class Update Failed`||
 |600|`Document Class Delete Failed`||
 |602|`Document Class Name Duplicate`||
-|602|`Could Not Update Default Document Class`||
-|602|`Could Not Delete Default Document Class`||
-|400|`File Extension Error`||
-|603|`Save Document Failed`||
+|603|`Could Not Update Default Document Class`||
+|603|`Could Not Delete Default Document Class`||
+|400|`File Extension Error`|文件的后缀名不受支持|
+|604|`Save Document Failed`||
+|605|`Share Documents Null`|共享的文档集合为空|
+|600|`Document Share Code Generate Failed`||
+|400|`Share Code Illegal`|共享码不合法|
+|400|`Share Code Not Exist`|共享码不存在 (可能过期)|
+|605|`Share Code Not Include File`|共享码不包含文件|
+|404|`File Not Found`|共享码包含单个文件不存在|
+|500|`Zip File Generate Failed`|生成压缩包错误|
+

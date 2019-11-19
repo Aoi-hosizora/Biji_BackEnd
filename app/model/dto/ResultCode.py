@@ -28,3 +28,4 @@ class ResultCode(Enum):
     DUPLICATE_FAILED = 602, 'Data Duplicate Failed'
     DEFAULT_FAILED = 603, 'Modified Default Failed'
     SAVE_FILE_FAILED = 604, 'Save File Failed'
+    SHARE_DOCUMENT_NULL = 605, 'Share Document Null'
