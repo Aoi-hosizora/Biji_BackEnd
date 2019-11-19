@@ -73,10 +73,3 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage('Image Not Found').json_ret()
         else:
             return send_file(filepath)
-
-    @blue.route('/blob', methods=['GET'])
-    @auth.login_required
-    def GetFileRoute():
-        """ 获取文件 """
-        # TODO ShareCode
-        pass

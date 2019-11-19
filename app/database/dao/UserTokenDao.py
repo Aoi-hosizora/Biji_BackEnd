@@ -7,7 +7,7 @@ class UserTokenDao(RedisHelper):
     ssn_name = 'ssn_token'
 
     def __init__(self):
-        super().__init__()
+        super(UserTokenDao, self).__init__()
 
     def addToken(self, uid: int, token: str) -> bool:
         """

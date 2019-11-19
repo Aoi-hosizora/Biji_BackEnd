@@ -4,6 +4,7 @@ from app.config.Config import Config
 from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 from app.database.dao.DocClassDao import DocClassDao
+from app.model.po.DocClass import DocClass
 
 from app.model.po.Document import Document
 
@@ -105,6 +106,31 @@ class DocumentDao(MySQLHelper):
             return None
         finally:
             cursor.close()
+
+    def queryDocumentByIds(self, uid: int, ids: List[int]) -> List[Document]:
+        """
+        根据 ids 查询文件集合
+        """
+        cursor = self.db.cursor()
+        cursor.execute(f'''
+            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
+            FROM {self.tbl_name}
+            WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(did) for did in ids])})
+        ''')
+        result = cursor.fetchall()
+        returns = []
+        defaultClass: DocClass = DocClassDao().queryDefaultDocClass(uid)
+        for ret in result:
+            # noinspection PyBroadException
+            try:
+                docClass: DocClass = DocClassDao().queryDocClassByIdOrName(uid, result[3])
+                if docClass is None:
+                    docClass = defaultClass
+                returns.append(Document(did=ret[1], filename=ret[2], docClass=docClass, uuid=ret[4]))
+            except:
+                pass
+        cursor.close()
+        return returns
 
     #######################################################################################################################
 

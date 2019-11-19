@@ -109,27 +109,3 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Class Delete Failed").json_ret()
         else:  # Success
             return Result.ok().setData(docclass.to_json()).json_ret()
-
-    # @auth.login_required
-    # @blue.route('/share', methods=['DELETE'])
-    # def ShareRoute():
-    #     """
-    #     生成文件共享二维码
-    #     """
-    #     pass
-
-    '''
-    @blue_FileClass.route("/share", methods=['GET'])
-    def ShareFilesRoute():
-        username, newToken = RespUtil.getAuthUser(request.headers)
-        foldername = request.args.get('foldername')
-        codeJson = FileClassCtrl.shareCode2Json(username=username, foldername=foldername)
-        shareCodeDao = ShareCodeDao()
-        shareCodeDao.addShareCode(username+foldername, codeJson)
-        qrcode.make(data=codeJson).save('temp.png')
-        return send_file('temp.png')
-        
-    def shareCode2Json(username: str, foldername: str):
-        return "{\"usr\":\""+username+"\",\"folder\":\""+foldername+"\"}"
-
-    '''
