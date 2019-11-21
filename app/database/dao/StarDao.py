@@ -5,15 +5,16 @@ from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 from app.model.po.StarItem import StarItem
 
+tbl_name = 'tbl_star'
+
+col_user = 'sis_user'
+col_id = 'sis_id'
+col_url = 'sis_url'
+col_title = 'sis_title'
+col_content = 'sis_content'
+
 
 class StarDao(MySQLHelper):
-    tbl_name = 'tbl_star'
-
-    col_user = 'sis_user'
-    col_id = 'sis_id'
-    col_url = 'sis_url'
-    col_title = 'sis_title'
-    col_content = 'sis_content'
 
     def __init__(self):
         super().__init__()
@@ -26,12 +27,12 @@ class StarDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_user} INT NOT NULL,
-                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_url} VARCHAR(500) NOT NULL,
-                    {self.col_title} VARCHAR({Config.FMT_STAR_TITLE_MAX}) NOT NULL,
-                    {self.col_content} VARCHAR({Config.FMT_STAR_CONTENT_MAX})
+                CREATE TABLE IF NOT EXISTS {tbl_name} (
+                    {col_user} INT NOT NULL,
+                    {col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {col_url} VARCHAR(500) NOT NULL,
+                    {col_title} VARCHAR({Config.FMT_STAR_TITLE_MAX}) NOT NULL,
+                    {col_content} VARCHAR({Config.FMT_STAR_CONTENT_MAX})
                 )
             ''')
         except:
@@ -49,9 +50,9 @@ class StarDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
-            FROM {self.tbl_name} 
-            WHERE {self.col_user} = {uid}
+            SELECT {col_user}, {col_id}, {col_url}, {col_title}, {col_content}
+            FROM {tbl_name} 
+            WHERE {col_user} = {uid}
         ''')
 
         returns = []
@@ -73,15 +74,15 @@ class StarDao(MySQLHelper):
         cursor = self.db.cursor()
         if isinstance(sid_url, int):
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
-                FROM {self.tbl_name} 
-                WHERE {self.col_user} = {uid} and {self.col_id} = {sid_url}
+                SELECT {col_user}, {col_id}, {col_url}, {col_title}, {col_content}
+                FROM {tbl_name} 
+                WHERE {col_user} = {uid} and {col_id} = {sid_url}
             ''')
         else:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_url}, {self.col_title}, {self.col_content}
-                FROM {self.tbl_name} 
-                WHERE {self.col_user} = {uid} and {self.col_url} = '{sid_url}'
+                SELECT {col_user}, {col_id}, {col_url}, {col_title}, {col_content}
+                FROM {tbl_name} 
+                WHERE {col_user} = {uid} and {col_url} = '{sid_url}'
             ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -105,7 +106,7 @@ class StarDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_url}, {self.col_title}, {self.col_content})
+                INSERT INTO {tbl_name} ({col_user}, {col_url}, {col_title}, {col_content})
                 VALUES ({uid}, '{star.url}', '{star.title}', '{star.content}')
             ''')
             if cursor.rowcount == 0:
@@ -130,8 +131,8 @@ class StarDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(sid) for sid in ids])})
+                DELETE FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_id} IN ({', '.join([str(sid) for sid in ids])})
             ''')
             return cursor.rowcount
         except:

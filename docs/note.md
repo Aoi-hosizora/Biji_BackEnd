@@ -7,6 +7,7 @@
 |`2019/08/02`|Complete note module|
 |`2019/08/07`|Add `PushNote` and `PushGroup` route|
 |`2019/11/16`|Reconstruct backend|
+|`2019/11/21`|Adjust `DELETE /docclass/:cid?default` request param|
 
 ## URI
 
@@ -32,7 +33,8 @@
 |`GET`|`/group/default`|获取默认笔记分组 <sup>[4]</sup>|
 |`POST`|`/group/`|新建笔记分组 <sup>[1] [4]</sup>|
 |`PUT`|`/group/`|更新笔记分组 <sup>[1] [4]</sup>|
-|`DELETE`|`/group/:gid`|删除笔记分组 <sup>[2] [4]</sup>|
+|`PUT`|`/group/order`|更新笔记分组顺序 <sup>[1] [4]</sup>|
+|`DELETE`|`/group/:gid?default`|删除笔记分组 <sup>[2] [3] [4]</sup>|
 
 + [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-body)
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/note.md#request-route-param)
@@ -50,6 +52,12 @@
 |--|--|--|--|--|
 |`name`|`string`|Required|笔记分组名||
 
++ `DELETE /group/:gid?default`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`default`|`boolean`|Not Required|删除分组时若有关联笔记则修改为默认，否则直接删除笔记|默认为 `false`|
+
 ## Request Route Param
 
 + `GET /note/:nid`
@@ -61,7 +69,7 @@
 
 + `GET /note/group/:gid`
 + `GET /group/:gid`
-+ `DELETE /group/:gid`
++ `DELETE /group/:gid?default`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
@@ -99,7 +107,7 @@
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`name`|`string`|Required|分组标题|长度要求在`[1, 30]`|
-|`color`|`string`|Not Required|分组颜色|默认为 `#F0F0F0`|
+|`color`|`string`|Not Required|分组颜色|默认为 `#A5A5A5`|
 
 + `PUT /group/` (Data-Form)
 
@@ -108,7 +116,13 @@
 |`id`|`int`|Required|分组编号||
 |`name`|`string`|Required|分组标题|长度要求在`[1, 30]`|
 |`order`|`int`|Required|分组顺序|从0开始|
-|`color`|`string`|Not Required|分组颜色|默认为 `#F0F0F0`|
+|`color`|`string`|Not Required|分组颜色|默认为 `#A5A5A5`|
+
++ `PUT /group/order` (Data-Form)
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`id_order`|`string`|Required|分组的编号与新顺序组合|格式为 `id_order`，例如 `3_5`|
 
 ---
 
@@ -144,7 +158,7 @@ Example:
             "id": 1,
             "name": "默认分组",
             "order": 0,
-            "color": "#F0F0F0"
+            "color": "#A5A5A5"
         },
         "create_time": "2019-11-17 11:18:59",
         "update_time": "2019-11-17 11:18:59"
@@ -195,7 +209,25 @@ Example:
         "id": 2,
         "name": "Demo",
         "order": 1,
-        "color": "#F0F0F0"
+        "color": "#A5A5A5"
+    }
+}
+```
+
++ `PUT /group/order`
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`count`|`int`|分组修改的个数||
+
+Example:
+
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "count": 2
     }
 }
 ```

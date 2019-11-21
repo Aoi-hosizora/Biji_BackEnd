@@ -95,12 +95,15 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_docclass.to_json()).json_ret()
 
+    # TODO 待測試
     @blue.route('/<int:cid>', methods=['DELETE'])
     @auth.login_required
     def DeleteRoute(cid: int):
         """ 删除文件分组 """
         docclass = DocClassDao().queryDocClassByIdOrName(uid=g.user, cid_name=int(cid))
-        status = DocClassDao().deleteDocClass(uid=g.user, cid=cid)
+        isToDefault: bool = request.args.get('default', 'false').lower() == 'true'
+
+        status = DocClassDao().deleteDocClass(uid=g.user, cid=cid, toDefault=isToDefault)
         if status == DbStatusType.NOT_FOUND or not docclass:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Class Not Found").json_ret()
         elif status == DbStatusType.DEFAULT:

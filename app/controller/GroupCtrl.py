@@ -1,3 +1,5 @@
+from typing import List
+
 from flask import Blueprint, request, g
 from flask_httpauth import HTTPTokenAuth
 
@@ -98,12 +100,36 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         else:  # Success
             return Result.ok().setData(new_group.to_json()).json_ret()
 
+    # TODO 待測試
+    @blue.route("/order", methods=['PUT'])
+    @auth.login_required
+    def UpdateOrderRoute():
+        """ 更新顺序 """
+        req_id_order = request.form.getlist('id_order')  # 3_4
+        update_ids: List[int] = []
+        update_orders: List[int] = []
+        for id_order in req_id_order:
+            try:
+                id_order: [str] = id_order.split('_')
+                update_ids.append(int(id_order[0]))
+                update_orders.append(int(id_order[1]))
+            except KeyError:
+                pass
+
+        status, count = GroupDao().updateGroupsOrder(uid=g.user, ids=update_ids, orders=update_orders)
+        if status == DbStatusType.FAILED:
+            return Result.error(ResultCode.DATABASE_FAILED).setMessage("Group Update Failed").json_ret()
+        else:  # Success
+            return Result.ok().putData("count", count).json_ret()
+
     @blue.route("/<int:gid>", methods=['DELETE'])
     @auth.login_required
     def DeleteRoute(gid: int):
         """ 删除 """
         group: Group = GroupDao().queryGroupByIdOrName(uid=g.user, gid_name=int(gid))
-        status = GroupDao().deleteGroup(uid=g.user, gid=gid)
+        isToDefault: bool = request.args.get('default', 'false').lower() == 'true'
+
+        status = GroupDao().deleteGroup(uid=g.user, gid=gid, toDefault=isToDefault)
         if status == DbStatusType.NOT_FOUND or not group:
             return Result.error(ResultCode.NOT_FOUND).setMessage("Group Not Found").json_ret()
         elif status == DbStatusType.DEFAULT:

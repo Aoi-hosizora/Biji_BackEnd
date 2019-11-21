@@ -1,12 +1,13 @@
 from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 
+tbl_name = "tbl_schedule"
+
+col_user = "sc_user"
+col_json = "sc_json"
+
 
 class ScheduleDao(MySQLHelper):
-    tbl_name = "tbl_schedule"
-
-    col_user = "sc_user"
-    col_json = "sc_json"
 
     def __init__(self):
         super().__init__()
@@ -19,9 +20,9 @@ class ScheduleDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_user} INT NOT NULL PRIMARY KEY,
-                    {self.col_json} TEXT DEFAULT ('')
+                CREATE TABLE IF NOT EXISTS {tbl_name} (
+                    {col_user} INT NOT NULL PRIMARY KEY,
+                    {col_json} TEXT DEFAULT ('')
                 )
             ''')
         except:
@@ -38,7 +39,7 @@ class ScheduleDao(MySQLHelper):
         用户课程表
         """
         cursor = self.db.cursor()
-        cursor.execute(f'''SELECT {self.col_user}, {self.col_json} FROM {self.tbl_name} WHERE {self.col_user} = {uid}''')
+        cursor.execute(f'''SELECT {col_user}, {col_json} FROM {tbl_name} WHERE {col_user} = {uid}''')
         result = cursor.fetchone()
         # noinspection PyBroadException
         try:
@@ -63,9 +64,9 @@ class ScheduleDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             if db_data == '':  # New
-                cursor.execute(f'''INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_json}) VALUES ({uid}, '{data}')''')
+                cursor.execute(f'''INSERT INTO {tbl_name} ({col_user}, {col_json}) VALUES ({uid}, '{data}')''')
             else:
-                cursor.execute(f'''UPDATE {self.tbl_name} SET {self.col_json} = '{data}' WHERE {self.col_user} = {uid}''')
+                cursor.execute(f'''UPDATE {tbl_name} SET {col_json} = '{data}' WHERE {col_user} = {uid}''')
 
             if cursor.rowcount == 0:
                 self.db.rollback()
@@ -90,7 +91,7 @@ class ScheduleDao(MySQLHelper):
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
-            cursor.execute(f'''DELETE FROM {self.tbl_name} WHERE {self.col_user} = {uid}''')
+            cursor.execute(f'''DELETE FROM {tbl_name} WHERE {col_user} = {uid}''')
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED, ''

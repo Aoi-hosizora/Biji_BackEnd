@@ -5,7 +5,8 @@
 |Date|Remark|
 |--|--|
 |`2019/08/03`|Complete file module|
-|`2019/11/16`|Reconstruct backend|
+|`2019/11/18`|Reconstruct backend|
+|`2019/11/21`|Adjust `DELETE /docclass/:cid?default` request param|
 
 ## URI
 
@@ -30,7 +31,7 @@
 |`GET`|`/docclass/default`|获取默认文档分组 <sup>[4]</sup>|
 |`POST`|`/docclass/`|新建文档分组 <sup>[1] [4]</sup>|
 |`PUT`|`/docclass/`|更新文档分组 <sup>[1] [4]</sup>|
-|`DELETE`|`/docclass/:cid`|删除编号为 cid 的文档分组 <sup>[2] [4]</sup>|
+|`DELETE`|`/docclass/:cid?default`|删除编号为 cid 的文档分组 <sup>[2] [3] [4]</sup>|
 
 + `/share`
 
@@ -59,6 +60,12 @@
 |--|--|--|--|--|
 |`name`|`string`|Required|文档分组名||
 
++ `DELETE /docclass/:gid?default`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`default`|`boolean`|Not Required|删除分组时若有关联文档则修改为默认，否则删除记录与文件|默认为 `false`|
+
 + `POST /share?cid`
 
 |Field|Type|Is Required|Description|Remark|
@@ -68,7 +75,7 @@
 ## Request Route Param
 
 + `GET /document/:did`
-+ `DELETE /document/:did`
++ `DELETE /document/:did?default`
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|

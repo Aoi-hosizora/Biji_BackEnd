@@ -6,17 +6,18 @@ from app.database.MySQLHelper import MySQLHelper
 from app.database.dao.GroupDao import GroupDao
 from app.model.po.Note import Note
 
+tbl_name = 'tbl_note'
+
+col_user = 'n_user'
+col_id = 'n_id'
+col_title = 'n_title'
+col_content = 'n_content'
+col_group_id = 'n_group_id'
+col_create_time = 'n_create_time'
+col_update_time = 'n_update_time'
+
 
 class NoteDao(MySQLHelper):
-    tbl_name = 'tbl_note'
-
-    col_user = 'n_user'
-    col_id = 'n_id'
-    col_title = 'n_title'
-    col_content = 'n_content'
-    col_group_id = 'n_group_id'
-    col_create_time = 'n_create_time'
-    col_update_time = 'n_update_time'
 
     def __init__(self):
         super().__init__()
@@ -29,14 +30,14 @@ class NoteDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_user} INT NOT NULL,
-                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_title} VARCHAR ({Config.FMT_NOTE_TITLE_MAX}) NOT NULL,
-                    {self.col_content} TEXT,
-                    {self.col_group_id} INT NOT NULL,
-                    {self.col_create_time} DATETIME NOT NULL,
-                    {self.col_update_time} DATETIME NOT NULL
+                CREATE TABLE IF NOT EXISTS {tbl_name} (
+                    {col_user} INT NOT NULL,
+                    {col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {col_title} VARCHAR ({Config.FMT_NOTE_TITLE_MAX}) NOT NULL,
+                    {col_content} TEXT,
+                    {col_group_id} INT NOT NULL,
+                    {col_create_time} DATETIME NOT NULL,
+                    {col_update_time} DATETIME NOT NULL
                 )
             ''')
         except:
@@ -62,15 +63,15 @@ class NoteDao(MySQLHelper):
         cursor = self.db.cursor()
         if gid == -1:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
-                FROM {self.tbl_name} 
-                WHERE {self.col_user} = {uid}
+                SELECT {col_user}, {col_id}, {col_title}, {col_content}, {col_group_id}, {col_create_time}, {col_update_time}
+                FROM {tbl_name} 
+                WHERE {col_user} = {uid}
             ''')
         else:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
-                FROM {self.tbl_name} 
-                WHERE {self.col_user} = {uid} AND {self.col_group_id} = {gid}
+                SELECT {col_user}, {col_id}, {col_title}, {col_content}, {col_group_id}, {col_create_time}, {col_update_time}
+                FROM {tbl_name} 
+                WHERE {col_user} = {uid} AND {col_group_id} = {gid}
             ''')
 
         returns = []
@@ -95,9 +96,9 @@ class NoteDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_id} = {nid}
+            SELECT {col_user}, {col_id}, {col_title}, {col_content}, {col_group_id}, {col_create_time}, {col_update_time}
+            FROM {tbl_name}
+            WHERE {col_user} = {uid} AND {col_id} = {nid}
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -127,8 +128,8 @@ class NoteDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_title}, {self.col_content}, {self.col_group_id}, {self.col_create_time}, {self.col_update_time}
+                INSERT INTO {tbl_name} (
+                    {col_user}, {col_title}, {col_content}, {col_group_id}, {col_create_time}, {col_update_time}
                 )
                 VALUES ({uid}, '{note.title}', '{note.content}', {note.group.id}, '{note.create_time}', '{note.update_time}')
             ''')
@@ -162,10 +163,10 @@ class NoteDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name} 
-                SET {self.col_title} = '{note.title}', {self.col_content} = '{note.content}', 
-                    {self.col_group_id} = {note.group.id}, {self.col_update_time} = '{note.update_time}'
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {note.id}
+                UPDATE {tbl_name} 
+                SET {col_title} = '{note.title}', {col_content} = '{note.content}', 
+                    {col_group_id} = {note.group.id}, {col_update_time} = '{note.update_time}'
+                WHERE {col_user} = {uid} AND {col_id} = {note.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
@@ -189,8 +190,8 @@ class NoteDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(nid) for nid in ids])})
+                DELETE FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_id} IN ({', '.join([str(nid) for nid in ids])})
             ''')
             return cursor.rowcount
         except:

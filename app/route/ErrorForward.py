@@ -50,9 +50,9 @@ def setup_error_forward(app: Flask):
         print(traceback.format_exc())
 
         if isinstance(error, BadSignature):
-            return Result.error(ResultCode.UNAUTHORIZED).setMessage("Token Bad Signature").setData(str(error)).json_ret()  # 401
+            return Result.error(ResultCode.UNAUTHORIZED).setMessage("Token Bad Signature").json_ret()  # 401
         if isinstance(error, SignatureExpired):
-            return Result.error(ResultCode.UNAUTHORIZED).setMessage("Token Expired").setData(str(error)).json_ret()  # 401
+            return Result.error(ResultCode.UNAUTHORIZED).setMessage("Token Expired").json_ret()  # 401
         if isinstance(error, ParamError):
             message = 'Request Query Param Error' if error.paramType == ParamType.QUERY else \
                       'Request Route Param Error' if error.paramType == ParamType.ROUTE else \

@@ -6,6 +6,7 @@
 |--|--|
 |`2019/08/03`|Add `ImgBlue`|
 |`2019/11/16`|Reconstruct backend|
+|`2019/11/21`|Adjust `POST /raw/image` response body|
 
 ## URI
 
@@ -56,7 +57,7 @@
 
 |Field|Type|Description|Remark|
 |--|--|--|--|
-|`filename`|`string`|上传图片的新文件名||
+|`filename`|`string`|上传图片的新路径名||
 
 Example:
 
@@ -65,12 +66,12 @@ Example:
     "code": 200,
     "message": "Success",
     "data": {
-        "filename": "201911171451307609.png"
+        "filename": "/raw/image/5/201911171451307609.png"
     }
 }
 ```
 
-+ `DELETE /raw/image`
++ `DELETE /raw/image` (停用)
 
 |Field|Type|Description|Remark|
 |--|--|--|--|

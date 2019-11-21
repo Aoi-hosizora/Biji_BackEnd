@@ -6,6 +6,12 @@ from app.database.MySQLHelper import MySQLHelper
 from app.model.po.User import User
 from app.util import AuthUtil
 
+tbl_name = 'tbl_user'
+
+col_id = 'u_id'
+col_username = 'u_name'
+col_password = 'u_password'
+
 
 class UserDao(MySQLHelper):
     """
@@ -13,11 +19,6 @@ class UserDao(MySQLHelper):
     uid username hash_pass 存储
     没有 PO，直接在 DAO 加密和验证
     """
-    tbl_name = 'tbl_user'
-
-    col_id = 'u_id'
-    col_username = 'u_name'
-    col_password = 'u_password'
 
     def __init__(self):
         super().__init__()
@@ -30,10 +31,10 @@ class UserDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_username} VARCHAR({Config.FMT_USERNAME_MAX}) NOT NULL UNIQUE,
-                    {self.col_password} VARCHAR(150) NOT NULL
+                CREATE TABLE IF NOT EXISTS {tbl_name} (
+                    {col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {col_username} VARCHAR({Config.FMT_USERNAME_MAX}) NOT NULL UNIQUE,
+                    {col_password} VARCHAR(150) NOT NULL
                 )
             ''')
         except:
@@ -50,9 +51,9 @@ class UserDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_id}, {self.col_username}, {self.col_password} 
-            FROM {self.tbl_name}
-            WHERE {self.col_id} = {uid}
+            SELECT {col_id}, {col_username}, {col_password} 
+            FROM {tbl_name}
+            WHERE {col_id} = {uid}
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -69,9 +70,9 @@ class UserDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_id}, {self.col_username}, {self.col_password}
-            FROM {self.tbl_name}
-            WHERE {self.col_username} = '{username}'
+            SELECT {col_id}, {col_username}, {col_password}
+            FROM {tbl_name}
+            WHERE {col_username} = '{username}'
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -111,7 +112,7 @@ class UserDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} ({self.col_username}, {self.col_password})
+                INSERT INTO {tbl_name} ({col_username}, {col_password})
                 VALUES ('{username}', '{encrypted_pass}')
             ''')
 

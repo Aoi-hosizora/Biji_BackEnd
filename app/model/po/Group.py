@@ -3,12 +3,12 @@ from app.model.JsonModel import JsonModel
 
 class Group(JsonModel):
 
-    def __init__(self, gid: int, name: str, order: int = -1, color: str = '#F0F0F0'):
+    def __init__(self, gid: int, name: str, order: int = -1, color: str = '#A5A5A5'):
         self.id: int = int(gid)
         self.name: str = name
         self.order: int = int(order)
         if not color or not color.startswith('#'):
-            self.color: str = '#F0F0F0'
+            self.color: str = '#A5A5A5'
         else:
             self.color: str = color
 
@@ -21,4 +21,4 @@ class Group(JsonModel):
         }
 
 
-DEF_GROUP = Group(1, "默认分组", 0, '#F0F0F0')
+DEF_GROUP = Group(1, "默认分组", 0, '#A5A5A5')

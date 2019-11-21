@@ -36,15 +36,17 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             if not save_ok:  # 保存失败
                 return Result.error(ResultCode.SAVE_FILE_FAILED).setMessage('Save Image Failed').json_ret()
             else:  # 保存成功，返回路径
-                return Result.ok().putData('filename', filename).json_ret()  # 201911160411418089.jpg
+                filename: str = f'/raw/image/{str(g.user)}/{filename}'
+                return Result.ok().putData('filename', filename).json_ret()  # /raw/image/5/201911160411418089.jpg
 
         else:  # 其他类型图片
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Not Support Upload Type').json_ret()
 
+    @DeprecationWarning
     @blue.route('/image', methods=['DELETE'])
     @auth.login_required
     def DeleteImageRoute():
-        """ 删除图片 """
+        """ 删除图片 废弃 """
         try:
             req_type = request.form['type']
             req_urls: List = request.form.getlist('urls')

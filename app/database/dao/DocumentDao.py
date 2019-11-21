@@ -4,19 +4,19 @@ from app.config.Config import Config
 from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 from app.database.dao.DocClassDao import DocClassDao
-from app.model.po.DocClass import DocClass
 
 from app.model.po.Document import Document
 
+tbl_name = "tbl_document"
+
+col_user = "d_user"
+col_id = "d_id"
+col_filename = "d_filename"
+col_uuid = "d_uuid_name"
+col_class_id = "d_class_id"
+
 
 class DocumentDao(MySQLHelper):
-    tbl_name = "tbl_document"
-
-    col_user = "d_user"
-    col_id = "d_id"
-    col_filename = "d_filename"
-    col_uuid = "d_uuid_name"
-    col_class_id = "d_class_id"
 
     def __init__(self):
         super().__init__()
@@ -29,12 +29,12 @@ class DocumentDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_user} INT NOT NULL,
-                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_filename} TEXT NOT NULL,
-                    {self.col_uuid} VARCHAR({Config.FMT_DOCUMENT_UUID_LEN}) NOT NULL,
-                    {self.col_class_id} INT NOT NULL
+                CREATE TABLE IF NOT EXISTS {tbl_name} (
+                    {col_user} INT NOT NULL,
+                    {col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {col_filename} TEXT NOT NULL,
+                    {col_uuid} VARCHAR({Config.FMT_DOCUMENT_UUID_LEN}) NOT NULL,
+                    {col_class_id} INT NOT NULL
                 )
             ''')
         except:
@@ -60,15 +60,15 @@ class DocumentDao(MySQLHelper):
         cursor = self.db.cursor()
         if cid == -1:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
-                FROM {self.tbl_name} 
-                WHERE {self.col_user} = {uid}
+                SELECT {col_user}, {col_id}, {col_filename}, {col_class_id}, {col_uuid}
+                FROM {tbl_name} 
+                WHERE {col_user} = {uid}
             ''')
         else:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
-                FROM {self.tbl_name} 
-                WHERE {self.col_user} = {uid} AND {self.col_class_id} = {cid}
+                SELECT {col_user}, {col_id}, {col_filename}, {col_class_id}, {col_uuid}
+                FROM {tbl_name} 
+                WHERE {col_user} = {uid} AND {col_class_id} = {cid}
             ''')
 
         returns = []
@@ -91,9 +91,9 @@ class DocumentDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_id} = {did}
+            SELECT {col_user}, {col_id}, {col_filename}, {col_class_id}, {col_uuid}
+            FROM {tbl_name}
+            WHERE {col_user} = {uid} AND {col_id} = {did}
         ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -113,9 +113,9 @@ class DocumentDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(did) for did in ids])})
+            SELECT {col_user}, {col_id}, {col_filename}, {col_class_id}, {col_uuid}
+            FROM {tbl_name}
+            WHERE {col_user} = {uid} AND {col_id} IN ({', '.join([str(did) for did in ids])})
         ''')
         result = cursor.fetchall()
         returns: List[Document] = []
@@ -137,8 +137,8 @@ class DocumentDao(MySQLHelper):
         """
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_uuid} FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid} AND {self.col_id} IN ({', '.join([str(did) for did in ids])})
+            SELECT {col_uuid} FROM {tbl_name}
+            WHERE {col_user} = {uid} AND {col_id} IN ({', '.join([str(did) for did in ids])})
         ''')
         result = cursor.fetchall()
         returns: List[str] = []
@@ -167,8 +167,8 @@ class DocumentDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_filename}, {self.col_class_id}, {self.col_uuid}
+                INSERT INTO {tbl_name} (
+                    {col_user}, {col_filename}, {col_class_id}, {col_uuid}
                 )
                 VALUES ({uid}, '{document.filename}', {document.docClass.id}, '{document.uuid}') 
             ''')
@@ -202,9 +202,9 @@ class DocumentDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name} 
-                SET {self.col_class_id} = {document.docClass.id}, {self.col_filename} = '{document.filename}'
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {document.id}
+                UPDATE {tbl_name} 
+                SET {col_class_id} = {document.docClass.id}, {col_filename} = '{document.filename}'
+                WHERE {col_user} = {uid} AND {col_id} = {document.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
@@ -228,8 +228,8 @@ class DocumentDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {did}
+                DELETE FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_id} = {did}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()

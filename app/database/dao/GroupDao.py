@@ -5,15 +5,16 @@ from app.database.DbStatusType import DbStatusType
 from app.database.MySQLHelper import MySQLHelper
 from app.model.po.Group import Group, DEF_GROUP
 
+tbl_name = 'tbl_group'
+
+col_user = 'g_user'
+col_id = 'g_id'
+col_name = 'g_name'
+col_order = 'g_order'
+col_color = 'g_color'
+
 
 class GroupDao(MySQLHelper):
-    tbl_name = 'tbl_group'
-
-    col_user = 'g_user'
-    col_id = 'g_id'
-    col_name = 'g_name'
-    col_order = 'g_order'
-    col_color = 'g_color'
 
     def __init__(self):
         super().__init__()
@@ -26,12 +27,12 @@ class GroupDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                CREATE TABLE IF NOT EXISTS {self.tbl_name} (
-                    {self.col_user} INT NOT NULL,
-                    {self.col_id} INT PRIMARY KEY AUTO_INCREMENT,
-                    {self.col_name} VARCHAR({Config.FMT_GROUP_NAME_MAX}) NOT NULL UNIQUE,
-                    {self.col_order} INT NOT NULL,
-                    {self.col_color} VARCHAR(10) NOT NULL
+                CREATE TABLE IF NOT EXISTS {tbl_name} (
+                    {col_user} INT NOT NULL,
+                    {col_id} INT PRIMARY KEY AUTO_INCREMENT,
+                    {col_name} VARCHAR({Config.FMT_GROUP_NAME_MAX}) NOT NULL UNIQUE,
+                    {col_order} INT NOT NULL,
+                    {col_color} VARCHAR(10) NOT NULL
                 )
             ''')
         except:
@@ -50,9 +51,9 @@ class GroupDao(MySQLHelper):
 
         cursor = self.db.cursor()
         cursor.execute(f'''
-            SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-            FROM {self.tbl_name}
-            WHERE {self.col_user} = {uid}
+            SELECT {col_user}, {col_id}, {col_name}, {col_order}, {col_color}
+            FROM {tbl_name}
+            WHERE {col_user} = {uid}
         ''')
 
         returns = []
@@ -76,15 +77,15 @@ class GroupDao(MySQLHelper):
         cursor = self.db.cursor()
         if isinstance(gid_name, int):
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-                FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {gid_name}
+                SELECT {col_user}, {col_id}, {col_name}, {col_order}, {col_color}
+                FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_id} = {gid_name}
             ''')
         else:
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-                FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_name} = '{gid_name}'
+                SELECT {col_user}, {col_id}, {col_name}, {col_order}, {col_color}
+                FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_name} = '{gid_name}'
             ''')
         result = cursor.fetchone()
         # noinspection PyBroadException
@@ -118,8 +119,8 @@ class GroupDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                INSERT INTO {self.tbl_name} (
-                    {self.col_user}, {self.col_name}, {self.col_order}, {self.col_color}
+                INSERT INTO {tbl_name} (
+                    {col_user}, {col_name}, {col_order}, {col_color}
                 )
                 VALUES (
                     {uid}, '{group.name}', {group.order}, '{group.color}'
@@ -159,9 +160,9 @@ class GroupDao(MySQLHelper):
         # noinspection PyBroadException
         try:
             cursor.execute(f'''
-                UPDATE {self.tbl_name} 
-                SET {self.col_name} = '{group.name}', {self.col_order} = {group.order}, {self.col_color} = '{group.color}'
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {group.id}
+                UPDATE {tbl_name} 
+                SET {col_name} = '{group.name}', {col_order} = {group.order}, {col_color} = '{group.color}'
+                WHERE {col_user} = {uid} AND {col_id} = {group.id}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
@@ -177,27 +178,95 @@ class GroupDao(MySQLHelper):
             self.db.commit()
             cursor.close()
 
-    def deleteGroup(self, uid: int, gid: int) -> DbStatusType:
+    def updateGroupsOrder(self, uid: int, ids: List[int], orders: List[int]) -> (DbStatusType, int):
+        """
+        更新分组顺序 (order) SUCCESS | FAILED
+        """
+        # 修改默认分组名
+        defGroup = self.queryDefaultGroup(uid)
+
+        count = 0
+        cursor = self.db.cursor()
+        # noinspection PyBroadException
+        try:
+            for gid, order in zip(ids, orders):
+                if gid == defGroup.id:
+                    continue
+                print(gid, order)
+                cursor.execute(f'''SELECT {col_order} FROM {tbl_name} WHERE {col_user} = {uid} AND {col_id} = {gid}''')
+                moto_order = cursor.fetchone()[0]  # 修改
+                if order != moto_order:
+                    cursor.execute(f'''
+                        UPDATE {tbl_name}
+                        SET {col_order} = {order}
+                        WHERE {col_user} = {uid} AND {col_id} = {gid}
+                    ''')
+                    if cursor.rowcount == 0:
+                        self.db.rollback()
+                        return DbStatusType.FAILED, None
+                    count += cursor.rowcount
+        except Exception as ex:
+            print(ex)
+            self.db.rollback()
+            return DbStatusType.FAILED, None
+        finally:
+            self.db.commit()
+            cursor.close()
+
+        self.processGroups(uid)  # 更新后处理
+        return DbStatusType.SUCCESS, count
+
+    def deleteGroup(self, uid: int, gid: int, toDefault: bool) -> DbStatusType:
         """
         删除一个分组 SUCCESS | NOT_FOUND | DEFAULT | FAILED
+        對應修改筆記
         """
+        from app.database.dao import NoteDao
+
         if self.queryGroupByIdOrName(uid, int(gid)) is None:  # 不存在
             return DbStatusType.NOT_FOUND
 
         # 删除默认分组
-        if gid == self.queryDefaultGroup(uid).id:
+        def_group = self.queryDefaultGroup(uid)
+        if gid == def_group.id:
             return DbStatusType.DEFAULT
 
         cursor = self.db.cursor()
         # noinspection PyBroadException
         try:
+            # 對應筆記
             cursor.execute(f'''
-                DELETE FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_id} = {gid}
+                SELECT COUNT(*) FROM {NoteDao.tbl_name} 
+                WHERE {NoteDao.col_user} = {uid} AND {NoteDao.col_group_id} = {gid}
+            ''')
+            note_len = cursor.fetchone()[0]
+            if note_len != 0:  # 有對應筆記
+                if toDefault:  # 修改為默認
+                    cursor.execute(f'''
+                        UPDATE {NoteDao.tbl_name}
+                        SET {NoteDao.col_group_id} = {def_group.id}
+                        WHERE {NoteDao.col_user} = {uid} AND {NoteDao.col_group_id} = {gid}
+                    ''')
+                    if cursor.rowcount == 0:
+                        self.db.rollback()
+                        return DbStatusType.FAILED
+                else:  # 刪除
+                    cursor.execute(f'''
+                        DELETE FROM {NoteDao.tbl_name}
+                        WHERE {NoteDao.col_user} = {uid} AND {NoteDao.col_group_id} = {gid}
+                    ''')
+                    if cursor.rowcount == 0:
+                        self.db.rollback()
+                        return DbStatusType.FAILED
+            # 删除分組
+            cursor.execute(f'''
+                DELETE FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_id} = {gid}
             ''')
             if cursor.rowcount == 0:
                 self.db.rollback()
                 return DbStatusType.FAILED
+
             self.db.commit()  # !!!
             self.processGroups(uid)  # 删除后处理
             return DbStatusType.SUCCESS
@@ -219,8 +288,8 @@ class GroupDao(MySQLHelper):
         def query(name: str) -> bool:
             cursor = self.db.cursor()
             cursor.execute(f'''
-                SELECT * FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid} AND {self.col_name} = '{name}'
+                SELECT * FROM {tbl_name}
+                WHERE {col_user} = {uid} AND {col_name} = '{name}'
             ''')
             count = cursor.rowcount
             cursor.close()
@@ -231,7 +300,7 @@ class GroupDao(MySQLHelper):
             # noinspection PyBroadException
             try:
                 cursor.execute(f'''
-                    INSERT INTO {self.tbl_name} ({self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color})
+                    INSERT INTO {tbl_name} ({col_user}, {col_id}, {col_name}, {col_order}, {col_color})
                     VALUES ({uid}, {g.id}, '{g.name}', {g.order}, '{g.color}')
                 ''')
             except:
@@ -243,9 +312,9 @@ class GroupDao(MySQLHelper):
         def queryAll() -> List[Group]:
             cursor = self.db.cursor()
             cursor.execute(f'''
-                SELECT {self.col_user}, {self.col_id}, {self.col_name}, {self.col_order}, {self.col_color}
-                FROM {self.tbl_name}
-                WHERE {self.col_user} = {uid}
+                SELECT {col_user}, {col_id}, {col_name}, {col_order}, {col_color}
+                FROM {tbl_name}
+                WHERE {col_user} = {uid}
             ''')
             returns = []
             results = cursor.fetchall()
@@ -264,9 +333,9 @@ class GroupDao(MySQLHelper):
             # noinspection PyBroadException
             try:
                 cursor.execute(f'''
-                    UPDATE {self.tbl_name} 
-                    SET {self.col_order} = {order}
-                    WHERE {self.col_user} = {uid} AND {self.col_id} = {gid}
+                    UPDATE {tbl_name} 
+                    SET {col_order} = {order}
+                    WHERE {col_user} = {uid} AND {col_id} = {gid}
                  ''')
             except:
                 self.db.rollback()
