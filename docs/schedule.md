@@ -30,6 +30,7 @@
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
 |`schedule`|`string`|Required|用户课表 Json 字符串||
+|`week`|`int`|Required|当前周||
 
 ---
 
@@ -42,6 +43,7 @@
 |Field|Type|Description|Remark|
 |--|--|--|--|
 |`schedule`|`string`|用户课表 Json 字符串||
+|`week`|`int`|当前周||
 
 Example:
 
@@ -50,7 +52,8 @@ Example:
     "code": 200,
     "message": "Success",
     "data": {
-        "schedule": "{...}"
+        "schedule": "{...}",
+        "week": "{...}"
     }
 }
 ```
