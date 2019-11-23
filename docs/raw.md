@@ -15,6 +15,7 @@
 |`GET`|`/raw/image/:uid/:filename`|获取图片 <sup>[2]</sup>|
 |`POST`|`/raw/image`|上传图片 <sup>[1] [4]</sup>|
 |`DELETE`|`/raw/image/`|删除图片 <sup>[1] [4]</sup>|
+|`GET`|`/raw/file/:uuid`|获取文件 <sup>[2] [4]</sup>|
 
 + [1] [Need request body](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#request-body)
 + [2] [Need route param](https://github.com/Aoi-hosizora/Biji_BackEnd/blob/master/docs/raw.md#request-route-param)
@@ -32,6 +33,12 @@
 |--|--|--|--|--|
 |`uid`|`int`|Required|用户 id||
 |`filename`|`string`|Required|图片新文件名||
+
++ `GET /raw/file/:uuid`
+
+|Field|Type|Is Required|Description|Remark|
+|--|--|--|--|--|
+|`uuid`|`int`|Required|文件的标识符 (在服务器的保存名)|需要和用户对应，否则会返回 `Not Found`|
 
 ## Request Body
 
@@ -97,7 +104,8 @@ Example:
 
 |Code|Message|Description|
 |--|--|--|
-|404|`Image Not Found`||
+|404|`Image Not Found`|图片找不到|
 |400|`File Extension Error`||
 |400|`Not Support Upload Type`||
 |603|`Save Image Failed`||
+|404|`File Not Found`|文件找不到|

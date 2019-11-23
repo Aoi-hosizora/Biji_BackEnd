@@ -41,3 +41,6 @@ class Config(object):
     FMT_DOCCLASS_NAME_MIN = 1
     FMT_DOCCLASS_NAME_MAX = 30
     FMT_DOCUMENT_UUID_LEN = 18 + 10  # 18 uuid + 10 Ext
+
+    # file
+    MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50MB (byte)

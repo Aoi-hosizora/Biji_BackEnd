@@ -101,7 +101,7 @@
 
 |Field|Type|Is Required|Description|Remark|
 |--|--|--|--|--|
-|`file`|`file`|Required|上传的文档文件|只支持 `[txt, md, pdf, doc, docx, ppt, pptx, xls, xlsx, zip, rar]` 與 `[jpg, png, jpeg, bmp]`|
+|`file`|`file`|Required|上传的文档文件|只支持 `[txt, md, pdf, doc, docx, ppt, pptx, xls, xlsx, zip, rar]` 与 `[jpg, png, jpeg, bmp]`，并且文件大小限制在 `50MB` 以内|
 |`doc_class_id`|`int`|Required|文档分组编号||
 
 + `PUT /document/` (Form-data)
@@ -225,7 +225,7 @@ Example:
         "sc": "biji_sc_1_2019112000075599",
         "documents": [{
             "id": 7,
-            "filename": "AI_.png",
+            "filename": "可伸缩服务架构：框架与中间件.pdf",
             "docClass": {
                 "id": 5,
                 "name": "Demos"
@@ -275,6 +275,7 @@ Example:
 |603|`Could Not Update Default Document Class`||
 |603|`Could Not Delete Default Document Class`||
 |400|`File Extension Error`|文件的后缀名不受支持|
+|400|`File Out Of Size`|文件超过大小限制|
 |604|`Save Document Failed`||
 |605|`Share Documents Null`|共享的文档集合为空|
 |600|`Document Share Code Generate Failed`||

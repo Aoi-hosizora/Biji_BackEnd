@@ -20,6 +20,7 @@ def setup(flask_app: app.Flask):
     flask_app.config['JSON_AS_ASCII'] = False
     flask_app.config['UPLOAD_FOLDER'] = Config.UPLOAD_FOLDER
     flask_app.config['SECRET_KEY'] = Config.SECRET_KEY
+    # flask_app.config['MAX_CONTENT_LENGTH'] = Config.MAX_UPLOAD_SIZE
 
     # Module Blues
     setup_route_blue(app=flask_app)
@@ -33,4 +34,7 @@ setup(FlaskApp)
 
 if __name__ == "__main__":
     FlaskApp.run(
-        host=Config.SERVER_HOST, port=Config.SERVER_PORT)
+        host=Config.SERVER_HOST,
+        port=Config.SERVER_PORT,
+        threaded=True
+    )

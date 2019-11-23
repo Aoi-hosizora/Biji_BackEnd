@@ -22,23 +22,34 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['GET'])
     @auth.login_required
     def GetAllRoute():
-        """ 所有文档 """
+        """ 所有文档，只返回文件存在的记录 """
         documents = DocumentDao().queryAllDocuments(g.user)
-        return Result().ok().setData(Document.to_jsons(documents)).json_ret()
+        new_documents = []
+        filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
+        for document in documents:
+            if os.path.exists(filepath + document.uuid):  # 不删除不存在的记录
+                new_documents.append(document)
+        return Result().ok().setData(Document.to_jsons(new_documents)).json_ret()
 
     @blue.route('/class/<int:cid>', methods=['GET'])
     @auth.login_required
     def GetClassRoute(cid: int):
         """ classId 查询文档 """
         documents = DocumentDao().queryDocumentsByClassId(uid=g.user, cid=cid)
-        return Result().ok().setData(Document.to_jsons(documents)).json_ret()
+        new_documents = []
+        filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
+        for document in documents:
+            if os.path.exists(filepath + document.uuid):
+                new_documents.append(document)
+        return Result().ok().setData(Document.to_jsons(new_documents)).json_ret()
 
     @blue.route('/<int:did>', methods=['GET'])
     @auth.login_required
     def GetOneRoute(did: int):
         """ did 查询文档 """
         document = DocumentDao().queryDocumentById(uid=g.user, did=did)
-        if not document:
+        filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
+        if not document or not os.path.exists(filepath + document.uuid):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
         return Result.ok().setData(document.to_json()).json_ret()
 
@@ -47,18 +58,23 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['POST'])
     @auth.login_required
     def InsertRoute():
-        """ 插入文档 (DB + FS) """
+        """
+        插入文档 (DB + FS)
+        先保存文件，记录保存的文件名和 uuid (当前时间)
+        然后将文件名 uuid classId 插入数据库，返回
+        """
         try:
-            upload_file = request.files.get('file')
-            # req_filename = request.form['filename']
+            upload_file = request.files.get('file')  # 包含文件名
             req_docClass = int(request.form['doc_class_id'])
-            # if not (upload_file and req_filename and req_docClass):
             if not (upload_file and req_docClass):
                 raise ParamError(ParamType.FORM)
         except:
             raise ParamError(ParamType.FORM)
 
         # Save
+        file_len = len(upload_file.read())
+        if file_len > Config.MAX_UPLOAD_SIZE:  # 50M
+            return Result.error(ResultCode.BAD_REQUEST).setMessage('File Out Of Size').json_ret()
         server_filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
         server_filename, type_ok, save_ok = FileUtil.saveFile(file=upload_file, path=server_filepath, file_image=False)
         if not type_ok:  # 格式错误
@@ -82,7 +98,10 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['PUT'])
     @auth.login_required
     def UpdateRoute():
-        """ 更新文档 (DB) """
+        """
+        更新文档 (DB)
+        会更新文档分组和文件名
+        """
         try:
             req_id = int(request.form['id'])
             req_filename = request.form['filename']
@@ -93,8 +112,9 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             raise ParamError(ParamType.FORM)
         req_doc = Document(did=req_id, filename=req_filename, docClass=req_docClass)
 
+        filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
         status, new_document = DocumentDao().updateDocument(uid=g.user, document=req_doc)
-        if status == DbStatusType.NOT_FOUND:
+        if status == DbStatusType.NOT_FOUND or not new_document or not os.path.exists(filepath + new_document.uuid):
             return Result.error(ResultCode.NOT_FOUND).setMessage("Document Not Found").json_ret()
         elif status == DbStatusType.FAILED:
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Update Failed").json_ret()

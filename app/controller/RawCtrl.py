@@ -75,3 +75,13 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             return Result.error(ResultCode.NOT_FOUND).setMessage('Image Not Found').json_ret()
         else:
             return send_file(filepath)
+
+    @blue.route('/file/<string:uuid>', methods=['GET'])
+    @auth.login_required
+    def GetFileRoute(uuid: str):
+        """ 获取上传的文档，需要检查 auth """
+        filepath = os.path.join(f'{Config.UPLOAD_DOC_FOLDER}/{g.user}', uuid)
+        if not os.path.exists(filepath):
+            return Result.error(ResultCode.NOT_FOUND).setMessage('File Not Found').json_ret()
+        else:
+            return send_file(filepath)

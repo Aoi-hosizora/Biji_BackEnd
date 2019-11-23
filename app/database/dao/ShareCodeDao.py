@@ -41,7 +41,7 @@ class ShareCodeDao(RedisHelper):
 
         # 共享的文档与id
         docs = [doc for doc in DocumentDao().queryDocumentsByIds(uid, dids) if doc]
-        dids = [doc.id for doc in docs]
+        dids = [doc.id for doc in docs]  # 不管文件存不存在
 
         # 存在的文档集空
         if len(dids) == 0:
@@ -88,22 +88,3 @@ class ShareCodeDao(RedisHelper):
         """
         count = self.db.delete(*self.getUserShareCodes(uid))
         return count
-
-
-'''
-{
-    "code": 200,
-    "message": "Success",
-    "data": [
-        "biji_sc_1_2019111922214497",
-        "biji_sc_1_2019111922270139",
-        "biji_sc_1_2019111922272287",
-        "biji_sc_1_2019111922271437",
-        "biji_sc_1_2019111922242887"
-    ]
-}
-
-
-
-
-'''

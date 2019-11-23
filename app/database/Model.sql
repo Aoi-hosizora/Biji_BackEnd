@@ -60,7 +60,8 @@ CREATE TABLE `tbl_star`
 CREATE TABLE `tbl_schedule`
 (
     `sc_user` int(11) NOT NULL,
-    `sc_json` text DEFAULT (_utf8mb3''),
+    `sc_json` text    DEFAULT (_utf8mb3''),
+    `sc_week` int(11) DEFAULT (1),
     PRIMARY KEY (`sc_user`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;

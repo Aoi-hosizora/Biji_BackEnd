@@ -42,7 +42,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
     @blue.route('/', methods=['POST'])
     @auth.login_required
     def NewShareCodeRoute():
-        """ 新建共享码 addShareCode """
+        """ !!!! 新建共享码 addShareCode """
         try:
             req_Ex = int(request.form['ex'])
         except KeyError:
@@ -58,7 +58,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
                 raise ParamError(ParamType.FORM)
             documents = DocumentDao().queryDocumentsByClassId(g.user, int(cid))
             ids: List[int] = [did.id for did in documents]
-        else:  # /share
+        else:  # 文档集合分享 /share
             try:
                 req_didList = request.form.getlist('did')
                 if len(req_didList) == 0:
@@ -66,7 +66,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
                 ids: List[int] = [int(did) for did in req_didList]
             except:
                 raise ParamError(ParamType.FORM)
-
+        # ids
         sc, docs = ShareCodeDao().addShareCode(uid=g.user, dids=ids, ex=req_Ex)
         if len(docs) == 0:
             return Result.error(ResultCode.SHARE_DOCUMENT_NULL).setMessage('Share Documents Null').json_ret()
@@ -103,7 +103,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
 
     @blue.route('/<string:sc>', methods=['GET'])
     def GetRawDocument(sc: str):
-        """ 通过 共享码 下载 """
+        """ !!!! 通过 共享码 下载 """
         ok, uid, _ = ShareCodeDao.is_share_code(sc.strip(' \n\r\t'))
         if not ok:
             return Result.error(ResultCode.BAD_REQUEST).setMessage('Share Code Illegal').json_ret()
