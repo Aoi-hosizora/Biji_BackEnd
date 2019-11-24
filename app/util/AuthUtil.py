@@ -17,7 +17,7 @@ def verify_password(password, encrypted_password) -> bool:
     return custom_app_context.verify(password, encrypted_password)
 
 
-def generate_token(uid: int, expiration) -> str:
+def generate_token(uid: int, expiration: int) -> str:
     """
     生成 token，有效期 expiration & uid
     """

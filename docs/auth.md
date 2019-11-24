@@ -57,7 +57,6 @@
 ## Response Body
 
 + `GET /auth/` (Json)
-+ `POST /auth/login` (Json)
 + `POST /auth/register` (Json)
 
 |Field|Type|Description|Remark|
@@ -73,6 +72,26 @@ Example:
     "data": {
         "id": 1,
         "username": "aoihosizora"
+    }
+}
+```
+
++ `POST /auth/login` (Json)
+
+|Field|Type|Description|Remark|
+|--|--|--|--|
+|`id`|`int`|用户 id||
+|`username`|`string`|用户名||
+
+Example:
+```json
+{
+    "code": 200,
+    "message": "Success",
+    "data": {
+        "id": 1,
+        "username": "aoihosizora",
+        "token": "xxxxxx"
     }
 }
 ```

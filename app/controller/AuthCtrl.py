@@ -33,11 +33,16 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             username = request.form['username']  # 必须
             password = request.form['password']  # 必须
             ex = request.form.get('expiration')  # 可选
-            if not ex or ex == 0:
+            if not ex or ex == '0':
                 ex = Config.LOGIN_TOKEN_EX
         except:
             raise ParamError(ParamType.FORM)
 
+        try:
+            ex = int(ex)
+        except ValueError:
+            raise ParamError(ParamType.FORM)
+            
         status, user = UserDao().checkUserPassword(username, password)
         if status == DbStatusType.FAILED:
             return Result.error(ResultCode.UNAUTHORIZED).setMessage("Password Error").json_ret()
@@ -48,7 +53,7 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             if not UserTokenDao().addToken(user.id, token):  # Add to redis
                 return Result.error(ResultCode.UNAUTHORIZED).setMessage("Login Failed").json_ret()
 
-            return Result.ok().setData(user.to_json()).json_ret(headers={'Authorization': 'Bearer ' + token})
+            return Result.ok().setData(user.to_json()).putData('token', token).json_ret(headers={'Authorization': 'Bearer ' + token})
 
     @blue.route("/register", methods=['POST'])
     def RegisterRoute():
