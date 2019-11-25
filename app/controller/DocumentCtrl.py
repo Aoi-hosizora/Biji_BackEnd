@@ -2,7 +2,6 @@ import os
 
 from flask import Blueprint, g, request
 from flask_httpauth import HTTPTokenAuth
-from werkzeug.utils import secure_filename
 
 from app.config.Config import Config
 from app.database.DbStatusType import DbStatusType
@@ -71,26 +70,25 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
         except:
             raise ParamError(ParamType.FORM)
 
-        # Save
-        file_len = len(upload_file.read())
-        if file_len > Config.MAX_UPLOAD_SIZE:  # 50M
-            return Result.error(ResultCode.BAD_REQUEST).setMessage('File Out Of Size').json_ret()
+        # # Save
+        # file_len = len(upload_file.read())
+        # if file_len > Config.MAX_UPLOAD_SIZE:  # 50M
+        #     return Result.error(ResultCode.BAD_REQUEST).setMessage('File Out Of Size').json_ret()
         server_filepath = f'{Config.UPLOAD_DOC_FOLDER}/{g.user}/'
-        server_filename, type_ok, save_ok = FileUtil.saveFile(file=upload_file, path=server_filepath, file_image=False)
+        uuid, type_ok, save_ok = FileUtil.saveFile(file=upload_file, path=server_filepath, file_image=False)
         if not type_ok:  # 格式错误
             return Result.error(ResultCode.BAD_REQUEST).setMessage('File Extension Error').json_ret()
         if not save_ok:  # 保存失败
             return Result.error(ResultCode.SAVE_FILE_FAILED).setMessage('Save Document Failed').json_ret()
 
         # Database
-        filename = secure_filename(upload_file.filename)
-        document = Document(did=-1, filename=filename, uuid=server_filename, docClass=req_docClass)
+        document = Document(did=-1, filename=upload_file.filename, uuid=uuid, docClass=req_docClass)
         status, new_document = DocumentDao().insertDocument(uid=g.user, document=document)
         if status == DbStatusType.FOUNDED:  # -1 永远不会
-            os.remove(os.path.join(server_filepath, server_filename))
+            os.remove(os.path.join(server_filepath, uuid))
             return Result.error(ResultCode.HAS_EXISTED).setMessage("Document Existed").json_ret()
         elif status == DbStatusType.FAILED or not new_document:
-            os.remove(os.path.join(server_filepath, server_filename))
+            os.remove(os.path.join(server_filepath, uuid))
             return Result.error(ResultCode.DATABASE_FAILED).setMessage("Document Insert Failed").json_ret()
         else:  # Success
             return Result.ok().setData(new_document.to_json()).json_ret()

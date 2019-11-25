@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 import random
 
-# from werkzeug.utils import secure_filename  # 已修改中文支持
+from werkzeug.utils import secure_filename
 
 
 def get_ext(filename: str) -> str:
@@ -42,10 +42,10 @@ def saveFile(file, path: str, file_image: bool) -> (str, bool, bool):
     :param file: request.files.get('file')
     :param path: f'{Config.UPLOAD_FOLDER}/xxx/{g.user}/' 不加最后的文件名
     :param file_image: 上传的文件是否是图片,判断后缀名
-    :return: 文件格式 (is_image / is_document) 正确，是否保存成功 (os.path.exists)
+    :return: uuid, 文件格式 (is_image / is_document) 正确，是否保存成功 (os.path.exists)
     """
-    # filename: str = secure_filename(file.filename)  # 旧文件名
-    filename: str = file.filename  # 旧文件名
+    filename: str = secure_filename(file.filename)  # 旧文件名
+    # filename: str = file.filename  # 旧文件名
     if file_image and not is_image(filename):  # 非图片
         return '', False, False
     if not file_image and not (is_image(filename) or is_document(filename)):  # 非文档
