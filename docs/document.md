@@ -38,6 +38,7 @@
 |Method|Uri|Description|
 |--|--|--|
 |`GET`|`/share/`|获得用户所有的共享文档与共享码 <sup>[4]</sup>|
+|`GET`|`/share/doc/:sc`|获取共享码内的文件内容 <sup>[2]</sup>|
 |`POST`|`/share/`|设置指定的文档为共享文档 <sup>[1] [4]</sup>|
 |`POST`|`/share?cid`|设置指定分组的所有文档为共享文档 <sup>[1] [3] [4]</sup>|
 |`DELETE`|`/share/`|删除共享码 <sup>[1] [4]</sup>|
@@ -89,6 +90,7 @@
 |--|--|--|--|--|
 |`cid`|`int`|Required|文档分组编号||
 
++ `GET /share/doc/:sc`
 + `PUT /share/:sc`
 
 |Field|Type|Is Required|Description|Remark|
@@ -207,6 +209,7 @@ Example:
 ```
 
 + `GET /share/` (Array)
++ `GET /share/doc/:sc` (Array)
 + `POST /share/` (Json)
 + `POST /share?cid` (Json)
 

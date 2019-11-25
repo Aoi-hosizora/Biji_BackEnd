@@ -39,6 +39,24 @@ def apply_blue(blue: Blueprint, auth: HTTPTokenAuth):
             })
         return Result.ok().setData(returns).json_ret()
 
+    @blue.route('/doc/<string:sc>', methods=['GET'])
+    def GetShareCodeContent(sc: str):
+        """ 获取分享码内含的内容 """
+        try:
+            uid = int(sc.split("_")[2])  # biji_sc_1_xxx
+        except KeyError:
+            raise ParamError(ParamType.ROUTE)
+        except ValueError:
+            raise ParamError(ParamType.ROUTE)
+
+        dids = ShareCodeDao().getShareContent(sc)
+        if len(dids) == 0:
+            return Result.error(ResultCode.BAD_REQUEST).setMessage("Share Code Not Exist").json_ret()
+        documents = DocumentDao().queryDocumentsByIds(uid, dids)
+        if len(documents) == 0:  # 没有文件
+            return Result.error(ResultCode.SHARE_DOCUMENT_NULL).setMessage("Share Code Not Include File").json_ret()
+        return Result.ok().setData(Document.to_jsons(documents)).json_ret()
+
     @blue.route('/', methods=['POST'])
     @auth.login_required
     def NewShareCodeRoute():
